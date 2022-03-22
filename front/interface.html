@@ -1,0 +1,237 @@
+<html dir="ltr" lang="fr">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>JD Analytics</title>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="https://jeremiedupuis.com/resources/graphics/favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-16x16.png">
+	<link rel="manifest" href="https://jeremiedupuis.com/resources/graphics/favicon/site.webmanifest">
+	<link rel="mask-icon" href="https://jeremiedupuis.com/resources/graphics/favicon/safari-pinned-tab.svg" color="#8833ff">
+	<link rel="shortcut icon" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon.ico">
+	<meta name="msapplication-TileColor" content="#603cba">
+	<meta name="msapplication-config" content="https://jeremiedupuis.com/resources/graphics/favicon/browserconfig.xml">
+	<meta name="theme-color" content="#eee">
+
+	<!-- Styling -->
+	<link rel="stylesheet" href="https://jeremiedupuis.com/resources/stylesheets/main.css">
+	<link rel="stylesheet" href="/resources/stylesheets/analytics.css">
+
+	<!-- Scripts -->
+	<script src="/resources/scripts/utilities.js"></script>
+	<script src="/resources/scripts/main.js" async></script>
+
+</head>
+
+<body>
+	<a href="/" id="symbol" aria-labelledby="logo" tabindex="-1"></a>
+
+	<header>
+		<a href="/" id="logo">Analytique</a>
+		<nav>
+			<ul>
+				<li><a class="selected">Par mois</a></li>
+				<li><a>Par année</a></li>
+				<li><a>Depuis le début</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main class="analytics">
+
+		<section>
+			<hgroup>
+				<h1>Ce mois-ci</h1>
+				<p>Mars 2022 sur <a href="https://jeremiedupuis.com">jeremiedupuis.com</a></p>
+			</hgroup>
+			<form class="date-range">
+				<button id="previous"></button>
+				<button id="next"></button>
+			</form>
+		</section>
+
+		<section class="analytics-group">
+			<h2>Intérêt</h2>
+
+			<div class="card">
+				<hgroup>
+					<h3>Sessions</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<data class="big" id="engagement-sessions-total">50</data>
+
+				<figure>
+					<jd-graph id="engagement-sessions-total-graph"></jd-graph>
+					<figcaption>Dernière année</figcaption>
+				</figure>
+			</div>
+
+			<div class="card">
+				<hgroup>
+					<h3>Durée moyenne des sessions</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<data class="big" id="engagement-avg-length">2.5<small> vues</small></data>
+
+				<figure>
+					<jd-graph id="engagement-avg-length-graph"></jd-graph>
+					<figcaption>Dernière année</figcaption>
+				</figure>
+			</div>
+
+			<div class="card">
+				<hgroup>
+					<h3>Pages populaires</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="engagement-top-pages">
+					<li><data>/</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
+					<li><data>/portfolio/emergence</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
+					<li><data>/portfolio</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
+					<li><data>/infos</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+					<li><data>/portfolio/metro</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				</ol>
+			</div>
+		</section>
+
+		<section class="analytics-group">
+			<h2>Acquisition</h2>
+
+			<div class="card">
+				<hgroup>
+					<h3>Canaux</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="acquisition-channels">
+					<li><data>Direct</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
+					<li><data>Organique</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
+					<li><data>Social</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
+					<li><data>Autres</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				</ol>
+			</div>
+
+			<div class="card">
+				<hgroup>
+					<h3>Origines</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="acquisition-origins">
+					<li><data>leboize.ca</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
+					<li><data>simonjanssen.space</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
+					<li><data>linkedin.com</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
+					<li><data>instagram.com</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+					<li><data>pbeauregard.com</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+					<li><data>behance.net</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				</ol>
+			</div>
+
+			<div class="card">
+				<hgroup>
+					<h3>Points d’entrée</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="acquisition-landings">
+					<li><data>/portfolio/metro</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
+					<li><data>/portfolio/emergence</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
+					<li><data>/</data><data class="numerical secondary">3</data><data class="numerical">30%</data></li>
+					<li><data>/portfolio/horizons</data><data class="numerical secondary">3</data><data class="numerical">5%</data></li>
+					<li><data>/infos</data><data class="numerical secondary">2</data><data class="numerical">5%</data></li>
+				</ol>
+			</div>
+		</section>
+
+		<section class="analytics-group">
+			<h2>Profilage</h2>
+
+			<div class="card">
+				<hgroup>
+					<h3>Bilinguisme</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="profiling-bilingualism">
+					<li><data>Anglais, pas de français</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
+					<li><data>Bilingue, anglais en premier</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
+					<li><data>Français, pas d’anglais</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
+					<li><data>Bilingue, français en premier</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+					<li><data>Autres langues seulement</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				</ol>
+			</div>
+
+			<div class="card">
+				<hgroup>
+					<h3>Pays</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="profiling-countries">
+					<li><data>Canada</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
+					<li><data>États-Unis</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
+					<li><data>Russie</data><data class="numerical secondary">3</data><data class="numerical">30%</data></li>
+					<li><data>Chine</data><data class="numerical secondary">3</data><data class="numerical">5%</data></li>
+					<li><data>Ukraine</data><data class="numerical secondary">2</data><data class="numerical">5%</data></li>
+				</ol>
+			</div>
+
+
+			<div class="card">
+				<hgroup>
+					<h3>Systèmes d’exploitation</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="profiling-oses">
+					<li><data>macOS</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
+					<li><data>iOS</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
+					<li><data>Windows</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
+					<li><data>Linux</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+					<li><data>Android</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				</ol>
+			</div>
+
+			<div class="card">
+				<hgroup>
+					<h3>Navigateurs</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="profiling-browsers">
+					<li><data>Chrome</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
+					<li><data>Safari</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
+					<li><data>Firefox</data><data class="numerical secondary">3</data><data class="numerical">30%</data></li>
+					<li><data>Edge</data><data class="numerical secondary">3</data><data class="numerical">5%</data></li>
+					<li><data>Opera</data><data class="numerical secondary">2</data><data class="numerical">5%</data></li>
+				</ol>
+			</div>
+
+			<div class="card">
+				<hgroup>
+					<h3>Tailles d’écran</h3>
+					<button class="help" tooltip=""></button>
+				</hgroup>
+
+				<ol id="profiling-form-factors">
+
+				</ol>
+			</div>
+		</section>
+
+	</main>
+
+	<footer>
+		<p>© 2022 Jérémie Dupuis</p>
+		<p>v0.1.0</p>
+	</footer>
+
+</body>
+
+</html>

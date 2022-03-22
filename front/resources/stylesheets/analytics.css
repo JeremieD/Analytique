@@ -1,0 +1,223 @@
+@font-face {
+	font-family: "Akkurat";
+	font-weight: 400;
+	font-style: normal;
+	src: url(/resources/fonts/Akkurat-Regular.woff2) format("woff2");
+}
+
+@font-face {
+	font-family: "Akkurat";
+	font-weight: 400;
+	font-style: italic;
+	src: url(/resources/fonts/Akkurat-Italic.woff2) format("woff2");
+}
+
+@font-face {
+	font-family: "Akkurat";
+	font-weight: 700;
+	font-style: normal;
+	src: url(/resources/fonts/Akkurat-Bold.woff2) format("woff2");
+}
+
+* {
+	cursor: unset;
+	--color-card: #222;
+}
+
+a:hover {
+	cursor: pointer;
+	color: var(--color-text);
+}
+
+.analytics>:first-child {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+}
+
+.date-range {
+	display: flex;
+	gap: 16px;
+	justify-content: flex-end;
+}
+
+.date-range>button {
+	position: relative;
+	display: inline-block;
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background-color: var(--color-card);
+}
+
+.date-range>button::before {
+	position: absolute;
+	font-size: 32px;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-47%);
+}
+
+#next::before { content: "→" }
+#previous::before { content: "←" }
+
+.date-range>button:focus:not(:active):not(:hover):not([tabindex="-1"]) {
+	background-color: var(--color-card);
+	border-radius: 50%;
+}
+
+* + section {
+	margin-top: 80px;
+}
+
+.analytics-group {
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	gap: 24px;
+}
+
+.analytics-group + .analytics-group { margin-top: 64px; }
+
+.card {
+	position: relative;
+	min-height: 276px;
+	padding: 24px;
+	background-color: var(--color-card);
+	border-radius: 8px;
+	grid-column-end: span 3;
+}
+
+jd-graph {
+	display: block;
+	width: 100%;
+	min-height: 96px;
+}
+
+.card figure>figcaption {
+	font-size: 12px;
+	color: #808080;
+}
+
+hgroup>p {
+	color: #808080;
+}
+
+h1 {
+	font-size: 64px;
+	line-height: 1;
+	letter-spacing: -0.025em;
+}
+
+.analytics-group>h2 {
+	transform: translateY(8px);
+	line-height: 1;
+	grid-column-end: span 3;
+	grid-row-end: span 2;
+}
+
+.analytics-group>h2::after {
+	content: "";
+	display: block;
+	width: 64px;
+	height: 1px;
+	background-color: var(--color-grey);
+	transform: translateY(16px);
+}
+
+h3 {
+	font-size: 21px;
+	line-height: 1;
+	margin-bottom: 16px;
+}
+
+button.help {
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 24px;
+	right: 24px;
+	background: url(/resources/graphics/tooltip.svg);
+	text-decoration: none;
+	cursor: help;
+}
+
+button.help:hover::after {
+	font-size: 14px;
+	display: block;
+	position: absolute;
+	top: -16px;
+	right: -16px;
+	transform: translateY(-100%);
+	content: attr(tooltip);
+	width: 256px;
+	padding: 15px 16px 12px;
+	border-radius: 8px;
+	background-color: #222;
+	box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+button.help:focus:not(:active):not(:hover):not([tabindex="-1"]) {
+	background: url(/resources/graphics/tooltip.svg);
+	border-radius: 50%;
+}
+
+data.big {
+	font-size: 80px;
+	line-height: 1;
+	font-weight: bold;
+}
+
+data.big>small {
+	font-weight: normal;
+	font-size: 21px;
+	line-height: 1.333;
+}
+
+.card>ol {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.card>ol>li {
+	display: grid;
+	grid-template-columns: 1fr repeat(2, minmax(3ch, max-content));
+	gap: 8px;
+}
+
+.card>ol>li.last {
+	order: 1;
+	color: #808080;
+}
+
+data {
+	overflow: clip;
+	text-overflow: ellipsis;
+}
+
+data.numerical {
+	font-family: "Akkurat Mono";
+	text-align: right;
+}
+
+data.secondary {
+	color: #808080;
+}
+
+data.loading, .loading data {
+	display: inline-block;
+	width: 100%;
+	background: linear-gradient(90deg, #333 0%, #383838 50%, #333 100%), #333;
+	background-attachment: fixed;
+	background-size: 512px 512px;
+	background-repeat: repeat-y;
+	color: transparent;
+	border-radius: 4px;
+	user-select: none;
+	animation: loadingWave 3s ease infinite both;
+}
+
+@keyframes loadingWave {
+	from { background-position: -50%; }
+	to { background-position: 150%; }
+}
