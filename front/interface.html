@@ -1,3 +1,4 @@
+<!doctype html>
 <html dir="ltr" lang="fr">
 
 <head>
@@ -22,6 +23,7 @@
 
 	<!-- Scripts -->
 	<script src="/resources/scripts/utilities.js"></script>
+	<script src="/resources/scripts/niceNames.js"></script>
 	<script src="/resources/scripts/main.js" async></script>
 
 </head>
@@ -62,11 +64,11 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<data class="big" id="engagement-sessions-total">50</data>
+				<data class="big" id="session-total"></data>
 
 				<figure>
-					<jd-graph id="engagement-sessions-total-graph"></jd-graph>
-					<figcaption>Dernière année</figcaption>
+					<jd-graph id="session-total-graph"></jd-graph>
+					<figcaption></figcaption>
 				</figure>
 			</div>
 
@@ -76,11 +78,11 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<data class="big" id="engagement-avg-length">2.5<small> vues</small></data>
+				<data class="big" id="avg-session-length"><small></small></data>
 
 				<figure>
-					<jd-graph id="engagement-avg-length-graph"></jd-graph>
-					<figcaption>Dernière année</figcaption>
+					<jd-graph id="avg-session-length-graph"></jd-graph>
+					<figcaption></figcaption>
 				</figure>
 			</div>
 
@@ -90,12 +92,12 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<ol id="engagement-top-pages">
-					<li><data>/</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
-					<li><data>/portfolio/emergence</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
-					<li><data>/portfolio</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
-					<li><data>/infos</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
-					<li><data>/portfolio/metro</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				<ol id="page-views">
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 		</section>
@@ -110,10 +112,10 @@
 				</hgroup>
 
 				<ol id="acquisition-channels">
-					<li><data>Direct</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
-					<li><data>Organique</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
-					<li><data>Social</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
-					<li><data>Autres</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 
@@ -123,13 +125,13 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<ol id="acquisition-origins">
-					<li><data>leboize.ca</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
-					<li><data>simonjanssen.space</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
-					<li><data>linkedin.com</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
-					<li><data>instagram.com</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
-					<li><data>pbeauregard.com</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
-					<li><data>behance.net</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				<ol id="referrer-origins">
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 
@@ -139,12 +141,12 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<ol id="acquisition-landings">
-					<li><data>/portfolio/metro</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
-					<li><data>/portfolio/emergence</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
-					<li><data>/</data><data class="numerical secondary">3</data><data class="numerical">30%</data></li>
-					<li><data>/portfolio/horizons</data><data class="numerical secondary">3</data><data class="numerical">5%</data></li>
-					<li><data>/infos</data><data class="numerical secondary">2</data><data class="numerical">5%</data></li>
+				<ol id="landing-pages">
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 		</section>
@@ -158,12 +160,12 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<ol id="profiling-bilingualism">
-					<li><data>Anglais, pas de français</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
-					<li><data>Bilingue, anglais en premier</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
-					<li><data>Français, pas d’anglais</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
-					<li><data>Bilingue, français en premier</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
-					<li><data>Autres langues seulement</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				<ol id="bilingualism-classes">
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 
@@ -173,12 +175,12 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<ol id="profiling-countries">
-					<li><data>Canada</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
-					<li><data>États-Unis</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
-					<li><data>Russie</data><data class="numerical secondary">3</data><data class="numerical">30%</data></li>
-					<li><data>Chine</data><data class="numerical secondary">3</data><data class="numerical">5%</data></li>
-					<li><data>Ukraine</data><data class="numerical secondary">2</data><data class="numerical">5%</data></li>
+				<ol id="countries">
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 
@@ -189,12 +191,12 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<ol id="profiling-oses">
-					<li><data>macOS</data><data class="numerical secondary">35</data><data class="numerical">70%</data></li>
-					<li><data>iOS</data><data class="numerical secondary">10</data><data class="numerical">20%</data></li>
-					<li><data>Windows</data><data class="numerical secondary">3</data><data class="numerical">6%</data></li>
-					<li><data>Linux</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
-					<li><data>Android</data><data class="numerical secondary">1</data><data class="numerical">2%</data></li>
+				<ol id="oses">
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 
@@ -204,12 +206,12 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<ol id="profiling-browsers">
-					<li><data>Chrome</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
-					<li><data>Safari</data><data class="numerical secondary">15</data><data class="numerical">30%</data></li>
-					<li><data>Firefox</data><data class="numerical secondary">3</data><data class="numerical">30%</data></li>
-					<li><data>Edge</data><data class="numerical secondary">3</data><data class="numerical">5%</data></li>
-					<li><data>Opera</data><data class="numerical secondary">2</data><data class="numerical">5%</data></li>
+				<ol id="browsers">
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 
@@ -219,8 +221,10 @@
 					<button class="help" tooltip=""></button>
 				</hgroup>
 
-				<ol id="profiling-form-factors">
-
+				<ol id="screen-breakpoints">
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
 				</ol>
 			</div>
 		</section>

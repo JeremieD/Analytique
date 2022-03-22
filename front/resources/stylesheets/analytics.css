@@ -191,8 +191,11 @@ data.big>small {
 }
 
 data {
+	display: inline-block;
 	overflow: clip;
 	text-overflow: ellipsis;
+	position: relative;
+	width: 100%;
 }
 
 data.numerical {
@@ -200,21 +203,36 @@ data.numerical {
 	text-align: right;
 }
 
-data.secondary {
+data.secondary, data>small {
 	color: #808080;
 }
 
-data.loading, .loading data {
-	display: inline-block;
+data::after {
+	display: block;
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 100%;
+	height: 100%;
 	background: linear-gradient(90deg, #333 0%, #383838 50%, #333 100%), #333;
 	background-attachment: fixed;
 	background-size: 512px 512px;
 	background-repeat: repeat-y;
-	color: transparent;
 	border-radius: 4px;
+	pointer-events: none;
+	animation: loadingWave 2.5s ease infinite both;
+	opacity: 0;
+	transition: .2s ease opacity;
+}
+
+data.loading, .loading data {
+	color: transparent;
 	user-select: none;
-	animation: loadingWave 3s ease infinite both;
+}
+
+data.loading::after, .loading data::after {
+	opacity: 1;
 }
 
 @keyframes loadingWave {

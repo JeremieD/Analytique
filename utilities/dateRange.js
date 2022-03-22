@@ -6,24 +6,43 @@ class DateRange {
 			case 3: // All available: "ALL"
 				this.type = "all";
 				break;
-			case 4: // Year: "2022"
+
+			case 4: // "2022"
 				this.type = "year";
 				break;
-			case 9: // Years: "2021:2022"
+
+			case 9: // "2021:2022"
 				this.type = "years";
+				if (this.value.substr(0, 4) == this.value.substr(5, 4)) {
+					this.value = this.value.substr(0, 4);
+					this.type = "year";
+				}
 				break;
-			case 7: // Month: "2022-03"
+
+			case 7: // "2022-03"
 				this.type = "month";
 				break;
-			case 15: // Months: "2022-03:2022-02"
+
+			case 15: // "2022-03:2022-02"
 				this.type = "months";
+				if (this.value.substr(0, 7) == this.value.substr(8, 7)) {
+					this.value = this.value.substr(0, 7);
+					this.type = "month";
+				}
 				break;
-			case 10: // Day: "2022-03-01"
+
+			case 10: // 2022-03-01"
 				this.type = "day";
 				break;
-			case 21: // Days: "2022-03-01:2022-03-07"
+
+			case 21: // "2022-03-01:2022-03-07"
 				this.type = "days";
+				if (this.value.substr(0, 11) == this.value.substr(12, 11)) {
+					this.value = this.value.substr(0, 11);
+					this.type = "day";
+				}
 				break;
+
 			default:
 				throw "DateRange: Invalid format.";
 		}
@@ -70,6 +89,9 @@ class DateRange {
 		} else {
 			to.day = nbOfDaysInMonth(to.month, to.year);
 		}
+
+		const lastDate = to.year + "-" + to.month + "-" + to.day;
+		to.millisecond = (new Date(lastDate + " 23:59:59.999")).getTime();
 
 		return to;
 	};
