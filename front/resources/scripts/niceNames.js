@@ -22,6 +22,7 @@ const countriesDict = {
 	"ES": "Espagne",
 	"TJ": "Tadjikistan",
 	"DE": "Allemagne",
+	"EC": "Équateur",
 	"": "Indéterminé"
 };
 
@@ -71,7 +72,7 @@ function niceCountryName(input) {
 	if (countriesDict[input]) {
 		return countriesDict[input];
 	} else {
-		console.error("Unknown country code: " + input);
+		return input;
 	}
 }
 
