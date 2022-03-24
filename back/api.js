@@ -54,19 +54,29 @@ function processRequest(req, res) {
  * Returns data from cache, or calls buildStats(range) and returns that.
  */
 async function getStats(range) {
-	const filePath = statsRoot + range.type + "/" + range.value + ".json";
+	const to = range.to();
+	const lastMonth = to.year + "-" + to.month.toString().padStart(2, "0");
+	const viewsFilePath = viewsRoot + lastMonth + ".tsv";
+	const viewsFileMetadata = fs.stat(viewsFilePath);
 
-	return fs.stat(filePath).then(stats => {
-		//
-		if (Date.now() - 1800000 < stats.mtimeMs
-			|| range.to().millisecond + 86400000 < stats.mtimeMs) {
-			return fs.readFile(filePath, "utf8").then(contents => JSON.parse(contents));
+	const statsFilePath = statsRoot + range.type + "/" + range.value + ".json";
+	const statsFileMetadata = fs.stat(statsFilePath);
+
+	return Promise.all([statsFileMetadata, viewsFileMetadata]) .then(metadata => {
+		statsMetadata = metadata[0];
+		viewsMetadata = metadata[1];
+
+		if (viewsMetadata.mtimeMs > statsMetadata.mtimeMs
+			|| Date.now() - 3600000 > statsMetadata.mtimeMs) {
+			return buildStats(range);
 
 		} else {
-			return buildStats(range);
+			return fs.readFile(statsFilePath, "utf8")
+				.then(contents => JSON.parse(contents));
 		}
 	})
-	.catch(() => {
+	.catch((e) => {
+		console.log(e);
 		return buildStats(range);
 	});
 }
@@ -229,19 +239,29 @@ async function buildStats(range) {
  * Returns data from cache, or calls buildSessions(range) and returns that.
  */
 async function getSessions(range) {
-	const filePath = sessionsRoot + range.type + "/" + range.value + ".json";
+	const to = range.to();
+	const lastMonth = to.year + "-" + to.month.toString().padStart(2, "0");
+	const viewsFilePath = viewsRoot + lastMonth + ".tsv";
+	const viewsFileMetadata = fs.stat(viewsFilePath);
 
-	return fs.stat(filePath).then(stats => {
-		//
-		if (Date.now() - 1800000 < stats.mtimeMs
-			|| range.to().millisecond + 86400000 < stats.mtimeMs) {
-			return fs.readFile(filePath, "utf8").then(contents => JSON.parse(contents));
+	const sessionsFilePath = sessionsRoot + range.type + "/" + range.value + ".json";
+	const sessionsFileMetadata = fs.stat(sessionsFilePath);
+
+	return Promise.all([sessionsFileMetadata, viewsFileMetadata]) .then(metadata => {
+		sessionsMetadata = metadata[0];
+		viewsMetadata = metadata[1];
+
+		if (viewsMetadata.mtimeMs > sessionsMetadata.mtimeMs
+			|| Date.now() - 3600000 > sessionsMetadata.mtimeMs) {
+			return buildSessions(range);
 
 		} else {
-			return buildSessions(range);
+			return fs.readFile(sessionsFilePath, "utf8")
+				.then(contents => JSON.parse(contents));
 		}
 	})
-	.catch(() => {
+	.catch((e) => {
+		console.log(e);
 		return buildSessions(range);
 	});
 }
