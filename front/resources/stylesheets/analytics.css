@@ -87,19 +87,13 @@ a:hover {
 	grid-column-end: span 3;
 }
 
-jd-graph {
-	display: block;
-	width: 100%;
-	min-height: 96px;
-}
-
 .card figure>figcaption {
 	font-size: 12px;
-	color: #808080;
+	color: var(--color-grey);
 }
 
 hgroup>p {
-	color: #808080;
+	color: var(--color-grey);
 }
 
 h1 {
@@ -187,7 +181,7 @@ data.big>small {
 
 .card>ol>li.last {
 	order: 1;
-	color: #808080;
+	color: var(--color-grey);
 }
 
 data {
@@ -204,7 +198,7 @@ data.numerical {
 }
 
 data.secondary, data>small {
-	color: #808080;
+	color: var(--color-grey);
 }
 
 data::after {
@@ -238,4 +232,149 @@ data.loading::after, .loading data::after {
 @keyframes loadingWave {
 	from { background-position: -50%; }
 	to { background-position: 150%; }
+}
+
+jd-graph {
+	display: block;
+	width: 100%;
+	font-size: 12px;
+	display: grid;
+	grid-template-areas: "y-axis graph"
+						 "x-axis x-axis";
+	grid-template-columns: min-content 1fr;
+	grid-template-rows: minmax(80px, 1fr) min-content;
+	gap: 0 16px;
+}
+
+* + figure {
+	margin-top: 16px;
+}
+
+jd-graph>axis[name="x"] {
+	display: block;
+	width: 100%;
+	border-top: 1px solid var(--color-text);
+	padding-top: 4px;
+	grid-area: x-axis;
+}
+
+jd-graph>axis[name="y"] {
+	grid-area: y-axis;
+	display: grid;
+	height: 80%;
+	grid-template-rows: 1fr 1fr 1fr;
+	font-family: "Akkurat Mono";
+	text-align: right;
+}
+
+jd-graph>axis>label {
+	color: var(--color-grey);
+}
+
+jd-graph>graph {
+	display: block;
+	position: relative;
+	grid-area: graph;
+	width: calc(100% - 24px);
+}
+
+jd-graph>graph>point {
+	display: block;
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	transform: translateX(-50%) translateY(50%);
+}
+
+jd-graph>graph>point:hover {
+	z-index: 10;
+}
+
+jd-graph>graph>point::before {
+	content: "";
+	display: block;
+	width: 4px;
+	height: 4px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-50%);
+	background-color: var(--color-text);
+	outline: 3px solid #222;
+	border-radius: 50%;
+	transition: .2s ease all;
+}
+
+jd-graph>graph>point:hover::before, jd-graph>graph>point.selected::before {
+	width: 8px;
+	height: 8px;
+	background-color: var(--color-accent);
+}
+
+jd-graph>graph>cursor {
+	display: block;
+	position: absolute;
+	top: 0;
+	width: 2px;
+	opacity: .5;
+	height: 100%;
+	background-color: var(--color-accent);
+	transform: translateX(-50%);
+}
+
+jd-graph>graph>svg {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--color-grey);
+	stroke-width: 1px;
+}
+
+jd-graph>graph>svg * {
+	vector-effect: non-scaling-stroke;
+}
+
+jd-graph>graph>point>label {
+	display: block;
+	position: absolute;
+	width: max-content;
+	padding: 0 4px;
+	top: -25%;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: #222;
+	border-radius: 8px;
+	text-align: center;
+	color: var(--color-grey);
+	opacity: 0;
+	transition: .15s ease all;
+	pointer-events: none;
+}
+
+jd-graph>graph>point:hover>label {
+	top: -50%;
+	opacity: 1;
+}
+
+jd-graph>graph>point>label>em, jd-graph>graph>point.selected>label {
+	color: var(--color-text);
+	font-weight: bold;
+}
+
+jd-graph>graph>point.selected>label {
+	text-align: left;
+	transform: none;
+	top: 50%;
+	left: 75%;
+	transform: translateY(-50%);
+	background: none;
+	opacity: 1;
+}
+
+jd-graph>graph>point:hover + point.selected>label {
+	opacity: 0;
 }
