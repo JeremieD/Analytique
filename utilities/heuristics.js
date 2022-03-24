@@ -1,6 +1,6 @@
 const http = require("http");
 
-const _ipGeolocationCache = {};
+const ipGeolocationCache = {};
 const ipGeoHost = "http://ipinfo.io/";
 const ipGeoParameters = "/country?token=9bc7f69102028e";
 
@@ -39,8 +39,8 @@ async function inferCountry(ipAddress) {
 	return new Promise(function(resolve, reject) {
 
 		// Use the cached result if it is less than an hour old.
-		if (_ipGeolocationCache[ipAddress]?.time + 3600000 > Date.now()) {
-			return resolve(_ipGeolocationCache[ipAddress].countryCode);
+		if (ipGeolocationCache[ipAddress]?.time + 3600000 > Date.now()) {
+			return resolve(ipGeolocationCache[ipAddress].countryCode);
 		}
 
 		http.get(ipGeoHost + ipAddress + ipGeoParameters, res => {
@@ -51,7 +51,7 @@ async function inferCountry(ipAddress) {
 			});
 
 			res.on("end", () => {
-				_ipGeolocationCache[ipAddress] = {
+				ipGeolocationCache[ipAddress] = {
 					countryCode: rawData.trim(),
 					time: Date.now()
 				}
