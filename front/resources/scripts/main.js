@@ -73,7 +73,7 @@ function updateView() {
 	const listViewsTransforms = [
 		_identity,
 		niceAcquisitionChannelName,
-		_identity,
+		niceOriginName,
 		_identity,
 		niceBilingualismClassName,
 		niceCountryName,

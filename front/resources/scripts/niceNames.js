@@ -56,6 +56,16 @@ function niceAcquisitionChannelName(input) {
 
 
 /**
+ * Converts the acquisition channel code to its French string.
+ */
+function niceOriginName(input) {
+	return input.replace(/\/$/, "")
+				.replace("www.", "")
+				.replace("https://", "");
+}
+
+
+/**
  * Converts the bilingualism class code to a short explanation string.
  */
 function niceBilingualismClassName(input) {
