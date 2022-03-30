@@ -3,6 +3,7 @@ const uri = require("../utilities/uri.js");
 const heuristics = require("../utilities/heuristics.js");
 const dateRange = require("../utilities/dateRange.js");
 const obj = require("../utilities/associativeArray.js");
+require("../utilities/misc.js");
 
 const dataRoot = "./back/data/";
 const viewsRoot = dataRoot + "views/";
@@ -15,10 +16,12 @@ const statsRoot = dataRoot + "stats/";
  *
  * excludeClientIPs		Page views from IPs listed here will be excluded.
  * requiredHostnames	Page views that do *not* include one of these will be excluded.
+ * excludeBotUserAgents	Page views containing a matching user-agent will be excluded.
  */
 const filter = {
 	excludeClientIPs: [ "104.221.122.236" ],
 	requiredHostnames: [ "jeremiedupuis.com" ],
+	excludeBotUserAgents: [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver" ]
 };
 
 
@@ -88,7 +91,8 @@ async function getStats(range) {
  * A stats file or "container" is as follows:
  * version	The version of Analytique.
  * filter	An object describing what data was filtered out.
- * data		This is the array of sessions.
+ * stats		The object containing the stats.
+ *   viewTotal				The total number of views in this range before filter.
  *   sessionTotal			The total number of sessions in this range.
  *   avgSessionLength		Average number of page views per session.
  *   pageViews				Number of views per page.
@@ -100,6 +104,7 @@ async function getStats(range) {
  *   oses					Number of sessions per OS.
  *   browsers				Number of sessions per browser.
  *   screenBreakpoints		Number of sessions per breakpoint.
+ *   excludedTraffic		Number of views per exclusion motive.
  *
  * Most of these data fields use a sort of associative array solution that uses
  * an array of object. Each object has a "key" and "value" property.
@@ -110,7 +115,8 @@ async function buildStats(range) {
 		let stats = {
 			version: 1,
 			filter: sessions.filter,
-			data: {
+			stats: {
+				viewTotal: sessions.viewTotal,
 				sessionTotal: 0,
 				avgSessionLength: undefined,
 				pageViews: {},
@@ -121,7 +127,8 @@ async function buildStats(range) {
 				countries: {},
 				oses: {},
 				browsers: {},
-				screenBreakpoints: {}
+				screenBreakpoints: {},
+				excludedTraffic: sessions.excludedTraffic
 			}
 		};
 
@@ -129,10 +136,10 @@ async function buildStats(range) {
 		let pageViewTotal = 0;
 
 		// For every session in the range...
-		for (const session of sessions.data) {
+		for (const session of sessions.sessions) {
 
 			// Increment number of sessions.
-			stats.data.sessionTotal++;
+			stats.stats.sessionTotal++;
 
 			let landingPageSet = false;
 
@@ -146,83 +153,84 @@ async function buildStats(range) {
 
 				// Landing Page
 				if (!landingPageSet) {
-					if (stats.data.landingPages[normalizedViewURL] === undefined) {
-						stats.data.landingPages[normalizedViewURL] = 0;
+					if (stats.stats.landingPages[normalizedViewURL] === undefined) {
+						stats.stats.landingPages[normalizedViewURL] = 0;
 					}
-					stats.data.landingPages[normalizedViewURL]++;
+					stats.stats.landingPages[normalizedViewURL]++;
 					landingPageSet = true;
 				}
 
 				// Page Views
-				if (stats.data.pageViews[normalizedViewURL] === undefined) {
-					stats.data.pageViews[normalizedViewURL] = 0;
+				if (stats.stats.pageViews[normalizedViewURL] === undefined) {
+					stats.stats.pageViews[normalizedViewURL] = 0;
 				}
-				stats.data.pageViews[normalizedViewURL]++;
+				stats.stats.pageViews[normalizedViewURL]++;
 			}
 
 			// Acquisition Channels
-			if (stats.data.acquisitionChannels[session.acquisitionChannel] === undefined) {
-				stats.data.acquisitionChannels[session.acquisitionChannel] = 0;
+			if (stats.stats.acquisitionChannels[session.acquisitionChannel] === undefined) {
+				stats.stats.acquisitionChannels[session.acquisitionChannel] = 0;
 			}
-			stats.data.acquisitionChannels[session.acquisitionChannel]++;
+			stats.stats.acquisitionChannels[session.acquisitionChannel]++;
 
 			// Referrer Origins
 			if (session.referrerOrigin !== "") {
-				if (stats.data.referrerOrigins[session.referrerOrigin] === undefined) {
-					stats.data.referrerOrigins[session.referrerOrigin] = 0;
+				if (stats.stats.referrerOrigins[session.referrerOrigin] === undefined) {
+					stats.stats.referrerOrigins[session.referrerOrigin] = 0;
 				}
-				stats.data.referrerOrigins[session.referrerOrigin]++;
+				stats.stats.referrerOrigins[session.referrerOrigin]++;
 			}
 
 			// Bilingualism
 			const bilingualismClass = heuristics.inferBilingualismClass(session.languages);
-			if (stats.data.bilingualismClasses[bilingualismClass] === undefined) {
-				stats.data.bilingualismClasses[bilingualismClass] = 0;
+			if (stats.stats.bilingualismClasses[bilingualismClass] === undefined) {
+				stats.stats.bilingualismClasses[bilingualismClass] = 0;
 			}
-			stats.data.bilingualismClasses[bilingualismClass]++;
+			stats.stats.bilingualismClasses[bilingualismClass]++;
 
 			// Countries
-			if (stats.data.countries[session.country] === undefined) {
-				stats.data.countries[session.country] = 0;
+			if (stats.stats.countries[session.country] === undefined) {
+				stats.stats.countries[session.country] = 0;
 			}
-			stats.data.countries[session.country]++;
+			stats.stats.countries[session.country]++;
 
 			// OSes
-			if (stats.data.oses[session.os] === undefined) {
-				stats.data.oses[session.os] = 0;
+			if (stats.stats.oses[session.os] === undefined) {
+				stats.stats.oses[session.os] = 0;
 			}
-			stats.data.oses[session.os]++;
+			stats.stats.oses[session.os]++;
 
 			// Browsers
-			if (stats.data.browsers[session.browser] === undefined) {
-				stats.data.browsers[session.browser] = 0;
+			if (stats.stats.browsers[session.browser] === undefined) {
+				stats.stats.browsers[session.browser] = 0;
 			}
-			stats.data.browsers[session.browser]++;
+			stats.stats.browsers[session.browser]++;
 
 			// Screen Breakpoints
-			if (stats.data.screenBreakpoints[session.screenBreakpoint] === undefined) {
-				stats.data.screenBreakpoints[session.screenBreakpoint] = 0;
+			if (stats.stats.screenBreakpoints[session.screenBreakpoint] === undefined) {
+				stats.stats.screenBreakpoints[session.screenBreakpoint] = 0;
 			}
-			stats.data.screenBreakpoints[session.screenBreakpoint]++;
+			stats.stats.screenBreakpoints[session.screenBreakpoint]++;
 		}
 
 		// Average number of page views per session.
-		stats.data.avgSessionLength = pageViewTotal / stats.data.sessionTotal;
+		stats.stats.avgSessionLength = pageViewTotal / stats.stats.sessionTotal;
 
 		// For sorting, convert "associative arrays" (objects) to flat arrays.
 		// The result is an array of objects, each containing the key and value
 		// of what was previously a single object field.
-		stats.data.pageViews = obj.toSortedAssociativeArray(stats.data.pageViews);
-		stats.data.landingPages = obj.toSortedAssociativeArray(stats.data.landingPages);
-		stats.data.acquisitionChannels = obj.toSortedAssociativeArray(stats.data.acquisitionChannels);
-		stats.data.referrerOrigins = obj.toSortedAssociativeArray(stats.data.referrerOrigins);
-		stats.data.bilingualismClasses = obj.toSortedAssociativeArray(stats.data.bilingualismClasses);
-		stats.data.countries = obj.toSortedAssociativeArray(stats.data.countries);
-		stats.data.oses = obj.toSortedAssociativeArray(stats.data.oses);
-		stats.data.browsers = obj.toSortedAssociativeArray(stats.data.browsers);
-		stats.data.screenBreakpoints = obj.toSortedAssociativeArray(stats.data.screenBreakpoints);
+		stats.stats.pageViews = obj.toSortedAssociativeArray(stats.stats.pageViews);
+		stats.stats.landingPages = obj.toSortedAssociativeArray(stats.stats.landingPages);
+		stats.stats.acquisitionChannels = obj.toSortedAssociativeArray(stats.stats.acquisitionChannels);
+		stats.stats.referrerOrigins = obj.toSortedAssociativeArray(stats.stats.referrerOrigins);
+		stats.stats.bilingualismClasses = obj.toSortedAssociativeArray(stats.stats.bilingualismClasses);
+		stats.stats.countries = obj.toSortedAssociativeArray(stats.stats.countries);
+		stats.stats.oses = obj.toSortedAssociativeArray(stats.stats.oses);
+		stats.stats.browsers = obj.toSortedAssociativeArray(stats.stats.browsers);
+		stats.stats.screenBreakpoints = obj.toSortedAssociativeArray(stats.stats.screenBreakpoints);
+		stats.stats.excludedTraffic = obj.toSortedAssociativeArray(stats.stats.excludedTraffic);
 
-		// Save data to cache.
+		// Save stats to cache.
 		const filePath = statsRoot + range.type + "/" + range.value + ".json";
 		fs.mkdir(statsRoot + range.type, { recursive: true }).then(() => {
 			fs.writeFile(filePath, JSON.stringify(stats));
@@ -270,26 +278,54 @@ async function getSessions(range) {
  * Also stores the result in cache.
  *
  * A sessions file or "container" is as follows:
+ * version			The version of Analytique.
+ * filter			The filter that was used to exclude views.
+ * viewTotal		Total number of views processed before filter.
+ * excludedTraffic	An object with stats about the data that was filtered out.
+ *   excludedTests		Number of views excluded because the IP was from a dev.
+ *   excludedBots		Number of views excluded because it was from a bot.
+ *   excludedAttacks	Number of views excluded because it was illegitimate.
+ * sessions				This is the array of sessions.
+ *   earliestTime		The first time collected for that page.
+ *   referrerOrigin
+ *   acquisitionChannel
+ *   languages			Array of strings of language codes.
+ *   country
+ *   os
+ *   browser
+ *   screenBreakpoint
+ *   pageViews			Array of arrays, each with the title and URL of the page.
  *
+ * → See the View documentation for more detais.
+ * Timestamps are in milliseconds since 1 January 1970 UTC.
  */
 async function buildSessions(range) {
 	return getViews(range).then(async (views) => {
 
 		let sessions = {
-			data: [],
-			filter: filter
+			version: 1,
+			filter: filter,
+			viewTotal: 0,
+			excludedTraffic: {
+				excludedTests: 0,
+				excludedBots: 0,
+				excludedAttacks: 0
+			},
+			sessions: []
 		};
 		let currentSession = {};
 		let previousView;
 
 		// Inlinable in-loop function that clears the current session.
 		function _closeSession() {
-			sessions.data.push(currentSession);
+			sessions.sessions.push(currentSession);
 			currentSession = {};
 			previousView = undefined;
 		}
 
 		for (const view of views) {
+			sessions.viewTotal++;
+
 			// If view is part of the same session, it must...
 			if (previousView !== undefined
 				&& view[12] === previousView[12] // have the same IP address.
@@ -310,10 +346,12 @@ async function buildSessions(range) {
 
 				// Filter out some IP addresses.
 				if (filter.excludeClientIPs.includes(view[12])) {
+					sessions.excludedTraffic.excludedTests++;
 					continue;
 				}
 
 				// Filter out all hostnames except the ones specified.
+				// TODO: Refactor this into a more thorough beacon authentication.
 				let hostnameFound = undefined;
 				for (const hostname of filter.requiredHostnames) {
 					if (view[4].includes(hostname)) {
@@ -321,6 +359,12 @@ async function buildSessions(range) {
 					}
 				}
 				if (!hostnameFound) {
+					continue;
+				}
+
+				// Filter out bots.
+				if (view[11].includesAny(filter.excludeBotUserAgents)) {
+					sessions.excludedTraffic.excludedBots++;
 					continue;
 				}
 
@@ -404,16 +448,6 @@ async function getViews(range) {
 
 	return Promise.all(fileReadPromises).then(views => views.flat(1));
 }
-
-
-/**
- * Condenses an array so that each element is unique.
- */
-Array.prototype.unique = function() {
-	return this.filter((element, index) => {
-		return this.indexOf(element) === index;
-	});
-};
 
 
 module.exports = { processRequest };

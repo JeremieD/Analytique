@@ -33,6 +33,12 @@ const screenBreakpointsDict = {
 	"xsmall": "Mini <small>(≤360px)</small>"
 };
 
+const excludedTrafficDict = {
+	"excludedTests": "Moi",
+	"excludedBots": "Robots",
+	"excludedAttacks": "Attaques",
+};
+
 
 /**
  * Replaces "" with "Indéterminé", otherwise returns the input.
@@ -93,5 +99,16 @@ function niceCountryName(input) {
 function niceScreenBreakpointsName(input) {
 	if (screenBreakpointsDict[input] !== "") {
 		return screenBreakpointsDict[input];
+	}
+}
+
+
+
+/**
+ * Converts the breakpoint name to a French string.
+ */
+function niceExcludedTrafficName(input) {
+	if (excludedTrafficDict[input] !== "") {
+		return excludedTrafficDict[input];
 	}
 }

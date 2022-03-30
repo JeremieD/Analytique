@@ -41,10 +41,10 @@ function updateModel(successCallback) {
  * Updates the view with data from the model object.
  */
 function updateView() {
-	view.sessionTotal.innerText = model.data.sessionTotal;
+	view.sessionTotal.innerText = model.stats.sessionTotal;
 	// view.sessionTotalGraph.value = "";
 
-	view.avgSessionLength.innerHTML = model.data.avgSessionLength.round(2)
+	view.avgSessionLength.innerHTML = model.stats.avgSessionLength.round(2)
 											+ "<small> vues</small>";
 	// view.avgSessionLengthGraph.value = "";
 
@@ -57,7 +57,8 @@ function updateView() {
 		view.countries,
 		view.oses,
 		view.browsers,
-		view.screenBreakpoints
+		view.screenBreakpoints,
+		view.excludedTraffic
 	];
 	const listViewsModels = [
 		"pageViews",
@@ -68,7 +69,8 @@ function updateView() {
 		"countries",
 		"oses",
 		"browsers",
-		"screenBreakpoints"
+		"screenBreakpoints",
+		"excludedTraffic"
 	];
 	const listViewsTransforms = [
 		_identity,
@@ -79,12 +81,25 @@ function updateView() {
 		niceCountryName,
 		_identity,
 		_identity,
-		niceScreenBreakpointsName
+		niceScreenBreakpointsName,
+		niceExcludedTrafficName
+	];
+	const listViewsOneHundredPercents = [
+		"sessionTotal",
+		"sessionTotal",
+		"sessionTotal",
+		"sessionTotal",
+		"sessionTotal",
+		"sessionTotal",
+		"sessionTotal",
+		"sessionTotal",
+		"sessionTotal",
+		"viewTotal"
 	];
 
 	for (let i = 0; i < listViews.length; i++) {
 		listViews[i].innerHTML = "";
-		for (let dataPoint of model.data[listViewsModels[i]]) {
+		for (let dataPoint of model.stats[listViewsModels[i]]) {
 			if (listViews[i].children.length > 5) {
 				break;
 			}
@@ -107,7 +122,8 @@ function updateView() {
 
 			const dataPoint3 = document.createElement("data");
 			dataPoint3.classList.add("numerical");
-			dataPoint3.innerHTML = Math.round(dataPoint.value / model.data.sessionTotal * 100) + "%";
+			const oneHundredPercent = model.stats[listViewsOneHundredPercents[i]];
+			dataPoint3.innerHTML = (dataPoint.value / oneHundredPercent * 100).round() + "%";
 
 			newElement.append(dataPoint1, dataPoint2, dataPoint3);
 
@@ -138,6 +154,7 @@ whenDOMReady(() => {
 	view.oses = document.getElementById("oses");
 	view.browsers = document.getElementById("browsers");
 	view.screenBreakpoints = document.getElementById("screen-breakpoints");
+	view.excludedTraffic = document.getElementById("excluded-traffic");
 
 	// Sets all view objects to their loading state. (with a delay)
 	const loadingAnimationDelay = setTimeout(() => {
