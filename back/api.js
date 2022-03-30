@@ -13,12 +13,12 @@ const statsRoot = dataRoot + "stats/";
 /**
  * An object describing what data will be filtered out.
  *
- * excludeClientIPs	Page views from IPs listed here will be excluded.
- * includeHostnames	Page views that do *not* include one of these will be excluded.
+ * excludeClientIPs		Page views from IPs listed here will be excluded.
+ * requiredHostnames	Page views that do *not* include one of these will be excluded.
  */
 const filter = {
 	excludeClientIPs: [ "104.221.122.236" ],
-	includeHostnames: [ "jeremiedupuis.com" ]
+	requiredHostnames: [ "jeremiedupuis.com" ],
 };
 
 
@@ -315,7 +315,7 @@ async function buildSessions(range) {
 
 				// Filter out all hostnames except the ones specified.
 				let hostnameFound = undefined;
-				for (const hostname of filter.includeHostnames) {
+				for (const hostname of filter.requiredHostnames) {
 					if (view[4].includes(hostname)) {
 						hostnameFound = hostname;
 					}
