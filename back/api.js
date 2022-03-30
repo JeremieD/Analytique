@@ -2,7 +2,6 @@ const fs = require("fs").promises;
 const uri = require("../utilities/uri.js");
 const heuristics = require("../utilities/heuristics.js");
 const dateRange = require("../utilities/dateRange.js");
-const obj = require("../utilities/associativeArray.js");
 require("../utilities/misc.js");
 
 const dataRoot = "./back/data/";
@@ -219,16 +218,16 @@ async function buildStats(range) {
 		// For sorting, convert "associative arrays" (objects) to flat arrays.
 		// The result is an array of objects, each containing the key and value
 		// of what was previously a single object field.
-		stats.stats.pageViews = obj.toSortedAssociativeArray(stats.stats.pageViews);
-		stats.stats.landingPages = obj.toSortedAssociativeArray(stats.stats.landingPages);
-		stats.stats.acquisitionChannels = obj.toSortedAssociativeArray(stats.stats.acquisitionChannels);
-		stats.stats.referrerOrigins = obj.toSortedAssociativeArray(stats.stats.referrerOrigins);
-		stats.stats.bilingualismClasses = obj.toSortedAssociativeArray(stats.stats.bilingualismClasses);
-		stats.stats.countries = obj.toSortedAssociativeArray(stats.stats.countries);
-		stats.stats.oses = obj.toSortedAssociativeArray(stats.stats.oses);
-		stats.stats.browsers = obj.toSortedAssociativeArray(stats.stats.browsers);
-		stats.stats.screenBreakpoints = obj.toSortedAssociativeArray(stats.stats.screenBreakpoints);
-		stats.stats.excludedTraffic = obj.toSortedAssociativeArray(stats.stats.excludedTraffic);
+		stats.stats.pageViews = stats.stats.pageViews.sortedAssociativeArray();
+		stats.stats.landingPages = stats.stats.landingPages.sortedAssociativeArray();
+		stats.stats.acquisitionChannels = stats.stats.acquisitionChannels.sortedAssociativeArray();
+		stats.stats.referrerOrigins = stats.stats.referrerOrigins.sortedAssociativeArray();
+		stats.stats.bilingualismClasses = stats.stats.bilingualismClasses.sortedAssociativeArray();
+		stats.stats.countries = stats.stats.countries.sortedAssociativeArray();
+		stats.stats.oses = stats.stats.oses.sortedAssociativeArray();
+		stats.stats.browsers = stats.stats.browsers.sortedAssociativeArray();
+		stats.stats.screenBreakpoints = stats.stats.screenBreakpoints.sortedAssociativeArray();
+		stats.stats.excludedTraffic = stats.stats.excludedTraffic.sortedAssociativeArray();
 
 		// Save stats to cache.
 		const filePath = statsRoot + range.type + "/" + range.value + ".json";
