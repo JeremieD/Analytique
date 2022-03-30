@@ -140,13 +140,13 @@ button.help:hover::after {
 	display: block;
 	position: absolute;
 	top: -16px;
-	right: -16px;
+	right: -40px;
 	transform: translateY(-100%);
 	content: attr(tooltip);
-	width: 256px;
-	padding: 15px 16px 12px;
+	width: 320px;
+	padding: 20px 24px 21px;
 	border-radius: 8px;
-	background-color: #222;
+	background-color: #2D2D2D;
 	box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.5);
 }
 
