@@ -155,18 +155,6 @@ button.help:focus:not(:active):not(:hover):not([tabindex="-1"]) {
 	border-radius: 50%;
 }
 
-data.big {
-	font-size: 80px;
-	line-height: 1;
-	font-weight: bold;
-}
-
-data.big>small {
-	font-weight: normal;
-	font-size: 21px;
-	line-height: 1.333;
-}
-
 .card>ol {
 	display: flex;
 	flex-direction: column;
@@ -185,7 +173,7 @@ data.big>small {
 }
 
 data {
-	display: inline-block;
+	display: block;
 	overflow: clip;
 	text-overflow: ellipsis;
 	position: relative;
@@ -199,6 +187,19 @@ data.numerical {
 
 data.secondary, data>small {
 	color: var(--color-grey);
+}
+
+data.big {
+	font-size: 80px;
+	line-height: 1;
+	font-weight: bold;
+	min-height: 1em;
+}
+
+data.big>small {
+	font-weight: normal;
+	font-size: 21px;
+	line-height: 1.333;
 }
 
 data::after {
@@ -224,11 +225,6 @@ data.loading, .loading data {
 	min-height: 1.5em;
 	color: transparent;
 	user-select: none;
-	white-space: pre;
-}
-
-data.big.loading {
-	min-height: 1em;
 }
 
 data.loading::after, .loading data::after {
