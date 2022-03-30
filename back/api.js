@@ -76,7 +76,6 @@ async function getStats(range) {
 		}
 	})
 	.catch((e) => {
-		console.log(e);
 		return buildStats(range);
 	});
 }
@@ -261,7 +260,6 @@ async function getSessions(range) {
 		}
 	})
 	.catch((e) => {
-		console.log(e);
 		return buildSessions(range);
 	});
 }
