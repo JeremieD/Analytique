@@ -224,6 +224,7 @@ data.loading, .loading data {
 	min-height: 1.5em;
 	color: transparent;
 	user-select: none;
+	white-space: pre;
 }
 
 data.big.loading {
