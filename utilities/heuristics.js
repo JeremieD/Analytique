@@ -1,4 +1,5 @@
 const http = require("http");
+require("./misc.js");
 
 const ipGeolocationCache = {};
 const ipGeoHost = "http://ipinfo.io/";
@@ -189,20 +190,6 @@ function inferBilingualismClass(languages) {
 		// console.log(languages);
 		return "al";
 	}
-}
-
-
-/**
- * Returns if *any* of the passed needles is included in a string.
- */
-String.prototype.includesAny = function(needles = [""]) {
-	for (let needle of needles) {
-		if (this.indexOf(needle) !== -1) {
-			return true;
-		}
-	}
-
-	return false;
 }
 
 
