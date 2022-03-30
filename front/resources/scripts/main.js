@@ -144,7 +144,7 @@ whenDOMReady(() => {
 		for (let viewComponent of Object.keys(view)) {
 			view[viewComponent].classList.add("loading");
 		}
-	}, 100);
+	}, 10);
 
 	// Download the model then update the view.
 	updateModel().then(() => {

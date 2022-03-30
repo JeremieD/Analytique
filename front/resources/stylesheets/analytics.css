@@ -221,8 +221,13 @@ data::after {
 }
 
 data.loading, .loading data {
+	min-height: 1.75em;
 	color: transparent;
 	user-select: none;
+}
+
+data.big.loading {
+	min-height: 1.25em;
 }
 
 data.loading::after, .loading data::after {
