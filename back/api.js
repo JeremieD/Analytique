@@ -18,7 +18,7 @@ const statsRoot = dataRoot + "stats/";
  * excludeBotUserAgents	Page views containing a matching user-agent will be excluded.
  */
 const filter = {
-	excludeClientIPs: [ "104.221.122.236" ],
+	excludeClientIPs: [ "104.221.122.236", "173.177.95.199" ],
 	requiredHostnames: [ "jeremiedupuis.com" ],
 	excludeBotUserAgents: [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver" ]
 };
