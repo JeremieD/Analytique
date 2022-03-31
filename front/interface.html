@@ -18,13 +18,16 @@
 	<meta name="theme-color" content="#eee">
 
 	<!-- Styling -->
-	<link rel="stylesheet" href="https://jeremiedupuis.com/resources/stylesheets/main.css">
+	<!-- <link rel="stylesheet" href="https://jeremiedupuis.com/resources/stylesheets/main.css"> -->
+	<link rel="stylesheet" href="/resources/stylesheets/jd.css">
 	<link rel="stylesheet" href="/resources/stylesheets/analytics.css">
+	<link rel="stylesheet" href="/resources/stylesheets/help-button.css">
 
 	<!-- Scripts -->
 	<script src="/resources/scripts/utilities.js"></script>
 	<script src="/resources/scripts/niceNames.js"></script>
 	<script src="/resources/scripts/main.js" async></script>
+	<script src="/resources/scripts/help-button.js" async></script>
 
 </head>
 
@@ -61,7 +64,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Sessions</h3>
-					<button class="help" tooltip=""></button>
+					<help-button>Lorem ipsum dolor <em>sit amet</em>, consetetur...</help-button>
 				</hgroup>
 
 				<data class="big" id="session-total"></data>
@@ -101,7 +104,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Durée moyenne des sessions</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<data class="big" id="avg-session-length"><small></small></data>
@@ -142,7 +145,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Pages populaires</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<ol id="page-views">
@@ -162,7 +165,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Canaux</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<ol id="acquisition-channels">
@@ -176,7 +179,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Origines</h3>
-					<button class="help" tooltip="Nombre de session par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis."></button>
+					<help-button>Nombre de session par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis.</help-button>
 				</hgroup>
 
 				<ol id="referrer-origins">
@@ -192,7 +195,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Points d’entrée</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<ol id="landing-pages">
@@ -211,7 +214,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Bilinguisme</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<ol id="bilingualism-classes">
@@ -226,7 +229,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Pays</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<ol id="countries">
@@ -243,7 +246,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Systèmes d’exploitation</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<ol id="oses">
@@ -259,7 +262,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Navigateurs</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<ol id="browsers">
@@ -274,7 +277,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Tailles d’écran</h3>
-					<button class="help" tooltip=""></button>
+					<help-button></help-button>
 				</hgroup>
 
 				<ol id="screen-breakpoints">
@@ -288,7 +291,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Traffic exclu</h3>
-					<button class="help" tooltip="Nombre de vues exclues du traffic selon la cause. Les pourcentages sont sur le nombre de vue total avant exclusion."></button>
+					<help-button>Nombre de <em>vues</em> exclues du traffic selon la cause. Les pourcentages sont sur le nombre de vue total avant exclusion.</help-button>
 				</hgroup>
 
 				<ol id="excluded-traffic">
