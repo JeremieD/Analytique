@@ -162,6 +162,9 @@ data.big {
 	font-size: 80px;
 	line-height: 1;
 	font-weight: bold;
+}
+
+data.big, data.loading.big {
 	min-height: 1em;
 }
 
