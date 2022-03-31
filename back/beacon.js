@@ -31,8 +31,8 @@ function receiveBeacon(req, res) {
 		const currentMonth = (date.getMonth() + 1).toString().padStart(2, "0");
 		const viewsFile = currentYear + "-" + currentMonth + ".tsv";
 
-		fs.mkdir("./back/data/views", { recursive: true }).then(() => {
-			fs.appendFile("./back/data/views/" + viewsFile, post.join("\t") + "\n")
+		fs.mkdir("./data/views", { recursive: true }).then(() => {
+			fs.appendFile("./data/views/" + viewsFile, post.join("\t") + "\n")
 				.then(() => {
 					res.writeHead(200);
 					res.end();

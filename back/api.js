@@ -4,7 +4,7 @@ const heuristics = require("../utilities/heuristics.js");
 const dateRange = require("../utilities/dateRange.js");
 require("../utilities/misc.js");
 
-const dataRoot = "./back/data/";
+const dataRoot = "./data/";
 const viewsRoot = dataRoot + "views/";
 const sessionsRoot = dataRoot + "sessions/";
 const statsRoot = dataRoot + "stats/";
