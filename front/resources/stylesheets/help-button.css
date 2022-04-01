@@ -3,7 +3,7 @@ help-button {
 	position: absolute;
 	width: 16px;
 	height: 16px;
-	top: 24px;
+	top: 26px;
 	right: 24px;
 	color: var(--color-grey);
 	border-radius: 50% !important;

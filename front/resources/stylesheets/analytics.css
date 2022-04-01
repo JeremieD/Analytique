@@ -110,7 +110,24 @@ h1 {
 	transform: translateY(16px);
 }
 
+@media (max-width: 1680px) {
+	.analytics-group>h2 {
+		grid-column-end: span 12;
+		grid-row-end: span 1;
+		margin-bottom: 32px;
+	}
+
+	.card {
+		grid-column-end: span 4;
+	}
+
+	.analytics section+section {
+		margin-top: 64px;
+	}
+}
+
 h3 {
+	width: calc(100% - 32px);
 	font-size: 21px;
 	line-height: 1;
 	margin-bottom: 16px;
