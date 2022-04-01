@@ -4,6 +4,10 @@ whenDOMReady(() => {
 	const passwordField = document.getElementById("password");
 	const feedbackField = document.getElementById("feedback");
 
+	form.addEventListener("animationend", () => {
+		form.classList.remove("shake");
+	}, { passive: true });
+
 	form.addEventListener("submit", e => {
 		e.preventDefault();
 
@@ -19,6 +23,7 @@ whenDOMReady(() => {
 						location.reload();
 
 					} else {
+						form.classList.add("shake");
 						feedbackField.innerText = "Identifiant invalide.";
 					}
 
