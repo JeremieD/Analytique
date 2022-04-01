@@ -34,11 +34,22 @@ whenDOMReady(() => {
 		};
 
 		request.open("POST", "/login");
-		request.send(JSON.stringify({
-			u: encodeURI(usernameField.value),
-			p: encodeURI(passwordField.value)
-		}));
 
+		hash(passwordField.value).then((hashedP) => {
+			request.send(JSON.stringify({
+				u: encodeURI(usernameField.value),
+				p: hashedP
+			}));
+		});
 	});
 
 });
+
+async function hash(message) {
+	const encoder = new TextEncoder();
+	const data = encoder.encode(message);
+	return crypto.subtle.digest("SHA-512", data).then(value => {
+		const hashArray = Array.from(new Uint8Array(value));
+		return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+	});
+}

@@ -32,6 +32,7 @@ function login(req, res) {
 	});
 
 	req.on("end", () => {
+		res.setHeader("Content-Type", "text/plain");
 		res.writeHead(200);
 
 		const login = JSON.parse(rawData);
@@ -39,26 +40,18 @@ function login(req, res) {
 		fs.readFile("./data/users.json").then(rawUsers => {
 			const users = JSON.parse(rawUsers);
 
-			hash(login.p).then(hash => {
-				// console.log(hash);
-				if (users[login.u] === hash) {
-					const newSession = "_" + Math.random().toString(36).substr(2, 9);
-					activeSessions[newSession] = Date.now() + 3600000*24*30;
-					res.end(newSession);
-				}
-			});
+			if (users[login.u] === login.p) {
+				const newSession = "_" + Math.random().toString(36).substr(2, 9);
+				activeSessions[newSession] = Date.now() + 3600000*24*30;
+				res.end(newSession);
+			} else {
+				res.end("refused");
+			}
 		});
 
 	});
 }
 
-async function hash(message) {
-	const encoder = new TextEncoder();
-	const data = encoder.encode(message);
-	return crypto.subtle.digest("SHA-512", data).then(value => {
-		const hashArray = Array.from(new Uint8Array(value));
-		return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-	});
-}
+
 
 module.exports = { sessionIsValid, login };
