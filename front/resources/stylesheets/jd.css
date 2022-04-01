@@ -25,21 +25,21 @@ sub { font-feature-settings: "subs" on }
 	font-family: "Akkurat";
 	font-weight: 400;
 	font-style: normal;
-	src: local("Akkurat Regular"), url(/resources/fonts/akkurat/Akkurat-Regular.woff2) format("woff2"), url(/resources/fonts/akkurat/Akkurat-Regular.woff) format("woff")
+	src: url(/resources/fonts/Akkurat-Regular.woff2) format("woff2")
 }
 
 @font-face {
 	font-family: "Akkurat";
 	font-weight: 400;
 	font-style: italic;
-	src: local("Akkurat Italic"), url(/resources/fonts/akkurat/Akkurat-Italic.woff2) format("woff2"), url(/resources/fonts/akkurat/Akkurat-Italic.woff) format("woff")
+	src: url(/resources/fonts/Akkurat-Italic.woff2) format("woff2")
 }
 
 @font-face {
 	font-family: "Akkurat";
 	font-weight: 700;
 	font-style: normal;
-	src: local("Akkurat Bold"), url(/resources/fonts/akkurat/Akkurat-Bold.woff2) format("woff2"), url(/resources/fonts/akkurat/Akkurat-Bold.woff) format("woff")
+	src: url(/resources/fonts/Akkurat-Bold.woff2) format("woff2")
 }
 
 :root {
@@ -108,9 +108,9 @@ section+section {
 
 :root {
 	--color-darkest: #111;
-	--color-dark: #222;
+	--color-dark: #1C1C1C;
 	--color-grey: #808080;
-	--color-light: #DDD;
+	--color-light: #E0E0E0;
 	--color-lightest: #EEE;
 	--color-purple: #83F;
 	--color-background: var(--color-lightest);
@@ -345,6 +345,7 @@ header {
 	font-weight: bold;
 	mix-blend-mode: difference;
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 	user-select: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;

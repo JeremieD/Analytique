@@ -1,28 +1,20 @@
-@font-face {
-	font-family: "Akkurat";
-	font-weight: 400;
-	font-style: normal;
-	src: url(/resources/fonts/Akkurat-Regular.woff2) format("woff2");
+:root {
+	--color-secondary: var(--color-light);
+	--color-tertiary: #E8E8E8;
+	--color-loading1: #CCC;
+	--color-loading2: #D4D4D4;
 }
 
-@font-face {
-	font-family: "Akkurat";
-	font-weight: 400;
-	font-style: italic;
-	src: url(/resources/fonts/Akkurat-Italic.woff2) format("woff2");
+@media(prefers-color-scheme: dark) {
+	:root {
+		--color-secondary: var(--color-dark);
+		--color-tertiary: #282828;
+		--color-loading1: #282828;
+		--color-loading2: #2C2C2C;
+	}
 }
 
-@font-face {
-	font-family: "Akkurat";
-	font-weight: 700;
-	font-style: normal;
-	src: url(/resources/fonts/Akkurat-Bold.woff2) format("woff2");
-}
-
-* {
-	cursor: unset;
-	--color-card: #222;
-}
+* { cursor: unset; }
 
 a:hover {
 	cursor: pointer;
@@ -47,7 +39,7 @@ a:hover {
 	width: 64px;
 	height: 64px;
 	border-radius: 50%;
-	background-color: var(--color-card);
+	background-color: var(--color-secondary);
 }
 
 .date-range>button::before {
@@ -62,7 +54,7 @@ a:hover {
 #previous::before { content: "←" }
 
 .date-range>button:focus:not(:active):not(:hover):not([tabindex="-1"]) {
-	background-color: var(--color-card);
+	background-color: var(--color-secondary);
 	border-radius: 50%;
 }
 
@@ -82,7 +74,7 @@ a:hover {
 	position: relative;
 	min-height: 276px;
 	padding: 24px;
-	background-color: var(--color-card);
+	background-color: var(--color-secondary);
 	border-radius: 8px;
 	grid-column-end: span 3;
 }
@@ -152,10 +144,12 @@ data {
 data.numerical {
 	font-family: "Akkurat Mono";
 	text-align: right;
+	font-weight: bold;
 }
 
 data.secondary, data>small {
 	color: var(--color-grey);
+	font-weight: normal;
 }
 
 data.big {
@@ -182,7 +176,7 @@ data::after {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: linear-gradient(90deg, #333 0%, #383838 50%, #333 100%), #333;
+	background: linear-gradient(90deg, var(--color-loading1) 0%, var(--color-loading2) 50%, var(--color-loading1) 100%), var(--color-loading1);
 	background-attachment: fixed;
 	background-size: 512px 512px;
 	background-repeat: repeat-y;
@@ -274,7 +268,7 @@ jd-graph>graph>point::before {
 	left: 50%;
 	transform: translateX(-50%) translateY(-50%);
 	background-color: var(--color-text);
-	outline: 3px solid #222;
+	outline: 3px solid var(--color-secondary);
 	border-radius: 50%;
 	transition: .2s ease all;
 }
@@ -320,7 +314,7 @@ jd-graph>graph>point>label {
 	top: -25%;
 	left: 50%;
 	transform: translateX(-50%);
-	background-color: #222;
+	background-color: var(--color-secondary);
 	border-radius: 8px;
 	text-align: center;
 	color: var(--color-grey);
