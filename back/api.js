@@ -20,7 +20,7 @@ const statsRoot = dataRoot + "stats/";
 const filter = {
 	excludeClientIPs: [ "104.221.122.236", "173.177.95.199" ],
 	requiredHostnames: [ "jeremiedupuis.com" ],
-	excludeBotUserAgents: [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver" ]
+	excludeBotUserAgents: [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver", "Dataprovider.com" ]
 };
 
 
