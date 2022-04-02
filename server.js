@@ -1,5 +1,6 @@
 const http = require("http");
 const fs = require("fs").promises;
+const uri = require("./utilities/uri.js");
 
 const beacon = require("./back/beacon.js");
 const api = require("./back/api.js");
@@ -10,9 +11,11 @@ const host = "localhost";
 const port = 8000;
 
 const requestListener = function(req, res) {
+	const pathname = new uri.URIPath(req.url).pathname;
+
 	switch (req.method) {
 		case "GET":
-			if (req.url == "/") {
+			if (pathname === "/") {
 				if (account.sessionIsValid(req, res)) {
 					staticFile.serveStaticFile(req, res, "/interface.html");
 				}
@@ -32,10 +35,10 @@ const requestListener = function(req, res) {
 			break;
 
 		case "POST":
-			if (req.url == "/") {
+			if (req.url === "/") {
 				beacon.receiveBeacon(req, res);
 
-			} else if (req.url == "/login") {
+			} else if (req.url === "/login") {
 				account.login(req, res);
 
 			} else {
