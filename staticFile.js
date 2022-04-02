@@ -1,5 +1,3 @@
-module.exports = { serveStaticFile };
-
 const fs = require("fs").promises;
 const zlib = require("zlib");
 const uri = require("./utilities/uri.js");
@@ -88,3 +86,5 @@ function serveStaticFile(req, res, urlOverride = undefined) {
 	}
 
 }
+
+module.exports = { serveStaticFile };

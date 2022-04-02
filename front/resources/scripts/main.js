@@ -97,6 +97,7 @@ function updateView() {
 		"viewTotal"
 	];
 
+	 // Build the "list views".
 	for (let i = 0; i < listViews.length; i++) {
 		listViews[i].innerHTML = "";
 		for (let dataPoint of model.stats[listViewsModels[i]]) {

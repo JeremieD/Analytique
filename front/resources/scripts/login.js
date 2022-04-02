@@ -11,6 +11,7 @@ whenDOMReady(() => {
 	}, { passive: true });
 
 
+	// On login attempt.
 	form.addEventListener("submit", e => {
 		e.preventDefault();
 
@@ -20,6 +21,8 @@ whenDOMReady(() => {
 			if (request.readyState === XMLHttpRequest.DONE) {
 
 				if (request.status === 200) {
+
+					// If the server responded with a session ID...
 					if (request.responseText.startsWith("_")) {
 						document.cookie = "session=" + request.responseText
 							+ "; secure";
@@ -38,6 +41,7 @@ whenDOMReady(() => {
 
 		request.open("POST", "/login");
 
+		// Hash the password, then send.
 		hash(passwordField.value).then((hashedP) => {
 			request.send(JSON.stringify({
 				u: encodeURI(usernameField.value),
@@ -58,6 +62,10 @@ whenDOMReady(() => {
 
 });
 
+
+/*
+ * Hash a message using SHA-512. Encodes as a string of hex digits.
+ */
 async function hash(message) {
 	const encoder = new TextEncoder();
 	const data = encoder.encode(message);
