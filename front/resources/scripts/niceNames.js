@@ -65,6 +65,10 @@ function niceAcquisitionChannelName(input) {
  * Converts the acquisition channel code to its French string.
  */
 function niceOriginName(input) {
+	if (input.includes("jeremiedupuis.com")) {
+		return input.replace(/\/$/, "");
+	}
+
 	return input.replace(/\/$/, "")
 				.replace("www.", "")
 				.replace("https://", "");
