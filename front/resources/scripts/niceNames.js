@@ -23,6 +23,7 @@ const countriesDict = {
 	"TJ": "Tadjikistan",
 	"DE": "Allemagne",
 	"EC": "Équateur",
+	"GB": "Royaume-Uni",
 	"": "Indéterminé"
 };
 
