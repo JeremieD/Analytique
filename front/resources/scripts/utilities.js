@@ -7,6 +7,7 @@ function whenDOMReady(callback, options = { once: true, passive: true }) {
 	}
 }
 
+
 Number.prototype.round = function(decimalPlace = 0) {
 	return Math.round(this * 10 ** decimalPlace) / 10 ** decimalPlace;
 }

@@ -42,6 +42,17 @@ function processRequest(req, res) {
 			res.setHeader("Content-Type", "application/json");
 			res.writeHead(200);
 			res.end(JSON.stringify(data));
+		})
+		.catch(e => {
+			return e;
+		});
+
+	} else if (path.filename === "earliest") {
+		fs.readdir(viewsRoot).then(files => {
+			files = files.filter(filename => filename[0] !== ".").sort();
+			res.setHeader("Content-Type", "text/plain");
+			res.writeHead(200);
+			res.end(files[0].split(".")[0]);
 		});
 
 	} else {
@@ -64,7 +75,7 @@ async function getStats(range) {
 	const statsFilePath = statsRoot + range.type + "/" + range.value + ".json";
 	const statsFileMetadata = fs.stat(statsFilePath);
 
-	return Promise.all([statsFileMetadata, viewsFileMetadata]) .then(metadata => {
+	return Promise.all([statsFileMetadata, viewsFileMetadata]).then(metadata => {
 		statsMetadata = metadata[0];
 		viewsMetadata = metadata[1];
 
@@ -236,7 +247,8 @@ async function buildStats(range) {
 		});
 
 		return stats;
-	});
+	})
+	.catch(e => { return e; });
 }
 
 
@@ -404,7 +416,8 @@ async function buildSessions(range) {
 		});
 
 		return sessions;
-	});
+	})
+	.catch(e => { return e; });
 }
 
 
@@ -440,12 +453,17 @@ async function getViews(range) {
 				// Format the view.
 				return rawView.trim().split("\n")
 					.map(rawView => rawView.split("\t")
-						.map(rawField => decodeURI(rawField)));
+					.map(rawField => decodeURI(rawField)));
 			})
+			.catch(e => { return e; })
 		);
 	}
 
-	return Promise.all(fileReadPromises).then(views => views.flat(1));
+	return Promise.all(fileReadPromises).then(views => views.flat(1))
+		.catch(e => {
+			console.error(e);
+			return e;
+		});
 }
 
 

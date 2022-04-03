@@ -4,11 +4,35 @@ var model = {};
 // Holds references to the DOM objects that display the data.
 const view = {};
 
+//
+let range = new DateRange();
+
+//
+let earliestRange = new Promise((resolve, reject) => {
+	const httpRequest = new XMLHttpRequest();
+
+	httpRequest.onreadystatechange = () => {
+		if (httpRequest.readyState === XMLHttpRequest.DONE) {
+
+			if (httpRequest.status === 200) {
+				resolve(new DateRange(httpRequest.responseText));
+
+			} else {
+				console.error(httpRequest.status);
+				reject();
+			}
+		}
+	};
+
+	httpRequest.open("GET", "/api/earliest");
+	httpRequest.send();
+});
+
 
 /*
  * Updates the model object with data downloaded from the server.
  */
-function updateModel(successCallback) {
+function updateModel() {
 	return new Promise(function(resolve, reject) {
 		const httpRequest = new XMLHttpRequest();
 
@@ -31,7 +55,7 @@ function updateModel(successCallback) {
 			}
 		};
 
-		httpRequest.open("GET", "/api/stats?range=2022-02:2022-03");
+		httpRequest.open("GET", "/api/stats?range=" + range.shortForm);
 		httpRequest.send();
 	});
 }
@@ -41,12 +65,18 @@ function updateModel(successCallback) {
  * Updates the view with data from the model object.
  */
 function updateView() {
+
+	view.rangeDisplay.innerText = range.longForm;
+
+
 	view.sessionTotal.innerText = model.stats.sessionTotal;
 	// view.sessionTotalGraph.value = "";
 
-	view.avgSessionLength.innerHTML = model.stats.avgSessionLength.round(2)
-											+ "<small> vues</small>";
+	const avgSessionLengthFormatted = model.stats.avgSessionLength.round(2);
+	view.avgSessionLength.innerHTML = avgSessionLengthFormatted
+		+ "<small> vue" + (avgSessionLengthFormatted === 1 ? "" : "s") + "</small>";
 	// view.avgSessionLengthGraph.value = "";
+
 
 	const listViews = [
 		view.pageViews,
@@ -85,15 +115,9 @@ function updateView() {
 		niceExcludedTrafficName
 	];
 	const listViewsOneHundredPercents = [
-		"sessionTotal",
-		"sessionTotal",
-		"sessionTotal",
-		"sessionTotal",
-		"sessionTotal",
-		"sessionTotal",
-		"sessionTotal",
-		"sessionTotal",
-		"sessionTotal",
+		"sessionTotal", "sessionTotal", "sessionTotal",
+		"sessionTotal", "sessionTotal", "sessionTotal",
+		"sessionTotal", "sessionTotal", "sessionTotal",
 		"viewTotal"
 	];
 
@@ -139,9 +163,36 @@ function updateView() {
 }
 
 
+function updateAll() {
+
+	const isLastRange = range.moreThan((new DateRange()).minus(1));
+	view.nextRangeButton.disabled = isLastRange;
+
+	earliestRange.then(value => {
+		const isFirstRange = range.lessThan(value.plus(1));
+		view.previousRangeButton.disabled = isFirstRange;
+	});
+
+	// Sets all view objects to their loading state. (with a delay)
+	const loadingAnimationDelay = setTimeout(() => {
+		for (let viewComponent of Object.keys(view)) {
+			view[viewComponent].classList.add("loading");
+		}
+	}, 250);
+
+	// Download the model then update the view.
+	updateModel().then(() => {
+		updateView();
+	})
+	.catch(e => console.error)
+	.finally(() => { clearTimeout(loadingAnimationDelay); });
+}
+
+
 whenDOMReady(() => {
 
 	// Build the view object.
+	view.rangeDisplay = document.getElementById("range-display");
 	view.sessionTotal = document.getElementById("session-total");
 	view.sessionTotalGraph = document.getElementById("session-total-graph");
 	view.avgSessionLength = document.getElementById("avg-session-length");
@@ -157,16 +208,21 @@ whenDOMReady(() => {
 	view.screenBreakpoints = document.getElementById("screen-breakpoints");
 	view.excludedTraffic = document.getElementById("excluded-traffic");
 
-	// Sets all view objects to their loading state. (with a delay)
-	const loadingAnimationDelay = setTimeout(() => {
-		for (let viewComponent of Object.keys(view)) {
-			view[viewComponent].classList.add("loading");
-		}
-	}, 250);
+	view.previousRangeButton = document.getElementById("previous-range")
+	view.nextRangeButton = document.getElementById("next-range")
 
-	// Download the model then update the view.
-	updateModel().then(() => {
-		updateView();
-		clearTimeout(loadingAnimationDelay);
+	view.previousRangeButton.addEventListener("click", e => {
+		e.preventDefault();
+		range.previous();
+		updateAll();
 	});
+
+	view.nextRangeButton.addEventListener("click", e => {
+		e.preventDefault();
+		range.next();
+		updateAll();
+	});
+
+
+	updateAll();
 });

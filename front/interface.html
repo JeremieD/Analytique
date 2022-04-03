@@ -28,6 +28,7 @@
 	<!-- Scripts -->
 	<script src="/resources/scripts/utilities.js"></script>
 	<script src="/resources/scripts/niceNames.js"></script>
+	<script src="/resources/scripts/dateRange.js"></script>
 	<script src="/resources/scripts/main.js" async></script>
 	<script src="/resources/scripts/helpButton.js" async></script>
 
@@ -51,12 +52,12 @@
 
 		<section>
 			<hgroup>
-				<h1>Ce mois-ci</h1>
-				<p>Mars 2022 sur <a href="https://jeremiedupuis.com">jeremiedupuis.com</a></p>
+				<h1 id="range-display">Ce mois-ci</h1>
+				<p>sur <a href="https://jeremiedupuis.com">jeremiedupuis.com</a></p>
 			</hgroup>
 			<form class="date-range">
-				<button id="previous"></button>
-				<button id="next"></button>
+				<button id="previous-range"></button>
+				<button id="next-range" disabled></button>
 			</form>
 		</section>
 

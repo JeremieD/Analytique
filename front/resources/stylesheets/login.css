@@ -39,7 +39,7 @@
 	align-items: center;
 }
 
-:is(input, button):focus:not(:active):not(:hover):not([tabindex="-1"]) {
+:is(input, form button):focus:not(:active):not(:hover):not([tabindex="-1"]) {
 	box-shadow: 0 0 0 4px var(--color-accent);
 	background-color: var(--color-secondary);
 	color: var(--color-text);

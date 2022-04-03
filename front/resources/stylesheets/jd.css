@@ -71,7 +71,7 @@ section+section {
 	background-color: var(--color-accent)
 }
 
-:focus:not(input, button):not(:active):not(:hover):not([tabindex="-1"]) {
+:focus:not(input, .login button):not(:active):not(:hover):not([tabindex="-1"]):not(:disabled) {
 	box-shadow: 0 0 0 6px var(--color-background), 0 0 0 10px var(--color-accent), 0 0 0 12px var(--color-background);
 	border-radius: 1px;
 	background: var(--color-background);

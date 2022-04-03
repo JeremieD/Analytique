@@ -40,6 +40,17 @@ a:hover {
 	height: 64px;
 	border-radius: 50%;
 	background-color: var(--color-secondary);
+	transition: .2s ease opacity;
+}
+
+.date-range>button:disabled {
+	opacity: .33;
+	cursor: not-allowed;
+}
+
+.date-range>button:focus:not(:active):not(:hover):not([tabindex="-1"]):not(:disabled) {
+	background-color: var(--color-secondary);
+	border-radius: 50%;
 }
 
 .date-range>button::before {
@@ -50,13 +61,8 @@ a:hover {
 	transform: translateX(-50%) translateY(-50%);
 }
 
-#next::before { content: "→" }
-#previous::before { content: "←" }
-
-.date-range>button:focus:not(:active):not(:hover):not([tabindex="-1"]) {
-	background-color: var(--color-secondary);
-	border-radius: 50%;
-}
+#next-range::before { content: "→" }
+#previous-range::before { content: "←" }
 
 * + section {
 	margin-top: 80px;
@@ -89,7 +95,8 @@ hgroup>p {
 }
 
 h1 {
-	font-size: 64px;
+	position: relative;
+	font-size: 4em;
 	line-height: 1;
 	letter-spacing: -0.025em;
 }
@@ -185,7 +192,7 @@ data.big>small {
 	line-height: 1.333;
 }
 
-data::after {
+:is(data, h1, jd-graph)::after {
 	display: block;
 	content: "";
 	position: absolute;
@@ -204,13 +211,17 @@ data::after {
 	transition: .2s ease opacity;
 }
 
-data.loading, .loading data {
-	min-height: 1.5em;
-	color: transparent;
+:is(data, h1, jd-graph).loading, .loading * {
+	color: transparent !important;
+	background: none !important;
 	user-select: none;
+	pointer-events: none;
 }
 
-data.loading::after, .loading data::after {
+data.loading { min-height: 1.5em; }
+h1.loading { min-height: 1em; }
+
+:is(data, h1, jd-graph).loading::after, .loading data::after {
 	opacity: 1;
 }
 
@@ -221,6 +232,7 @@ data.loading::after, .loading data::after {
 
 jd-graph {
 	display: block;
+	position: relative;
 	width: 100%;
 	font-size: 12px;
 	display: grid;
