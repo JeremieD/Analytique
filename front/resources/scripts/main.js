@@ -4,11 +4,11 @@ var model = {};
 // Holds references to the DOM objects that display the data.
 const view = {};
 
-//
+// Holds the current view-model’s range.
 let range = new DateRange();
 
-//
-let earliestRange = new Promise((resolve, reject) => {
+// Query the earliest available month with data.
+const earliestRange = new Promise((resolve, reject) => {
 	const httpRequest = new XMLHttpRequest();
 
 	httpRequest.onreadystatechange = () => {
@@ -27,6 +27,76 @@ let earliestRange = new Promise((resolve, reject) => {
 	httpRequest.open("GET", "/api/earliest");
 	httpRequest.send();
 });
+
+
+whenDOMReady(() => {
+	// Build the view object.
+	view.rangeDisplay = document.getElementById("range-display");
+	view.sessionTotal = document.getElementById("session-total");
+	view.sessionTotalGraph = document.getElementById("session-total-graph");
+	view.avgSessionLength = document.getElementById("avg-session-length");
+	view.avgSessionLengthGraph = document.getElementById("avg-session-length-graph");
+	view.pageViews = document.getElementById("page-views");
+	view.acquisitionChannels = document.getElementById("acquisition-channels");
+	view.referrerOrigins = document.getElementById("referrer-origins");
+	view.landingPages = document.getElementById("landing-pages");
+	view.bilingualismClasses = document.getElementById("bilingualism-classes");
+	view.countries = document.getElementById("countries");
+	view.oses = document.getElementById("oses");
+	view.browsers = document.getElementById("browsers");
+	view.screenBreakpoints = document.getElementById("screen-breakpoints");
+	view.excludedTraffic = document.getElementById("excluded-traffic");
+
+	view.previousRangeButton = document.getElementById("previous-range")
+	view.nextRangeButton = document.getElementById("next-range")
+
+
+	// Triggers for range buttons.
+	view.previousRangeButton.addEventListener("click", e => previousRange(e));
+	view.nextRangeButton.addEventListener("click", e => nextRange(e));
+
+	document.addEventListener("keydown", e => {
+		if (e.key === "ArrowLeft" && !view.previousRangeButton.disabled) {
+			previousRange(e);
+
+		} else if (e.key === "ArrowRight" && !view.nextRangeButton.disabled) {
+			nextRange(e);
+		}
+	});
+
+	refresh();
+});
+
+
+/*
+ * Checks range bounds, queries the server for data, then updates the view.
+ */
+function refresh() {
+	const isLastRange = range.laterThan((new DateRange()).minus(1));
+	view.nextRangeButton.disabled = isLastRange;
+
+	earliestRange.then(value => {
+		const isFirstRange = range.earlierThan(value.plus(1));
+		view.previousRangeButton.disabled = isFirstRange;
+	});
+
+	// Sets all view objects to their loading state. (with a delay)
+	const loadingAnimationDelay = setTimeout(() => {
+		for (let viewComponent of Object.keys(view)) {
+			view[viewComponent].classList.add("loading");
+		}
+	}, 250);
+
+	// Download the model then update the view.
+	updateModel().then(() => {
+		updateView();
+	})
+	.catch(e => console.error)
+	.finally(() => {
+		// De-queues the loading animation.
+		clearTimeout(loadingAnimationDelay);
+	});
+}
 
 
 /*
@@ -78,6 +148,7 @@ function updateView() {
 	// view.avgSessionLengthGraph.value = "";
 
 
+	// Build the "list views".
 	const listViews = [
 		view.pageViews,
 		view.acquisitionChannels,
@@ -121,7 +192,6 @@ function updateView() {
 		"viewTotal"
 	];
 
-	 // Build the "list views".
 	for (let i = 0; i < listViews.length; i++) {
 		listViews[i].innerHTML = "";
 		for (let dataPoint of model.stats[listViewsModels[i]]) {
@@ -163,66 +233,21 @@ function updateView() {
 }
 
 
-function updateAll() {
-
-	const isLastRange = range.moreThan((new DateRange()).minus(1));
-	view.nextRangeButton.disabled = isLastRange;
-
-	earliestRange.then(value => {
-		const isFirstRange = range.lessThan(value.plus(1));
-		view.previousRangeButton.disabled = isFirstRange;
-	});
-
-	// Sets all view objects to their loading state. (with a delay)
-	const loadingAnimationDelay = setTimeout(() => {
-		for (let viewComponent of Object.keys(view)) {
-			view[viewComponent].classList.add("loading");
-		}
-	}, 250);
-
-	// Download the model then update the view.
-	updateModel().then(() => {
-		updateView();
-	})
-	.catch(e => console.error)
-	.finally(() => { clearTimeout(loadingAnimationDelay); });
+/*
+ * Selects the previous range and reloads.
+ */
+function previousRange(e) {
+	e?.preventDefault();
+	range.previous();
+	refresh();
 }
 
 
-whenDOMReady(() => {
-
-	// Build the view object.
-	view.rangeDisplay = document.getElementById("range-display");
-	view.sessionTotal = document.getElementById("session-total");
-	view.sessionTotalGraph = document.getElementById("session-total-graph");
-	view.avgSessionLength = document.getElementById("avg-session-length");
-	view.avgSessionLengthGraph = document.getElementById("avg-session-length-graph");
-	view.pageViews = document.getElementById("page-views");
-	view.acquisitionChannels = document.getElementById("acquisition-channels");
-	view.referrerOrigins = document.getElementById("referrer-origins");
-	view.landingPages = document.getElementById("landing-pages");
-	view.bilingualismClasses = document.getElementById("bilingualism-classes");
-	view.countries = document.getElementById("countries");
-	view.oses = document.getElementById("oses");
-	view.browsers = document.getElementById("browsers");
-	view.screenBreakpoints = document.getElementById("screen-breakpoints");
-	view.excludedTraffic = document.getElementById("excluded-traffic");
-
-	view.previousRangeButton = document.getElementById("previous-range")
-	view.nextRangeButton = document.getElementById("next-range")
-
-	view.previousRangeButton.addEventListener("click", e => {
-		e.preventDefault();
-		range.previous();
-		updateAll();
-	});
-
-	view.nextRangeButton.addEventListener("click", e => {
-		e.preventDefault();
-		range.next();
-		updateAll();
-	});
-
-
-	updateAll();
-});
+/*
+ * Selects the next range and reloads.
+ */
+function nextRange(e) {
+	e?.preventDefault();
+	range.next();
+	refresh();
+}

@@ -51,9 +51,11 @@ whenDOMReady(() => {
 	});
 
 
+	// Toggle password visibility on click.
 	passwordToggle.addEventListener("click", () => {
 		if (passwordField.type === "password") {
 			passwordField.type = "text";
+
 		} else {
 			passwordField.type = "password";
 		}

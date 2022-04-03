@@ -62,7 +62,7 @@ function niceAcquisitionChannelName(input) {
 
 
 /**
- * Converts the acquisition channel code to its French string.
+ * Simplifies the  URL.
  */
 function niceOriginName(input) {
 	if (input.includes("jeremiedupuis.com")) {

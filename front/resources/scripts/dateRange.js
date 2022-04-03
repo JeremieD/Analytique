@@ -53,20 +53,22 @@ class DateRange {
 	}
 
 
-	lessThan(otherDateRange) {
+	earlierThan(otherDateRange) {
 		if (this.year === otherDateRange.year) {
 			return this.month < otherDateRange.month;
 		}
 		return this.year < otherDateRange.year;
 	}
 
-	moreThan(otherDateRange) {
+	// Returns true if
+	laterThan(otherDateRange) {
 		if (this.year === otherDateRange.year) {
 			return this.month > otherDateRange.month;
 		}
 		return this.year > otherDateRange.year;
 	}
 
+	// Formats the range for end-user display.
 	get longForm() {
 		let longForm = "Ce mois-ci";
 		if (this.shortForm !== DateRange.currentMonth()) {
@@ -75,6 +77,7 @@ class DateRange {
 		return longForm;
 	}
 
+	// Returns the current month in the format YYYY-DD.
 	static currentMonth() {
 		const currentDate = new Date();
 		return currentDate.getFullYear() + "-" +
@@ -82,9 +85,10 @@ class DateRange {
 	}
 }
 
+
 const monthsDict = [
 	"Janvier", "Février", "Mars",
 	"Avril", "Mai", "Juin",
 	"Juillet", "Août", "Septembre",
 	"Octobre", "Novembre", "Décembre",
-]
+];

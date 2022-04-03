@@ -447,7 +447,6 @@ async function getViews(range) {
 	// Issue a promise for each month-file.
 	for (const month of range.monthRange()) {
 		fileReadPromises.push(
-
 			fs.readFile(dataRoot + "views/" + month + ".tsv", "utf8")
 			.then(rawView => {
 				// Format the view.
