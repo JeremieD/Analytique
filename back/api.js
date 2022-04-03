@@ -69,7 +69,7 @@ async function getStats(range) {
 		viewsMetadata = metadata[1];
 
 		if (viewsMetadata.mtimeMs > statsMetadata.mtimeMs
-			|| Date.now() - 3600000 > statsMetadata.mtimeMs) {
+			|| Date.now() - 3600000*24*30 > statsMetadata.mtimeMs) {
 			return buildStats(range);
 
 		} else {
@@ -258,7 +258,7 @@ async function getSessions(range) {
 		viewsMetadata = metadata[1];
 
 		if (viewsMetadata.mtimeMs > sessionsMetadata.mtimeMs
-			|| Date.now() - 3600000 > sessionsMetadata.mtimeMs) {
+			|| Date.now() - 3600000*24*30 > sessionsMetadata.mtimeMs) {
 			return buildSessions(range);
 
 		} else {
