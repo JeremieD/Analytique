@@ -1,7 +1,9 @@
-module.exports = { receiveBeacon };
-
 const fs = require("fs").promises;
 
+/**
+ * A user-agent is sending a view beacon.
+ * The server calls this function with the *req*uest and *res*ponse context.
+ */
 function receiveBeacon(req, res) {
 	let body = "";
 
@@ -15,17 +17,23 @@ function receiveBeacon(req, res) {
 	});
 
 	req.on("end", function() {
+
 		// Complete the beacon data.
 		const post = body.split("\t");
 
-		if (post[0] != "1" || post.length != 10) {
+		if (post[0] !== "1" || post.length !== 10) {
+			// Received beacon is invalid.
 			return;
 		}
 
 		post[10] = encodeURI(Date.now());
 		post[11] = encodeURI(req.headers["user-agent"]);
+		// Since the Node server is behind an Apache proxy, this holds
+		// the client’s IP address.
 		post[12] = encodeURI(req.headers["x-forwarded-for"]);
 
+
+		// Write the beacon data to file.
 		const date = new Date;
 		const currentYear = date.getFullYear();
 		const currentMonth = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -37,9 +45,11 @@ function receiveBeacon(req, res) {
 					res.writeHead(200);
 					res.end();
 				})
-				.catch(log => { console.error(log); });
+				.catch(e => { console.error(e); });
 		})
 		.catch(e => { console.error(e); });
 
 	});
 }
+
+module.exports = { receiveBeacon };
