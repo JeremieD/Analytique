@@ -1,11 +1,19 @@
-// Holds the stats data from the server.
-var model = {};
+// Holds stats data.
+var model = {}; // Data for the current range.
+var secondaryModel = {}; // Anterior data.
+
+// Holds cached stats data.
+var modelCache = {};
+var modelCacheModTime = {};
+const cacheTTL = 30000; // 30s to live.
+
 
 // Holds references to the DOM objects that display the data.
 const view = {};
 
-// Holds the current view-model’s range.
+// Holds the view-model’s current range.
 let range = new DateRange();
+
 
 // Query the earliest available month with data.
 const earliestRange = new Promise((resolve, reject) => {
@@ -64,21 +72,23 @@ whenDOMReady(() => {
 		}
 	});
 
+
 	refresh();
 });
 
 
 /*
- * Checks range bounds, queries the server for data, then updates the view.
+ * Checks data availability, then updates the view.
  */
 function refresh() {
+	// Checks that range is in bound.
 	const isLastRange = range.laterThan((new DateRange()).minus(1));
 	view.nextRangeButton.disabled = isLastRange;
-
 	earliestRange.then(value => {
 		const isFirstRange = range.earlierThan(value.plus(1));
 		view.previousRangeButton.disabled = isFirstRange;
 	});
+
 
 	// Sets all view objects to their loading state. (with a delay)
 	const loadingAnimationDelay = setTimeout(() => {
@@ -87,9 +97,20 @@ function refresh() {
 		}
 	}, 250);
 
-	// Download the model then update the view.
-	updateModel().then(() => {
-		updateView();
+
+	// Update models then update the views.
+	const main = updateMainModel().then(() => {
+		updateMainView();
+	});
+	const secondary = updateSecondaryModel();
+
+	Promise.all([main, secondary]).then(() => {
+		updateSecondaryView();
+
+		// Sets all view objects to their loaded state.
+		for (let viewComponent of Object.keys(view)) {
+			view[viewComponent].classList.remove("loading");
+		}
 	})
 	.catch(e => console.error)
 	.finally(() => {
@@ -100,9 +121,80 @@ function refresh() {
 
 
 /*
- * Updates the model object with data downloaded from the server.
+ * Updates the model from cache or fetch new data.
  */
-function updateModel() {
+function updateMainModel() {
+	return new Promise(function(resolve, reject) {
+		const shortRange = range.shortForm;
+
+		// If cache is fresh, serve from cache, otherwise, fetch from server.
+		if (Date.now() - modelCacheModTime[shortRange] < cacheTTL) {
+			model = modelCache[shortRange];
+			resolve();
+
+		} else {
+			fetchStats(shortRange).then(data => {
+				model = data;
+				modelCache[shortRange] = data;
+				modelCacheModTime[shortRange] = Date.now();
+				resolve();
+			});
+		}
+	});
+}
+
+/*
+ * Updates the secondary model from cache or fetch new data.
+ */
+function updateSecondaryModel() {
+	return new Promise(function(resolve, reject) {
+		earliestRange.then(value => {
+
+			// Clear model.
+			secondaryModel = {};
+
+			let anteriorData = [];
+
+			// Construct a list of past ranges.
+			let anteriorRanges = [];
+			const lowerBound = value.minus(1);
+			let anteriorRange = range.minus(1);
+			while (anteriorRange.laterThan(lowerBound) && anteriorRanges.length < 11) {
+				anteriorRanges.push(anteriorRange.shortForm)
+				anteriorRange = anteriorRange.minus(1);
+			}
+
+			for (const range of anteriorRanges) {
+				anteriorData.push(new Promise(function(resolve, reject) {
+
+					// If cache is fresh, serve from cache, otherwise, fetch from server.
+					if (Date.now() - modelCacheModTime[range] < cacheTTL) {
+						secondaryModel[range] = modelCache[range];
+						resolve();
+
+					} else {
+						fetchStats(range).then(data => {
+							secondaryModel[range] = data;
+							modelCache[range] = data;
+							modelCacheModTime[range] = Date.now();
+							resolve();
+						});
+					}
+				}));
+			}
+
+			Promise.all(anteriorData).then(() => {
+				resolve();
+			});
+		});
+	});
+}
+
+
+/*
+ * Downdloads stats data from the server.
+ */
+function fetchStats(range) {
 	return new Promise(function(resolve, reject) {
 		const httpRequest = new XMLHttpRequest();
 
@@ -111,8 +203,7 @@ function updateModel() {
 
 				if (httpRequest.status === 200) {
 					try {
-						model = JSON.parse(httpRequest.responseText);
-						resolve();
+						resolve(JSON.parse(httpRequest.responseText));
 
 					} catch (e) {
 						console.error(e);
@@ -125,28 +216,24 @@ function updateModel() {
 			}
 		};
 
-		httpRequest.open("GET", "/api/stats?range=" + range.shortForm);
+		httpRequest.open("GET", "/api/stats?range=" + range);
 		httpRequest.send();
 	});
 }
 
 
 /*
- * Updates the view with data from the model object.
+ * Updates the view with data from the main model object.
  */
-function updateView() {
+function updateMainView() {
 
 	view.rangeDisplay.innerText = range.longForm;
 
-
 	view.sessionTotal.innerText = model.stats.sessionTotal;
-	// view.sessionTotalGraph.value = "";
 
 	const avgSessionLengthFormatted = model.stats.avgSessionLength.round(2);
 	view.avgSessionLength.innerHTML = avgSessionLengthFormatted
 		+ "<small> vue" + (avgSessionLengthFormatted === 1 ? "" : "s") + "</small>";
-	// view.avgSessionLengthGraph.value = "";
-
 
 	// Build the "list views".
 	const listViews = [
@@ -225,16 +312,58 @@ function updateView() {
 			listViews[i].append(newElement);
 		}
 	}
-
-	// Sets all view objects to their loaded state.
-	for (let viewComponent of Object.keys(view)) {
-		view[viewComponent].classList.remove("loading");
-	}
 }
 
 
 /*
- * Selects the previous range and reloads.
+ * Updates the view with data from the secondary model object.
+ */
+function updateSecondaryView() {
+	const previousMonths = Object.keys(secondaryModel);
+
+	// Assemble data for session total graph
+	const sessionTotalData = {
+		points: []
+	};
+	for (let previousMonth of previousMonths) {
+		let previousRange = new DateRange(previousMonth);
+		sessionTotalData.points.push({
+			label: monthsDict[previousRange.month],
+			y: secondaryModel[previousMonth].stats.sessionTotal
+		});
+	}
+	sessionTotalData.points.push({
+		label: monthsDict[range.month],
+		y: model.stats.sessionTotal
+	});
+
+	// Draw session total graph
+	view.sessionTotalGraph.draw(sessionTotalData);
+
+
+	// Assemble data for session length graph
+	const sessionLengthData = {
+		points: []
+	};
+	for (let previousMonth of previousMonths) {
+		let previousRange = new DateRange(previousMonth);
+		sessionLengthData.points.push({
+			label: monthsDict[previousRange.month],
+			y: secondaryModel[previousMonth].stats.avgSessionLength
+		});
+	}
+	sessionLengthData.points.push({
+		label: monthsDict[range.month],
+		y: model.stats.avgSessionLength
+	});
+
+	// Draw session length graph
+	view.avgSessionLengthGraph.draw(sessionLengthData);
+}
+
+
+/*
+ * Selects the previous range and refresh.
  */
 function previousRange(e) {
 	e?.preventDefault();
@@ -244,7 +373,7 @@ function previousRange(e) {
 
 
 /*
- * Selects the next range and reloads.
+ * Selects the next range and refresh.
  */
 function nextRange(e) {
 	e?.preventDefault();
