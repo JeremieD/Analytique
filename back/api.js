@@ -183,10 +183,11 @@ async function buildStats(range) {
 
 			// Referrer Origins
 			if (session.referrerOrigin !== "") {
-				if (stats.stats.referrerOrigins[session.referrerOrigin] === undefined) {
-					stats.stats.referrerOrigins[session.referrerOrigin] = 0;
+				const referrerOrigin = heuristics.normalizeOriginURL(session.referrerOrigin);
+				if (stats.stats.referrerOrigins[referrerOrigin] === undefined) {
+					stats.stats.referrerOrigins[referrerOrigin] = 0;
 				}
-				stats.stats.referrerOrigins[session.referrerOrigin]++;
+				stats.stats.referrerOrigins[referrerOrigin]++;
 			}
 
 			// Bilingualism

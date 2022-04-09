@@ -193,4 +193,13 @@ function inferBilingualismClass(languages) {
 }
 
 
-module.exports = { inferCountry, inferAcquisitionChannel, inferOS, inferBrowser, inferScreenBreakpoint, inferBilingualismClass };
+/**
+ * Simplifies referrer URLs.
+ */
+function normalizeOriginURL(rawURL) {
+	return rawURL.replace(/\/$/, "");
+}
+
+
+module.exports = { inferCountry, inferAcquisitionChannel, inferOS, inferBrowser,
+				   inferScreenBreakpoint, inferBilingualismClass, normalizeOriginURL };

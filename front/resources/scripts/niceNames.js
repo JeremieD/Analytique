@@ -67,11 +67,10 @@ function niceAcquisitionChannelName(input) {
  */
 function niceOriginName(input) {
 	if (input.includes("jeremiedupuis.com")) {
-		return input.replace(/\/$/, "");
+		return input;
 	}
 
-	return input.replace(/\/$/, "")
-				.replace("www.", "")
+	return input.replace("www.", "")
 				.replace("https://", "");
 }
 
