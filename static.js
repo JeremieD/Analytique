@@ -69,6 +69,7 @@ function serveFile(req, res, urlOverride) {
 			// If the requested ETag corresponds to the one in cache, send 304.
 			const requestedETag = req.headers["if-none-match"];
 			if (fileCache[pathname].eTag === requestedETag) {
+				res.setHeader("ETag", fileCache[pathname].eTag);
 				res.writeHead(304);
 				res.end();
 				return;
