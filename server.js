@@ -4,7 +4,7 @@ const uri = require("./utilities/uri.js");
 
 const beacon = require("./back/beacon.js");
 const api = require("./back/api.js");
-const staticFile = require("./staticFile.js");
+const static = require("./static.js");
 const account = require("./account.js");
 
 const host = "localhost";
@@ -17,19 +17,18 @@ const requestListener = function(req, res) {
 		case "GET":
 			if (pathname === "/") {
 				if (account.sessionIsValid(req, res)) {
-					staticFile.serveStaticFile(req, res, "/interface.html");
+					static.serveFile(req, res, "/interface.html");
 				}
 
 			} else if (req.url.startsWith("/resources/")) {
-				staticFile.serveStaticFile(req, res);
+				static.serveFile(req, res);
 
 			} else if (req.url.startsWith("/api/")) {
 				if (account.sessionIsValid(req, res)) {
 					api.processRequest(req, res);
 				}
 			} else {
-				res.writeHead(404);
-				res.end("404");
+				static.serveError(res);
 			}
 
 			break;
@@ -42,14 +41,12 @@ const requestListener = function(req, res) {
 				account.login(req, res);
 
 			} else {
-				res.writeHead(404);
-				res.end();
+				static.serveError(res);
 			}
 			break;
 
 		default:
-			res.writeHead(405);
-			res.end();
+			static.serveError(res, "", 405);
 	}
 };
 

@@ -1,6 +1,6 @@
 const fs = require("fs").promises;
 const crypto = require("crypto").webcrypto;
-const staticFile = require("./staticFile.js");
+const static = require("./static.js");
 const cookies = require("./utilities/cookies.js");
 
 // Holds the active sessions IDs and their expiration time
@@ -23,7 +23,7 @@ function sessionIsValid(req, res) {
 		if (activeSessions[id]) {
 			delete activeSessions[id];
 		}
-		staticFile.serveStaticFile(req, res, "/login.html");
+		static.serveFile(req, res, "/login.html");
 	}
 }
 

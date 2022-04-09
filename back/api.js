@@ -1,4 +1,5 @@
 const fs = require("fs").promises;
+const static = require("../static.js");
 const uri = require("../utilities/uri.js");
 const heuristics = require("../utilities/heuristics.js");
 const dateRange = require("../utilities/dateRange.js");
@@ -39,9 +40,8 @@ function processRequest(req, res) {
 
 	if (path.filename === "stats") {
 		getStats(range).then(data => {
-			res.setHeader("Content-Type", "application/json");
-			res.writeHead(200);
-			res.end(JSON.stringify(data));
+			data = JSON.stringify(data);
+			static.serve(req, res, data, "application/json", "auto");
 		})
 		.catch(e => {
 			return e;
@@ -50,14 +50,12 @@ function processRequest(req, res) {
 	} else if (path.filename === "earliest") {
 		fs.readdir(viewsRoot).then(files => {
 			files = files.filter(filename => filename[0] !== ".").sort();
-			res.setHeader("Content-Type", "text/plain");
-			res.writeHead(200);
-			res.end(files[0].split(".")[0]);
+			const value = files[0].split(".")[0];
+			static.serve(req, res, value, "text/plain", "auto");
 		});
 
 	} else {
-		res.writeHead(404);
-		res.end("404");
+		static.serveError(res);
 	}
 }
 
