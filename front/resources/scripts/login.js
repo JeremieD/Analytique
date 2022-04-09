@@ -25,7 +25,7 @@ whenDOMReady(() => {
 					// If the server responded with a session ID...
 					if (request.responseText.startsWith("_")) {
 						document.cookie = "session=" + request.responseText
-							+ "; secure";
+										+ "; secure; path=/";
 						location.reload();
 
 					} else {
