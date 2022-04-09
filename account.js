@@ -15,8 +15,7 @@ const activeSessions = {};
 function sessionIsValid(req, res) {
 	const id = cookies.parse(req)?.session;
 
-	if (activeSessions[id]
-		&& activeSessions[id] > Date.now()) {
+	if (activeSessions[id] && activeSessions[id] > Date.now()) {
 		return true;
 
 	} else {
