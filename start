@@ -1,2 +1,2 @@
 #!/bin/bash
-pm2 start --name "Analytique" server.js
+pm2 start --name "JD Analytique" server.js

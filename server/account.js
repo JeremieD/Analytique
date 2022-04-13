@@ -1,7 +1,8 @@
 const fs = require("fs").promises;
-const crypto = require("crypto").webcrypto;
 const static = require("./static.js");
 const cookies = require("./utilities/cookies.js");
+
+const users = require("./config.js").users;
 
 // Holds the active sessions IDs and their expiration time
 // in milliseconds since 1 January 1970 UTC.
@@ -47,23 +48,17 @@ function login(req, res) {
 
 		const login = JSON.parse(rawData);
 
-		fs.readFile("./data/users.json").then(rawUsers => {
-			// Usernames with their SHA-512 password hash.
-			const users = JSON.parse(rawUsers);
+		// If a matching user/password pair is found...
+		if (users[login.u] === login.p) {
+			// Return a new session ID and add it to the active sessions list.
+			const newSession = "_" + Math.random().toString(36).substr(2, 9);
+			activeSessions[newSession] = Date.now() + 3600000*24*30;
+			res.end(newSession);
 
-			// If a matching user/password pair is found...
-			if (users[login.u] === login.p) {
-				// Return a new session ID and add it to the active sessions list.
-				const newSession = "_" + Math.random().toString(36).substr(2, 9);
-				activeSessions[newSession] = Date.now() + 3600000*24*30;
-				res.end(newSession);
-
-			} else {
-				// Otherwise, return "refused".
-				res.end("refused");
-			}
-		});
-
+		} else {
+			// Otherwise, return "refused".
+			res.end("refused");
+		}
 	});
 }
 

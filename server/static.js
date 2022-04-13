@@ -42,7 +42,7 @@ function serveFile(req, res, urlOverride) {
 	const path = new uri.URIPath(urlOverride ?? req.url);
 	const pathname = path.pathname; // The path without the query.
 	const extension = path.extension; // Just the file extension.
-	const realPath = "./front" + pathname; // The access path on the disk.
+	const realPath = "./client" + pathname; // The access path on the disk.
 
 	// If the file extension is unknown, return 404.
 	if (mimeTypes[extension] === undefined) {

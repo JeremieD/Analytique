@@ -1,29 +1,38 @@
 const http = require("http");
 const fs = require("fs").promises;
-const uri = require("./utilities/uri.js");
+const uri = require("./server/utilities/uri.js");
 
-const beacon = require("./back/beacon.js");
-const api = require("./back/api.js");
-const static = require("./static.js");
-const account = require("./account.js");
+const config = require("./server/config.js").server;
 
-const host = "localhost";
-const port = 8000;
+const beaconReceiver = require("./server/api/beaconReceiver.js");
+const api = require("./server/api/processor.js");
+const static = require("./server/static.js");
+const account = require("./server/account.js");
+
+
+// Configure these depending on way the server is run.
+const host = config.host;
+const port = config.port;
+
 
 const requestListener = function(req, res) {
 	const pathname = new uri.URIPath(req.url).pathname;
 
 	switch (req.method) {
 		case "GET":
-			if (pathname === "/") {
+			if (pathname === "/") { // Request for client interface.
 				if (account.sessionIsValid(req, res)) {
 					static.serveFile(req, res, "/interface.html");
 				}
 
-			} else if (req.url.startsWith("/resources/")) {
+			} else if (req.url.startsWith("/resources/")) { // The front-end requests files
 				static.serveFile(req, res);
 
-			} else if (req.url.startsWith("/api/")) {
+			} else if (pathname === "/send") { // An origin is trying to send a beacon
+				res.setHeader("Access-Control-Allow-Origin", "*");
+				static.serveFile(req, res, "/beaconSender.js");
+
+			} else if (req.url.startsWith("/api/")) { // Request for data
 				if (account.sessionIsValid(req, res)) {
 					api.processRequest(req, res);
 				}
@@ -34,10 +43,10 @@ const requestListener = function(req, res) {
 			break;
 
 		case "POST":
-			if (req.url === "/") {
+			if (req.url === "/") { // An origin is presumably sending a beacon.
 				beacon.receiveBeacon(req, res);
 
-			} else if (req.url === "/login") {
+			} else if (req.url === "/login") { // Login attempt
 				account.login(req, res);
 
 			} else {

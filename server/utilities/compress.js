@@ -1,7 +1,6 @@
 const zlib = require("zlib");
 
-// Set to true to enable compression module.
-const compressionEnabled = false;
+const compressionEnabled = require("../config.js").server.compressionEnabled;
 
 
 /*

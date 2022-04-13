@@ -453,7 +453,7 @@ async function getViews(range) {
 					.map(rawView => rawView.split("\t")
 					.map(rawField => decodeURI(rawField)));
 			})
-			.catch(e => { return e; })
+			.catch(e => { return e; }) // No semicolon here please.
 		);
 	}
 
