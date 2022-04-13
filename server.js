@@ -11,7 +11,7 @@ const account = require("./server/account.js");
 
 
 // Configure these depending on way the server is run.
-const host = config.host;
+const hostname = config.hostname;
 const port = config.port;
 
 
@@ -61,6 +61,6 @@ const requestListener = function(req, res) {
 
 const server = http.createServer(requestListener);
 
-server.listen(port, host, () => {
-	console.log(`Server is running on http://${host}:${port}`);
+server.listen(port, hostname, () => {
+	console.log(`Server is running on http://${hostname}:${port}`);
 });
