@@ -36,9 +36,7 @@ function receiveBeacon(req, res) {
 		// Complete the beacon data.
 		beacon[10] = encodeURI(Date.now());
 		beacon[11] = encodeURI(req.headers["user-agent"]);
-		// Since the Node server is behind an Apache proxy, this holds
-		// the client’s IP address.
-		beacon[12] = encodeURI(req.headers["x-forwarded-for"]);
+		beacon[12] = encodeURI(req.headers["x-forwarded-for"] ?? req.connection.remoteAddress);
 
 
 		// Write the beacon data to file.
