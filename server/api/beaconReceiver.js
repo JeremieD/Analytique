@@ -1,5 +1,7 @@
 const fs = require("fs").promises;
 
+const origins = Object.keys(require("../config.js").origins);
+
 /**
  * A user-agent is sending a view beacon.
  * The server calls this function with the *req*uest and *res*ponse context.
@@ -17,20 +19,26 @@ function receiveBeacon(req, res) {
 	});
 
 	req.on("end", function() {
+		const beacon = body.split("\t");
 
-		// Complete the beacon data.
-		const post = body.split("\t");
+		const origin = new URL(beacon[4]).hostname;
 
-		if (post[0] !== "1" || post.length !== 10) {
+		if (!origins.includes(origin)) {
+			// Received beacon is for an unregistered origin.
+			return;
+		}
+
+		if (beacon[0] !== "1" || beacon.length !== 10) {
 			// Received beacon is invalid.
 			return;
 		}
 
-		post[10] = encodeURI(Date.now());
-		post[11] = encodeURI(req.headers["user-agent"]);
+		// Complete the beacon data.
+		beacon[10] = encodeURI(Date.now());
+		beacon[11] = encodeURI(req.headers["user-agent"]);
 		// Since the Node server is behind an Apache proxy, this holds
 		// the client’s IP address.
-		post[12] = encodeURI(req.headers["x-forwarded-for"]);
+		beacon[12] = encodeURI(req.headers["x-forwarded-for"]);
 
 
 		// Write the beacon data to file.
@@ -40,7 +48,7 @@ function receiveBeacon(req, res) {
 		const viewsFile = currentYear + "-" + currentMonth + ".tsv";
 
 		fs.mkdir("./data/views", { recursive: true }).then(() => {
-			fs.appendFile("./data/views/" + viewsFile, post.join("\t") + "\n")
+			fs.appendFile("./data/views/" + viewsFile, beacon.join("\t") + "\n")
 				.then(() => {
 					res.writeHead(200);
 					res.end();
