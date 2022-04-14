@@ -17,5 +17,5 @@ collectedData[9] = outerWidth + "x" + outerHeight;
 
 collectedData = collectedData.map(x => encodeURI(x));
 
-const analyticsHomebase = "https://analytics.jeremiedupuis.com";
+const analyticsHomebase = "https://analytique.jeremiedupuis.com";
 navigator.sendBeacon(analyticsHomebase, collectedData.join("\t"));
