@@ -10,7 +10,6 @@ const static = require("./server/static.js");
 const account = require("./server/account.js");
 
 
-// Configure these depending on way the server is run.
 const hostname = config.hostname;
 const port = config.port;
 
@@ -28,7 +27,7 @@ const requestListener = function(req, res) {
 			} else if (req.url.startsWith("/resources/")) { // The front-end requests files
 				static.serveFile(req, res);
 
-			} else if (pathname === "/send") { // An origin is trying to send a beacon
+			} else if (pathname === "/collect") { // An origin is trying to send a beacon
 				res.setHeader("Access-Control-Allow-Origin", "*");
 				static.serveFile(req, res, "/beaconSender.js");
 

@@ -66,6 +66,6 @@ The `excludeClientIPs` field contains a list of IP addresses that you want to ig
 
 Now that the Analytique server can receive data, you will need to send the beacon from your site. For that, simply add this code inside the HTML `head` element of every page that you want to track.
 ```html
-<script defer src="your.analytiqueserver.domain/send"></script>
+<script defer src="your.analytiqueserver.domain/collect"></script>
 ```
 Check that line 20 of `client/beaconSender.js` is pointing to the correct address and you should be good to go!
