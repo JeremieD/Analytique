@@ -3,6 +3,7 @@
 	--color-tertiary: #E8E8E8;
 	--color-loading1: #CCC;
 	--color-loading2: #D4D4D4;
+	color-scheme: light dark;
 }
 
 @media(prefers-color-scheme: dark) {
@@ -91,6 +92,7 @@ a:hover {
 }
 
 hgroup>p {
+	margin-top: .5em;
 	color: var(--color-grey);
 }
 
@@ -245,4 +247,18 @@ jd-graph {
 
 * + figure {
 	margin-top: 16px;
+}
+
+select {
+	text-decoration: underline;
+	transition: .2s ease color;
+}
+
+select:hover {
+	background-color: inherit;
+}
+
+select:active {
+	color: initial;
+	background: initial;
 }
