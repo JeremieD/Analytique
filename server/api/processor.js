@@ -1,26 +1,27 @@
 const fs = require("fs").promises;
 const static = require("../static.js");
+const account = require("../account.js");
 const uri = require("../utilities/uri.js");
 const heuristics = require("../utilities/heuristics.js");
 const dateRange = require("../utilities/dateRange.js");
 require("../utilities/misc.js");
 
+const origins = require("../config.js").origins;
+
 const dataRoot = "./data/";
-const viewsRoot = dataRoot + "views/";
-const sessionsRoot = dataRoot + "sessions/";
-const statsRoot = dataRoot + "stats/";
+function viewsRoot(origin) { return dataRoot + origin + "/views/"; }
+function sessionsRoot(origin) { return dataRoot + origin + "/sessions/"; }
+function statsRoot(origin) { return dataRoot + origin + "/stats/"; }
 
 
 /**
  * An object describing what data will be filtered out.
  *
  * excludeClientIPs		Page views from IPs listed here will be excluded.
- * requiredHostnames	Page views that do *not* include one of these will be excluded.
  * excludeBotUserAgents	Page views containing a matching user-agent will be excluded.
  */
 const filter = {
 	excludeClientIPs: [ "104.221.122.236", "173.177.95.199" ],
-	requiredHostnames: [ "jeremiedupuis.com" ],
 	excludeBotUserAgents: [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver", "Dataprovider.com" ]
 };
 
@@ -32,27 +33,48 @@ const filter = {
 function processRequest(req, res) {
 	const path = new uri.URIPath(req.url);
 
-	let range;
+	if (path.filename === "origins") {
+		const user = account.getUser(req);
 
-	if (path.parameters?.range) {
+		let allowedOrigins = [];
+		for (var originHostname of Object.keys(origins)) {
+			if (origins[originHostname].allowedUsers.includes(user)) {
+				allowedOrigins.push(originHostname)
+			}
+		}
+
+		static.serve(req, res, JSON.stringify(allowedOrigins), "application/json", "auto");
+		return;
+	}
+
+
+	let range, origin;
+
+	if ("range" in path.parameters) {
 		range = new dateRange.DateRange(path.parameters.range);
 	}
 
+	origin = path.parameters?.origin;
+	if (origin === undefined) {
+		res.writeHead(400);
+		res.end();
+		return;
+	}
+
 	if (path.filename === "stats") {
-		getStats(range).then(data => {
+		getStats(origin, range).then(data => {
 			data = JSON.stringify(data);
 			static.serve(req, res, data, "application/json", "auto");
 		})
-		.catch(e => {
-			return e;
-		});
+		.catch(e => { console.log(e); });
 
 	} else if (path.filename === "earliest") {
-		fs.readdir(viewsRoot).then(files => {
+		fs.readdir(viewsRoot(origin)).then(files => {
 			files = files.filter(filename => filename[0] !== ".").sort();
 			const value = files[0].split(".")[0];
 			static.serve(req, res, value, "text/plain", "auto");
-		});
+		})
+		.catch(e => { console.log(e); });
 
 	} else {
 		static.serveError(res);
@@ -64,13 +86,13 @@ function processRequest(req, res) {
  * Checks the cache for the requested stats.
  * Returns data from cache, or calls buildStats(range) and returns that.
  */
-async function getStats(range) {
+async function getStats(origin, range) {
 	const to = range.to();
 	const lastMonth = to.year + "-" + to.month.toString().padStart(2, "0");
-	const viewsFilePath = viewsRoot + lastMonth + ".tsv";
+	const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
 	const viewsFileMetadata = fs.stat(viewsFilePath);
 
-	const statsFilePath = statsRoot + range.type + "/" + range.value + ".json";
+	const statsFilePath = statsRoot(origin) + range.type + "/" + range.value + ".json";
 	const statsFileMetadata = fs.stat(statsFilePath);
 
 	return Promise.all([statsFileMetadata, viewsFileMetadata]).then(metadata => {
@@ -79,7 +101,7 @@ async function getStats(range) {
 
 		if (viewsMetadata.mtimeMs > statsMetadata.mtimeMs
 			|| Date.now() - 3600000*24*30 > statsMetadata.mtimeMs) {
-			return buildStats(range);
+			return buildStats(origin, range);
 
 		} else {
 			return fs.readFile(statsFilePath, "utf8")
@@ -87,7 +109,7 @@ async function getStats(range) {
 		}
 	})
 	.catch((e) => {
-		return buildStats(range);
+		return buildStats(origin, range);
 	});
 }
 
@@ -117,8 +139,8 @@ async function getStats(range) {
  * Most of these data fields use a sort of associative array solution that uses
  * an array of object. Each object has a "key" and "value" property.
  */
-async function buildStats(range) {
-	return getSessions(range).then(sessions => {
+async function buildStats(origin, range) {
+	return getSessions(origin, range).then(sessions => {
 
 		let stats = {
 			version: 1,
@@ -240,8 +262,9 @@ async function buildStats(range) {
 		stats.stats.excludedTraffic = stats.stats.excludedTraffic.sortedAssociativeArray();
 
 		// Save stats to cache.
-		const filePath = statsRoot + range.type + "/" + range.value + ".json";
-		fs.mkdir(statsRoot + range.type, { recursive: true }).then(() => {
+		const dirPath = statsRoot(origin) + range.type;
+		const filePath = dirPath + "/" + range.value + ".json";
+		fs.mkdir(dirPath, { recursive: true }).then(() => {
 			fs.writeFile(filePath, JSON.stringify(stats));
 		});
 
@@ -255,13 +278,13 @@ async function buildStats(range) {
  * Checks the cache for the requested sessions.
  * Returns data from cache, or calls buildSessions(range) and returns that.
  */
-async function getSessions(range) {
+async function getSessions(origin, range) {
 	const to = range.to();
 	const lastMonth = to.year + "-" + to.month.toString().padStart(2, "0");
-	const viewsFilePath = viewsRoot + lastMonth + ".tsv";
+	const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
 	const viewsFileMetadata = fs.stat(viewsFilePath);
 
-	const sessionsFilePath = sessionsRoot + range.type + "/" + range.value + ".json";
+	const sessionsFilePath = sessionsRoot(origin) + range.type + "/" + range.value + ".json";
 	const sessionsFileMetadata = fs.stat(sessionsFilePath);
 
 	return Promise.all([sessionsFileMetadata, viewsFileMetadata]) .then(metadata => {
@@ -270,7 +293,7 @@ async function getSessions(range) {
 
 		if (viewsMetadata.mtimeMs > sessionsMetadata.mtimeMs
 			|| Date.now() - 3600000*24*30 > sessionsMetadata.mtimeMs) {
-			return buildSessions(range);
+			return buildSessions(origin, range);
 
 		} else {
 			return fs.readFile(sessionsFilePath, "utf8")
@@ -278,7 +301,7 @@ async function getSessions(range) {
 		}
 	})
 	.catch((e) => {
-		return buildSessions(range);
+		return buildSessions(origin, range);
 	});
 }
 
@@ -309,8 +332,8 @@ async function getSessions(range) {
  * → See the View documentation for more detais.
  * Timestamps are in milliseconds since 1 January 1970 UTC.
  */
-async function buildSessions(range) {
-	return getViews(range).then(async (views) => {
+async function buildSessions(origin, range) {
+	return getViews(origin, range).then(async (views) => {
 
 		let sessions = {
 			version: 1,
@@ -360,18 +383,6 @@ async function buildSessions(range) {
 					continue;
 				}
 
-				// Filter out all hostnames except the ones specified.
-				// TODO: Refactor this into a more thorough beacon authentication.
-				let hostnameFound = undefined;
-				for (const hostname of filter.requiredHostnames) {
-					if (view[4].includes(hostname)) {
-						hostnameFound = hostname;
-					}
-				}
-				if (!hostnameFound) {
-					continue;
-				}
-
 				// Filter out bots.
 				if (view[11].includesAny(filter.excludeBotUserAgents)) {
 					sessions.excludedTraffic.excludedBots++;
@@ -409,8 +420,8 @@ async function buildSessions(range) {
 		}
 
 		// Save data to cache.
-		const filePath = sessionsRoot + range.type + "/" + range.value + ".json";
-		fs.mkdir(sessionsRoot + range.type, { recursive: true }).then(() => {
+		const filePath = sessionsRoot(origin) + range.type + "/" + range.value + ".json";
+		fs.mkdir(sessionsRoot(origin) + range.type, { recursive: true }).then(() => {
 			fs.writeFile(filePath, JSON.stringify(sessions));
 		});
 
@@ -440,13 +451,13 @@ async function buildSessions(range) {
  *
  * Timestamps are in milliseconds since 1 January 1970 UTC.
  */
-async function getViews(range) {
+async function getViews(origin, range) {
 	let fileReadPromises = [];
 
 	// Issue a promise for each month-file.
 	for (const month of range.monthRange()) {
 		fileReadPromises.push(
-			fs.readFile(dataRoot + "views/" + month + ".tsv", "utf8")
+			fs.readFile(viewsRoot(origin) + month + ".tsv", "utf8")
 			.then(rawView => {
 				// Format the view.
 				return rawView.trim().split("\n")

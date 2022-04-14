@@ -44,7 +44,7 @@ const requestListener = function(req, res) {
 
 		case "POST":
 			if (req.url === "/") { // An origin is presumably sending a beacon.
-				beacon.receiveBeacon(req, res);
+				beaconReceiver.receive(req, res);
 
 			} else if (req.url === "/login") { // Login attempt
 				account.login(req, res);

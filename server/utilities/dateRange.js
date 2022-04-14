@@ -44,7 +44,7 @@ class DateRange {
 				break;
 
 			default:
-				throw "DateRange: Invalid format.";
+				return undefined;
 		}
 	}
 

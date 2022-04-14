@@ -14,17 +14,17 @@ const activeSessions = {};
  * If the session is refused, the login page is served.
  */
 function sessionIsValid(req, res) {
-	const id = cookies.parse(req)?.session;
+	const id = getSessionID(req);
 
-	if (activeSessions[id] && activeSessions[id] > Date.now()) {
+	if (activeSessions[id] && activeSessions[id].expiration > Date.now()) {
 		return true;
-
-	} else {
-		if (activeSessions[id]) {
-			delete activeSessions[id];
-		}
-		static.serveFile(req, res, "/login.html");
 	}
+
+	if (activeSessions[id]) {
+		delete activeSessions[id];
+	}
+	static.serveFile(req, res, "/login.html");
+	return false;
 }
 
 
@@ -50,10 +50,17 @@ function login(req, res) {
 
 		// If a matching user/password pair is found...
 		if (users[login.u] === login.p) {
-			// Return a new session ID and add it to the active sessions list.
-			const newSession = "_" + Math.random().toString(36).substr(2, 9);
-			activeSessions[newSession] = Date.now() + 3600000*24*30;
-			res.end(newSession);
+			// Get a new session ID and add it to the active sessions list.
+			const newID = "_" + Math.random().toString(36).substr(2, 9);
+
+			const newSession = {
+				username: login.u,
+				expiration: Date.now() + 3600000*24*30
+			};
+
+			activeSessions[newID] = newSession;
+
+			res.end(newID);
 
 		} else {
 			// Otherwise, return "refused".
@@ -63,4 +70,14 @@ function login(req, res) {
 }
 
 
-module.exports = { sessionIsValid, login };
+function getSessionID(req) {
+	return cookies.parse(req)?.session;
+}
+
+
+function getUser(req) {
+	return activeSessions[getSessionID(req)]?.username;
+}
+
+
+module.exports = { sessionIsValid, login, getUser };

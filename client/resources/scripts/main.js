@@ -1,3 +1,12 @@
+// Query the available origins.
+const availableOrigins = httpGet("/api/origins").then(JSON.parse);
+
+// Holds the current origin.
+var origin;
+
+// Query the earliest available month with data.
+var earliestRange;
+
 // Holds stats data.
 var model = {}; // Data for the current range.
 var secondaryModel = {}; // Anterior data.
@@ -7,7 +16,6 @@ var modelCache = {};
 var modelCacheModTime = {};
 const cacheTTL = 30000; // 30s to live.
 
-
 // Holds references to the DOM objects that display the data.
 const view = {};
 
@@ -15,30 +23,9 @@ const view = {};
 let range = new DateRange();
 
 
-// Query the earliest available month with data.
-const earliestRange = new Promise((resolve, reject) => {
-	const httpRequest = new XMLHttpRequest();
-
-	httpRequest.onreadystatechange = () => {
-		if (httpRequest.readyState === XMLHttpRequest.DONE) {
-
-			if (httpRequest.status === 200) {
-				resolve(new DateRange(httpRequest.responseText));
-
-			} else {
-				console.error(httpRequest.status);
-				reject();
-			}
-		}
-	};
-
-	httpRequest.open("GET", "/api/earliest");
-	httpRequest.send();
-});
-
-
 whenDOMReady(() => {
 	// Build the view object.
+	view.originSelector = document.getElementById("origin-selector");
 	view.rangeDisplay = document.getElementById("range-display");
 	view.sessionTotal = document.getElementById("session-total");
 	view.sessionTotalGraph = document.getElementById("session-total-graph");
@@ -72,9 +59,34 @@ whenDOMReady(() => {
 		}
 	});
 
+	view.originSelector.addEventListener("change", () => {
+		switchToOrigin(view.originSelector.value);
+	});
 
-	refresh();
+	availableOrigins.then(origins => {
+		for (let origin of origins) {
+			const option = document.createElement("option");
+			option.value = origin;
+			option.innerText = origin;
+			view.originSelector.append(option);
+		}
+		switchToOrigin(origins[0]);
+	});
 });
+
+
+function switchToOrigin(newOrigin) {
+	origin = newOrigin;
+	view.originSelector.value = origin;
+	earliestRange = httpGet("/api/earliest?origin=" + origin).then(value => {
+		const newEarliestRange = new DateRange(value);
+		if (newEarliestRange.laterThan(range)) {
+			range = newEarliestRange;
+		}
+		refresh();
+		return newEarliestRange;
+	});
+}
 
 
 /*
@@ -127,16 +139,21 @@ function updateMainModel() {
 	return new Promise(function(resolve, reject) {
 		const shortRange = range.shortForm;
 
+		if (!modelCache.hasOwnProperty(origin)) {
+			modelCache[origin] = {};
+			modelCacheModTime[origin] = {};
+		}
+
 		// If cache is fresh, serve from cache, otherwise, fetch from server.
-		if (Date.now() - modelCacheModTime[shortRange] < cacheTTL) {
-			model = modelCache[shortRange];
+		if (Date.now() - modelCacheModTime[origin][shortRange] < cacheTTL) {
+			model = modelCache[origin][shortRange];
 			resolve();
 
 		} else {
 			fetchStats(shortRange).then(data => {
 				model = data;
-				modelCache[shortRange] = data;
-				modelCacheModTime[shortRange] = Date.now();
+				modelCache[origin][shortRange] = data;
+				modelCacheModTime[origin][shortRange] = Date.now();
 				resolve();
 			});
 		}
@@ -167,16 +184,21 @@ function updateSecondaryModel() {
 			for (const range of anteriorRanges) {
 				anteriorData.push(new Promise(function(resolve, reject) {
 
+					if (!modelCache.hasOwnProperty(origin)) {
+						modelCache[origin] = {};
+						modelCacheModTime[origin] = {};
+					}
+
 					// If cache is fresh, serve from cache, otherwise, fetch from server.
-					if (Date.now() - modelCacheModTime[range] < cacheTTL) {
-						secondaryModel[range] = modelCache[range];
+					if (Date.now() - modelCacheModTime[origin][range] < cacheTTL) {
+						secondaryModel[range] = modelCache[origin][range];
 						resolve();
 
 					} else {
 						fetchStats(range).then(data => {
 							secondaryModel[range] = data;
-							modelCache[range] = data;
-							modelCacheModTime[range] = Date.now();
+							modelCache[origin][range] = data;
+							modelCacheModTime[origin][range] = Date.now();
 							resolve();
 						});
 					}
@@ -195,30 +217,7 @@ function updateSecondaryModel() {
  * Downdloads stats data from the server.
  */
 function fetchStats(range) {
-	return new Promise(function(resolve, reject) {
-		const httpRequest = new XMLHttpRequest();
-
-		httpRequest.onreadystatechange = () => {
-			if (httpRequest.readyState === XMLHttpRequest.DONE) {
-
-				if (httpRequest.status === 200) {
-					try {
-						resolve(JSON.parse(httpRequest.responseText));
-
-					} catch (e) {
-						console.error(e);
-						reject(e);
-					}
-
-				} else {
-					reject(httpRequest.status);
-				}
-			}
-		};
-
-		httpRequest.open("GET", "/api/stats?range=" + range);
-		httpRequest.send();
-	});
+	return httpGet("/api/stats?origin=" + origin + "&range=" + range).then(JSON.parse);
 }
 
 
@@ -290,8 +289,7 @@ function updateMainView() {
 			const transformedKey = listViewsTransforms[i](dataPoint.key);
 
 			const newElement = document.createElement("li");
-			if (dataPoint.key === ""
-				|| transformedKey.includes("Autre")) {
+			if (dataPoint.key === "" || transformedKey.includes("Autre")) {
 				newElement.classList.add("last");
 			}
 

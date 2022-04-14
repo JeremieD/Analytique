@@ -6,7 +6,7 @@ const origins = Object.keys(require("../config.js").origins);
  * A user-agent is sending a view beacon.
  * The server calls this function with the *req*uest and *res*ponse context.
  */
-function receiveBeacon(req, res) {
+function receive(req, res) {
 	let body = "";
 
 	req.on("data", function(data) {
@@ -21,15 +21,19 @@ function receiveBeacon(req, res) {
 	req.on("end", function() {
 		const beacon = body.split("\t");
 
+		if (beacon[0] !== "1" || beacon.length !== 10) {
+			// Received beacon is invalid.
+			res.writeHead(400);
+			res.end();
+			return;
+		}
+
 		const origin = new URL(beacon[4]).hostname;
 
 		if (!origins.includes(origin)) {
 			// Received beacon is for an unregistered origin.
-			return;
-		}
-
-		if (beacon[0] !== "1" || beacon.length !== 10) {
-			// Received beacon is invalid.
+			res.writeHead(400);
+			res.end();
 			return;
 		}
 
@@ -45,8 +49,8 @@ function receiveBeacon(req, res) {
 		const currentMonth = (date.getMonth() + 1).toString().padStart(2, "0");
 		const viewsFile = currentYear + "-" + currentMonth + ".tsv";
 
-		fs.mkdir("./data/views", { recursive: true }).then(() => {
-			fs.appendFile("./data/views/" + viewsFile, beacon.join("\t") + "\n")
+		fs.mkdir("./data/" + origin + "/views", { recursive: true }).then(() => {
+			fs.appendFile("./data/" + origin + "/views/" + viewsFile, beacon.join("\t") + "\n")
 				.then(() => {
 					res.writeHead(200);
 					res.end();
@@ -58,4 +62,4 @@ function receiveBeacon(req, res) {
 	});
 }
 
-module.exports = { receiveBeacon };
+module.exports = { receive };
