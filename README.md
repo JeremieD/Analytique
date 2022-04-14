@@ -38,7 +38,7 @@ The `server` section is where you can specify parameters for the Node.js server 
 
 The `users` section contains the list of users allowed to log into the Analytique client interface. The key is the username and the value is the password hash.
 
-The `analytics` section contains parameters for the analytics processor. You will at least want to use your own ipgeolocation.io token.
+The `analytics` section contains parameters for the analytics processor. You will at least want to use your own [ipinfo.io](ipinfo.io) token.
 
 The `origins` section specifies the domains from which this Analytique server will receive data. See the [Adding Origins](#adding-origins) section for details.
 
