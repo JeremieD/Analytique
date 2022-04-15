@@ -37,11 +37,11 @@ class Graph extends HTMLElement {
 		yAxis.setAttribute("name", "y");
 
 		const yAxisLabel1 = document.createElement("label");
-		yAxisLabel1.innerText = (maxYValue).round(2);
+		yAxisLabel1.innerText = (maxYValue).round(data.floatingDigits);
 		const yAxisLabel2 = document.createElement("label");
-		yAxisLabel2.innerText = (maxYValue / 3 * 2).round(2);
+		yAxisLabel2.innerText = (maxYValue / 3 * 2).round(data.floatingDigits);
 		const yAxisLabel3 = document.createElement("label");
-		yAxisLabel3.innerText = (maxYValue / 3).round(2);
+		yAxisLabel3.innerText = (maxYValue / 3).round(data.floatingDigits);
 
 		yAxis.append(yAxisLabel1, yAxisLabel2, yAxisLabel3);
 
@@ -78,9 +78,9 @@ class Graph extends HTMLElement {
 
 			const label = document.createElement("label");
 			if (xOffset === 11) {
-				label.innerHTML = dataPoint.y.round(2);
+				label.innerHTML = dataPoint.y.round(data.floatingDigits);
 			} else {
-				label.innerHTML = dataPoint.label + ": <em>" + dataPoint.y.round(2) + "</em>";
+				label.innerHTML = dataPoint.label + ": <em>" + dataPoint.y.round(data.floatingDigits) + "</em>";
 			}
 			point.append(label);
 

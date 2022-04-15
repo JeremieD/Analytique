@@ -325,7 +325,8 @@ function updateSecondaryView() {
 
 	// Assemble data for session total graph
 	const sessionTotalData = {
-		points: []
+		points: [],
+		floatingDigits: 0
 	};
 	for (let previousMonth of previousMonths) {
 		let previousRange = new DateRange(previousMonth);
@@ -345,7 +346,8 @@ function updateSecondaryView() {
 
 	// Assemble data for session length graph
 	const sessionLengthData = {
-		points: []
+		points: [],
+		floatingDigits: 2
 	};
 	for (let previousMonth of previousMonths) {
 		let previousRange = new DateRange(previousMonth);
