@@ -131,6 +131,7 @@ async function getStats(origin, range) {
  *   landingPages			Number of landings per page.
  *   bilingualismClasses	Number of sessions per bilingualism class.
  *   countries				Number of sessions per country.
+ *   cities					Number of sessions per Canadian city.
  *   oses					Number of sessions per OS.
  *   browsers				Number of sessions per browser.
  *   screenBreakpoints		Number of sessions per breakpoint.
@@ -155,6 +156,7 @@ async function buildStats(origin, range) {
 				landingPages: {},
 				bilingualismClasses: {},
 				countries: {},
+				cities: {},
 				oses: {},
 				browsers: {},
 				screenBreakpoints: {},
@@ -225,6 +227,14 @@ async function buildStats(origin, range) {
 			}
 			stats.stats.countries[session.country]++;
 
+			// Cities
+			if (session.city !== undefined) {
+				if (stats.stats.cities[session.city] === undefined) {
+					stats.stats.cities[session.city] = 0;
+				}
+				stats.stats.cities[session.city]++;
+			}
+
 			// OSes
 			if (stats.stats.oses[session.os] === undefined) {
 				stats.stats.oses[session.os] = 0;
@@ -256,6 +266,7 @@ async function buildStats(origin, range) {
 		stats.stats.referrerOrigins = stats.stats.referrerOrigins.sortedAssociativeArray();
 		stats.stats.bilingualismClasses = stats.stats.bilingualismClasses.sortedAssociativeArray();
 		stats.stats.countries = stats.stats.countries.sortedAssociativeArray();
+		stats.stats.cities = stats.stats.cities.sortedAssociativeArray();
 		stats.stats.oses = stats.stats.oses.sortedAssociativeArray();
 		stats.stats.browsers = stats.stats.browsers.sortedAssociativeArray();
 		stats.stats.screenBreakpoints = stats.stats.screenBreakpoints.sortedAssociativeArray();
@@ -311,10 +322,10 @@ async function getSessions(origin, range) {
  * Also stores the result in cache.
  *
  * A sessions file or "container" is as follows:
- * version			The version of Analytique.
- * filter			The filter that was used to exclude views.
- * viewTotal		Total number of views processed before filter.
- * excludedTraffic	An object with stats about the data that was filtered out.
+ * version				The version of Analytique.
+ * filter				The filter that was used to exclude views.
+ * viewTotal			Total number of views processed before filter.
+ * excludedTraffic		An object with stats about the data that was filtered out.
  *   excludedTests		Number of views excluded because the IP was from a dev.
  *   excludedBots		Number of views excluded because it was from a bot.
  *   excludedAttacks	Number of views excluded because it was illegitimate.
@@ -324,6 +335,7 @@ async function getSessions(origin, range) {
  *   acquisitionChannel
  *   languages			Array of strings of language codes.
  *   country
+ *   city				City name iff the country is Canada.
  *   os
  *   browser
  *   screenBreakpoint
@@ -404,6 +416,12 @@ async function buildSessions(origin, range) {
 				currentSession.languages = currentSession.languages.unique();
 
 				currentSession.country = await heuristics.inferCountry(view[12]);
+				if (currentSession.country === "CA") {
+					const city = await heuristics.inferCity(view[12]);
+					if (city !== undefined) {
+						currentSession.city = city;
+					}
+				}
 
 				currentSession.os = heuristics.inferOS(view[11]);
 				currentSession.browser = heuristics.inferBrowser(view[11]);

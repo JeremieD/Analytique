@@ -37,6 +37,7 @@ whenDOMReady(() => {
 	view.landingPages = document.getElementById("landing-pages");
 	view.bilingualismClasses = document.getElementById("bilingualism-classes");
 	view.countries = document.getElementById("countries");
+	view.cities = document.getElementById("cities");
 	view.oses = document.getElementById("oses");
 	view.browsers = document.getElementById("browsers");
 	view.screenBreakpoints = document.getElementById("screen-breakpoints");
@@ -242,6 +243,7 @@ function updateMainView() {
 		view.landingPages,
 		view.bilingualismClasses,
 		view.countries,
+		view.cities,
 		view.oses,
 		view.browsers,
 		view.screenBreakpoints,
@@ -254,6 +256,7 @@ function updateMainView() {
 		"landingPages",
 		"bilingualismClasses",
 		"countries",
+		"cities",
 		"oses",
 		"browsers",
 		"screenBreakpoints",
@@ -268,6 +271,7 @@ function updateMainView() {
 		niceCountryName,
 		_identity,
 		_identity,
+		_identity,
 		niceScreenBreakpointsName,
 		niceExcludedTrafficName
 	];
@@ -275,7 +279,7 @@ function updateMainView() {
 		"sessionTotal", "sessionTotal", "sessionTotal",
 		"sessionTotal", "sessionTotal", "sessionTotal",
 		"sessionTotal", "sessionTotal", "sessionTotal",
-		"viewTotal"
+		"sessionTotal", "viewTotal"
 	];
 
 	for (let i = 0; i < listViews.length; i++) {
