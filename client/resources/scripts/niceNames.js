@@ -24,6 +24,15 @@ const countriesDict = {
 	"DE": "Allemagne",
 	"EC": "Équateur",
 	"GB": "Royaume-Uni",
+	"MG": "Madagascar",
+	"BR": "Brésil",
+	"IT": "Italie",
+	"UA": "Ukraine",
+	"MX": "Mexique",
+	"BG": "Bulgarie",
+	"CO": "Colombie",
+	"PL": "Pologne",
+	"BE": "Belgique",
 	"": "Indéterminé"
 };
 
