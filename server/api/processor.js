@@ -19,10 +19,12 @@ function statsRoot(origin) { return dataRoot + origin + "/stats/"; }
  *
  * excludeClientIPs		Page views from IPs listed here will be excluded.
  * excludeBotUserAgents	Page views containing a matching user-agent will be excluded.
+ * excludeCountries		Page views containing a matching country code will be excluded.
  */
 const filter = {
 	excludeClientIPs: [ "104.221.122.236", "173.177.95.199" ],
-	excludeBotUserAgents: [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver", "Dataprovider.com" ]
+	excludeBotUserAgents: [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver", "Dataprovider.com" ],
+	excludeCountries: [ "CN" ]
 };
 
 
@@ -281,7 +283,7 @@ async function buildStats(origin, range) {
 
 		return stats;
 	})
-	.catch(e => { return e; });
+	.catch(e => { console.log(e); });
 }
 
 
@@ -328,7 +330,7 @@ async function getSessions(origin, range) {
  * excludedTraffic		An object with stats about the data that was filtered out.
  *   excludedTests		Number of views excluded because the IP was from a dev.
  *   excludedBots		Number of views excluded because it was from a bot.
- *   excludedAttacks	Number of views excluded because it was illegitimate.
+ *   excludedSpam		Number of views excluded because it was illegitimate.
  * sessions				This is the array of sessions.
  *   earliestTime		The first time collected for that page.
  *   referrerOrigin
@@ -354,7 +356,7 @@ async function buildSessions(origin, range) {
 			excludedTraffic: {
 				excludedTests: 0,
 				excludedBots: 0,
-				excludedAttacks: 0
+				excludedSpam: 0
 			},
 			sessions: []
 		};
@@ -416,6 +418,14 @@ async function buildSessions(origin, range) {
 				currentSession.languages = currentSession.languages.unique();
 
 				currentSession.country = await heuristics.inferCountry(view[12]);
+
+				// Filter out some countries.
+				if (filter.excludeCountries.includes(currentSession.country)) {
+					sessions.excludedTraffic.excludedSpam++;
+					continue;
+				}
+
+				// Get cities if country is Canada.
 				if (currentSession.country === "CA") {
 					const city = await heuristics.inferCity(view[12]);
 					if (city !== undefined) {
@@ -445,7 +455,7 @@ async function buildSessions(origin, range) {
 
 		return sessions;
 	})
-	.catch(e => { return e; });
+	.catch(e => { console.log(e); });
 }
 
 
@@ -482,14 +492,13 @@ async function getViews(origin, range) {
 					.map(rawView => rawView.split("\t")
 					.map(rawField => decodeURI(rawField)));
 			})
-			.catch(e => { return e; }) // No semicolon here please.
+			.catch(e => { console.log(e); }) // No semicolon here please.
 		);
 	}
 
 	return Promise.all(fileReadPromises).then(views => views.flat(1))
 		.catch(e => {
 			console.error(e);
-			return e;
 		});
 }
 

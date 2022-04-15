@@ -46,7 +46,7 @@ const screenBreakpointsDict = {
 const excludedTrafficDict = {
 	"excludedTests": "Moi",
 	"excludedBots": "Robots",
-	"excludedAttacks": "Attaques",
+	"excludedSpam": "Spam",
 };
 
 
@@ -114,7 +114,6 @@ function niceScreenBreakpointsName(input) {
 		return screenBreakpointsDict[input];
 	}
 }
-
 
 
 /**
