@@ -15,20 +15,6 @@ function statsRoot(origin) { return dataRoot + origin + "/stats/"; }
 
 
 /**
- * An object describing what data will be filtered out.
- *
- * excludeClientIPs		Page views from IPs listed here will be excluded.
- * excludeBotUserAgents	Page views containing a matching user-agent will be excluded.
- * excludeCountries		Page views containing a matching country code will be excluded.
- */
-const filter = {
-	excludeClientIPs: [ "104.221.122.236", "173.177.95.199" ],
-	excludeBotUserAgents: [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver", "Dataprovider.com" ],
-	excludeCountries: [ "CN" ]
-};
-
-
-/**
  * The front-end is asking for JSON stats.
  * The server calls this function with the *req*uest and *res*ponse context.
  */
@@ -122,7 +108,6 @@ async function getStats(origin, range) {
  *
  * A stats file or "container" is as follows:
  * version	The version of Analytique.
- * filter	An object describing what data was filtered out.
  * stats		The object containing the stats.
  *   viewTotal				The total number of views in this range before filter.
  *   sessionTotal			The total number of sessions in this range.
@@ -147,7 +132,6 @@ async function buildStats(origin, range) {
 
 		let stats = {
 			version: 1,
-			filter: sessions.filter,
 			stats: {
 				viewTotal: sessions.viewTotal,
 				sessionTotal: 0,
@@ -325,7 +309,6 @@ async function getSessions(origin, range) {
  *
  * A sessions file or "container" is as follows:
  * version				The version of Analytique.
- * filter				The filter that was used to exclude views.
  * viewTotal			Total number of views processed before filter.
  * excludedTraffic		An object with stats about the data that was filtered out.
  *   excludedTests		Number of views excluded because the IP was from a dev.
@@ -351,7 +334,6 @@ async function buildSessions(origin, range) {
 
 		let sessions = {
 			version: 1,
-			filter: filter,
 			viewTotal: 0,
 			excludedTraffic: {
 				excludedTests: 0,
@@ -392,13 +374,13 @@ async function buildSessions(origin, range) {
 				}
 
 				// Filter out some IP addresses.
-				if (filter.excludeClientIPs.includes(view[12])) {
+				if (origins[origin].excludeClientIPs.includes(view[12])) {
 					sessions.excludedTraffic.excludedTests++;
 					continue;
 				}
 
 				// Filter out bots.
-				if (view[11].includesAny(filter.excludeBotUserAgents)) {
+				if (heuristics.inferIfBot(view[11])) {
 					sessions.excludedTraffic.excludedBots++;
 					continue;
 				}
@@ -420,7 +402,7 @@ async function buildSessions(origin, range) {
 				currentSession.country = await heuristics.inferCountry(view[12]);
 
 				// Filter out some countries.
-				if (filter.excludeCountries.includes(currentSession.country)) {
+				if (origins[origin].excludeCountries.includes(currentSession.country)) {
 					sessions.excludedTraffic.excludedSpam++;
 					continue;
 				}
