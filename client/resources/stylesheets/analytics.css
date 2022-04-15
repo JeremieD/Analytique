@@ -71,7 +71,7 @@ a:hover {
 
 .analytics-group {
 	display: grid;
-	grid-template-columns: repeat(12, 1fr);
+	grid-template-columns: repeat(4, 1fr);
 	gap: 24px;
 }
 
@@ -83,7 +83,10 @@ a:hover {
 	padding: 24px;
 	background-color: var(--color-secondary);
 	border-radius: 8px;
-	grid-column-end: span 3;
+}
+
+.card:nth-child(3n-1) {
+	grid-column-start: 2;
 }
 
 .card figure>figcaption {
@@ -106,8 +109,6 @@ h1 {
 .analytics-group>h2 {
 	transform: translateY(8px);
 	line-height: 1;
-	grid-column-end: span 3;
-	grid-row-end: span 2;
 }
 
 .analytics-group>h2::after {
@@ -120,14 +121,17 @@ h1 {
 }
 
 @media (max-width: 1680px) {
+	.analytics-group {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
 	.analytics-group>h2 {
-		grid-column-end: span 12;
-		grid-row-end: span 1;
+		grid-column: 1 / -1;
 		margin-bottom: 32px;
 	}
 
-	.card {
-		grid-column-end: span 4;
+	.card:nth-child(3n-1) {
+		grid-column-start: auto;
 	}
 
 	.analytics section+section {
