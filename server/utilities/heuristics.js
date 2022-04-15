@@ -32,7 +32,8 @@ const browsers = {
 	"Chrome": ["Chrome"],
 	"Safari": ["Safari", "iPhone", "iPad"],
 	"Opera": ["OPR", "opera"],
-	"Robots": ["bingbot", "BingPreview"]
+	"Robots": ["bingbot", "BingPreview"],
+	"cURL": ["curl", "CURL"]
 };
 
 
