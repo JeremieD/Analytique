@@ -27,7 +27,7 @@ function processRequest(req, res) {
 	if (path.filename === "origins") {
 
 		let allowedOrigins = [];
-		for (const originHostname of Object.keys(origins)) {
+		for (const originHostname of Object.keys(config)) {
 			if (config[originHostname].allowedUsers.includes(user)) {
 				allowedOrigins.push(originHostname)
 			}
@@ -46,7 +46,7 @@ function processRequest(req, res) {
 
 	// Check that requested origin exists and that the user is allowed to see it.
 	origin = path.parameters?.origin;
-	if (origin === undefined || !origins.hasOwnProperty(origin) ||
+	if (origin === undefined || !config.hasOwnProperty(origin) ||
 		!config[origin].allowedUsers.includes(user)) {
 		res.writeHead(400);
 		res.end();
