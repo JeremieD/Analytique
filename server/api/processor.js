@@ -420,8 +420,8 @@ async function buildSessions(origin, range) {
 					continue;
 				}
 
-				// Get cities if country is Canada.
-				if (currentSession.country === "CA") {
+				// Get some cities according to config.
+				if (config[origin].focusCountries.includes(currentSession.country)) {
 					const city = await heuristics.inferCity(view[12]);
 					if (city !== undefined) {
 						currentSession.city = city;
