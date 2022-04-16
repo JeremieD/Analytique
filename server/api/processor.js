@@ -365,7 +365,7 @@ async function buildSessions(origin, range) {
 				&& (view[5] === previousView[4] // follow previous view.
 				|| view[5] === "")) { // or have no referrer.
 
-				currentSession.pageViews.push([view[3], view[4].substr(25)]);
+				currentSession.pageViews.push([view[3], view[4].substr(origin.length)]);
 				currentSession.latestTime = view[10];
 
 			} else { // Otherwise, begin a new session.
@@ -421,7 +421,7 @@ async function buildSessions(origin, range) {
 				currentSession.browser = heuristics.inferBrowser(view[11]);
 				currentSession.screenBreakpoint = heuristics.inferScreenBreakpoint(view[8]);
 
-				currentSession.pageViews = [[view[3], view[4].substr(25)]];
+				currentSession.pageViews = [[view[3], view[4].substr(origin.length)]];
 			}
 
 			previousView = view;
