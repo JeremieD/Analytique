@@ -29,8 +29,9 @@ const browsers = {
 	"Edge": ["Edge"],
 	"Edge (Chromium)": ["Edg"],
 	"Internet Explorer": ["MSIE"],
-	"Firefox": ["Firefox/"],
-	"Chrome": ["Chrome"],
+	"Firefox": ["Firefox/", "FxiOS"],
+	"Chrome": ["Chrome", "CriOS"],
+	"Surf": ["Surf"],
 	"Safari": ["Safari", "iPhone", "iPad"],
 	"Opera": ["OPR", "opera"],
 	"cURL": ["curl", "CURL"]
