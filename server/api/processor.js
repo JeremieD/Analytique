@@ -21,11 +21,13 @@ function statsRoot(origin) { return dataRoot + origin + "/stats/"; }
 function processRequest(req, res) {
 	const path = new uri.URIPath(req.url);
 
+	const user = account.getUser(req);
+
+	// Respond with array of allowed origins for the logged in user.
 	if (path.filename === "origins") {
-		const user = account.getUser(req);
 
 		let allowedOrigins = [];
-		for (var originHostname of Object.keys(origins)) {
+		for (const originHostname of Object.keys(origins)) {
 			if (origins[originHostname].allowedUsers.includes(user)) {
 				allowedOrigins.push(originHostname)
 			}
@@ -45,26 +47,28 @@ function processRequest(req, res) {
 	// Check that requested origin exists and that the user is allowed to see it.
 	origin = path.parameters?.origin;
 	if (origin === undefined || !origins.hasOwnProperty(origin) ||
-		!origins[origin].allowedUsers.includes(account.getUser(req))) {
+		!origins[origin].allowedUsers.includes(user)) {
 		res.writeHead(400);
 		res.end();
 		return;
 	}
 
+	// Respond with stats for the given origin and range.
 	if (path.filename === "stats") {
 		getStats(origin, range).then(data => {
 			data = JSON.stringify(data);
 			static.serve(req, res, data, "application/json", "auto");
 		})
-		.catch(e => { console.log(e); });
+		.catch(e => console.log(e));
 
+	// Respond with the earliest available data for that origin.
 	} else if (path.filename === "earliest") {
 		fs.readdir(viewsRoot(origin)).then(files => {
 			files = files.filter(filename => filename[0] !== ".").sort();
 			const value = files[0].split(".")[0];
 			static.serve(req, res, value, "text/plain", "auto");
 		})
-		.catch(e => { console.log(e); });
+		.catch(e => console.log(e));
 
 	} else {
 		static.serveError(res);
@@ -98,9 +102,7 @@ async function getStats(origin, range) {
 				.then(contents => JSON.parse(contents));
 		}
 	})
-	.catch((e) => {
-		return buildStats(origin, range);
-	});
+	.catch(() => buildStats(origin, range));
 }
 
 
@@ -269,7 +271,7 @@ async function buildStats(origin, range) {
 
 		return stats;
 	})
-	.catch(e => { console.log(e); });
+	.catch(e => console.log(e));
 }
 
 
@@ -299,9 +301,7 @@ async function getSessions(origin, range) {
 				.then(contents => JSON.parse(contents));
 		}
 	})
-	.catch((e) => {
-		return buildSessions(origin, range);
-	});
+	.catch(() => buildSessions(origin, range));
 }
 
 
@@ -439,7 +439,7 @@ async function buildSessions(origin, range) {
 
 		return sessions;
 	})
-	.catch(e => { console.log(e); });
+	.catch(e => console.log(e));
 }
 
 
@@ -468,22 +468,20 @@ async function getViews(origin, range) {
 
 	// Issue a promise for each month-file.
 	for (const month of range.monthRange()) {
-		fileReadPromises.push(
-			fs.readFile(viewsRoot(origin) + month + ".tsv", "utf8")
+		const promise = fs.readFile(viewsRoot(origin) + month + ".tsv", "utf8")
 			.then(rawView => {
 				// Format the view.
 				return rawView.trim().split("\n")
 					.map(rawView => rawView.split("\t")
 					.map(rawField => decodeURI(rawField)));
 			})
-			.catch(e => { console.log(e); }) // No semicolon here please.
-		);
+			.catch(e => console.log(e));
+
+		fileReadPromises.push(promise);
 	}
 
 	return Promise.all(fileReadPromises).then(views => views.flat(1))
-		.catch(e => {
-			console.error(e);
-		});
+		.catch(e => console.log(e));
 }
 
 
