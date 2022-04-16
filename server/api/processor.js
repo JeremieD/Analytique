@@ -117,9 +117,10 @@ async function getStats(origin, range) {
  *   sessionTotal			The total number of sessions in this range.
  *   avgSessionLength		Average number of page views per session.
  *   pageViews				Number of views per page.
+ *   errorViews				Number of views per error page.
  *   acquisitionChannels	Number of sessions per acquisition channel.
  *   referrerOrigins		Number of landings per referrer origin.
- *   landingPages			Number of landings per page.
+ *   landings				Number of landings per URL.
  *   bilingualismClasses	Number of sessions per bilingualism class.
  *   countries				Number of sessions per country.
  *   cities					Number of sessions per Canadian city.
@@ -141,9 +142,10 @@ async function buildStats(origin, range) {
 				sessionTotal: 0,
 				avgSessionLength: undefined,
 				pageViews: {},
+				errorViews: {},
 				acquisitionChannels: {},
 				referrerOrigins: {},
-				landingPages: {},
+				landings: {},
 				bilingualismClasses: {},
 				countries: {},
 				cities: {},
@@ -155,7 +157,7 @@ async function buildStats(origin, range) {
 		};
 
 		// Holds the total number of page views for all sessions in the range.
-		let pageViewTotal = 0;
+		let viewTotal = 0;
 
 		// For every session in the range...
 		for (const session of sessions.sessions) {
@@ -163,30 +165,31 @@ async function buildStats(origin, range) {
 			// Increment number of sessions.
 			stats.stats.sessionTotal++;
 
-			let landingPageSet = false;
+			let landingSet = false;
 
-			// For every page view in this session...
-			for (let pageView of session.pageViews) {
+			// For every view in this session...
+			for (let view of session.views) {
 
-				// Increment number of page views in the range.
-				pageViewTotal++;
+				// Increment number of views in the range.
+				viewTotal++;
 
-				const normalizedViewURL = (new uri.URIPath(pageView[1])).pathname;
+				const normalizedURL = (new uri.URIPath(view.url)).pathname;
 
-				// Landing Page
-				if (!landingPageSet) {
-					if (stats.stats.landingPages[normalizedViewURL] === undefined) {
-						stats.stats.landingPages[normalizedViewURL] = 0;
+				// Landing View
+				if (!landingSet) {
+					if (stats.stats.landings[normalizedURL] === undefined) {
+						stats.stats.landings[normalizedURL] = 0;
 					}
-					stats.stats.landingPages[normalizedViewURL]++;
-					landingPageSet = true;
+					stats.stats.landings[normalizedURL]++;
+					landingSet = true;
 				}
 
-				// Page Views
-				if (stats.stats.pageViews[normalizedViewURL] === undefined) {
-					stats.stats.pageViews[normalizedViewURL] = 0;
+				// Page and Error Views
+				const viewArray = view.error ? "errorViews" : "pageViews";
+				if (stats.stats[viewArray][normalizedURL] === undefined) {
+					stats.stats[viewArray][normalizedURL] = 0;
 				}
-				stats.stats.pageViews[normalizedViewURL]++;
+				stats.stats[viewArray][normalizedURL]++;
 			}
 
 			// Acquisition Channels
@@ -245,13 +248,14 @@ async function buildStats(origin, range) {
 		}
 
 		// Average number of page views per session.
-		stats.stats.avgSessionLength = pageViewTotal / stats.stats.sessionTotal;
+		stats.stats.avgSessionLength = viewTotal / stats.stats.sessionTotal;
 
 		// For sorting, convert "associative arrays" (objects) to flat arrays.
 		// The result is an array of objects, each containing the key and value
 		// of what was previously a single object field.
 		stats.stats.pageViews = stats.stats.pageViews.sortedAssociativeArray();
-		stats.stats.landingPages = stats.stats.landingPages.sortedAssociativeArray();
+		stats.stats.errorViews = stats.stats.errorViews.sortedAssociativeArray();
+		stats.stats.landings = stats.stats.landings.sortedAssociativeArray();
 		stats.stats.acquisitionChannels = stats.stats.acquisitionChannels.sortedAssociativeArray();
 		stats.stats.referrerOrigins = stats.stats.referrerOrigins.sortedAssociativeArray();
 		stats.stats.bilingualismClasses = stats.stats.bilingualismClasses.sortedAssociativeArray();
@@ -326,7 +330,7 @@ async function getSessions(origin, range) {
  *   os
  *   browser
  *   screenBreakpoint
- *   pageViews			Array of arrays, each with the title and URL of the page.
+ *   views			Array of objects, each with page title, URL, and whether it’s an error.
  *
  * → See the View documentation for more detais.
  * Timestamps are in milliseconds since 1 January 1970 UTC.
@@ -357,6 +361,9 @@ async function buildSessions(origin, range) {
 		for (const view of views) {
 			sessions.viewTotal++;
 
+			// True if the view is on an error page.
+			const isErrorView = view[3].includesAny(origins[origin].errorPagePatterns);
+
 			// If view is part of the same session, it must...
 			if (previousView !== undefined
 				&& view[12] === previousView[12] // have the same IP address.
@@ -365,7 +372,11 @@ async function buildSessions(origin, range) {
 				&& (view[5] === previousView[4] // follow previous view.
 				|| view[5] === "")) { // or have no referrer.
 
-				currentSession.pageViews.push([view[3], view[4].substr(origin.length)]);
+				currentSession.views.push({
+					title: view[3],
+					url: view[4].replace(/https?:\/\//, "").substr(origin.length),
+					error: isErrorView
+				});
 				currentSession.latestTime = view[10];
 
 			} else { // Otherwise, begin a new session.
@@ -421,13 +432,19 @@ async function buildSessions(origin, range) {
 				currentSession.browser = heuristics.inferBrowser(view[11]);
 				currentSession.screenBreakpoint = heuristics.inferScreenBreakpoint(view[8]);
 
-				currentSession.pageViews = [[view[3], view[4].substr(origin.length)]];
+				currentSession.views = [];
+
+				currentSession.views.push({
+					title: view[3],
+					url: view[4].replace(/https?:\/\//, "").substr(origin.length),
+					error: isErrorView
+				});
 			}
 
 			previousView = view;
 		}
 
-		if (currentSession.pageViews?.length > 0) {
+		if (currentSession.views?.length > 0) {
 			_closeSession();
 		}
 

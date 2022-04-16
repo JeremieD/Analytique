@@ -34,13 +34,14 @@ whenDOMReady(() => {
 	view.pageViews = document.getElementById("page-views");
 	view.acquisitionChannels = document.getElementById("acquisition-channels");
 	view.referrerOrigins = document.getElementById("referrer-origins");
-	view.landingPages = document.getElementById("landing-pages");
+	view.landings = document.getElementById("landings");
 	view.bilingualismClasses = document.getElementById("bilingualism-classes");
 	view.countries = document.getElementById("countries");
 	view.cities = document.getElementById("cities");
 	view.oses = document.getElementById("oses");
 	view.browsers = document.getElementById("browsers");
 	view.screenBreakpoints = document.getElementById("screen-breakpoints");
+	view.errorPages = document.getElementById("error-pages");
 	view.excludedTraffic = document.getElementById("excluded-traffic");
 
 	view.previousRangeButton = document.getElementById("previous-range")
@@ -240,26 +241,28 @@ function updateMainView() {
 		view.pageViews,
 		view.acquisitionChannels,
 		view.referrerOrigins,
-		view.landingPages,
+		view.landings,
 		view.bilingualismClasses,
 		view.countries,
 		view.cities,
 		view.oses,
 		view.browsers,
 		view.screenBreakpoints,
+		view.errorPages,
 		view.excludedTraffic
 	];
 	const listViewsModels = [
 		"pageViews",
 		"acquisitionChannels",
 		"referrerOrigins",
-		"landingPages",
+		"landings",
 		"bilingualismClasses",
 		"countries",
 		"cities",
 		"oses",
 		"browsers",
 		"screenBreakpoints",
+		"errorViews",
 		"excludedTraffic"
 	];
 	const listViewsTransforms = [
@@ -273,9 +276,10 @@ function updateMainView() {
 		_identity,
 		_identity,
 		niceScreenBreakpointsName,
+		_identity,
 		niceExcludedTrafficName
 	];
-	const listViewsOneHundredPercents = [
+	const listViewsOneHundredPercents = [ "sessionTotal",
 		"sessionTotal", "sessionTotal", "sessionTotal",
 		"sessionTotal", "sessionTotal", "sessionTotal",
 		"sessionTotal", "sessionTotal", "sessionTotal",
