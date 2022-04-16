@@ -1,3 +1,16 @@
+jd-graph {
+	display: block;
+	position: relative;
+	width: 100%;
+	font-size: 12px;
+	display: grid;
+	grid-template-areas: "y-axis graph"
+						 "x-axis x-axis";
+	grid-template-columns: min-content 1fr;
+	grid-template-rows: minmax(80px, 1fr) min-content;
+	gap: 0 16px;
+}
+
 jd-graph>axis[name="x"] {
 	display: block;
 	width: 100%;
@@ -47,7 +60,7 @@ jd-graph>graph>point::before {
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	transform: translateX(-50%) translateY(-50%);
+	transform: translate(-50%, -50%);
 	background-color: var(--color-text);
 	outline: 3px solid var(--color-secondary);
 	border-radius: 50%;

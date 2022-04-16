@@ -59,7 +59,7 @@ a:hover {
 	font-size: 32px;
 	top: 50%;
 	left: 50%;
-	transform: translateX(-50%) translateY(-50%);
+	transform: translate(-50%, -50%);
 }
 
 #next-range::before { content: "→" }
@@ -234,19 +234,6 @@ h1.loading { min-height: 1em; }
 @keyframes loadingWave {
 	from { background-position: -50%; }
 	to { background-position: 150%; }
-}
-
-jd-graph {
-	display: block;
-	position: relative;
-	width: 100%;
-	font-size: 12px;
-	display: grid;
-	grid-template-areas: "y-axis graph"
-						 "x-axis x-axis";
-	grid-template-columns: min-content 1fr;
-	grid-template-rows: minmax(80px, 1fr) min-content;
-	gap: 0 16px;
 }
 
 * + figure {
