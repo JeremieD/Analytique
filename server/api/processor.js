@@ -6,7 +6,7 @@ const heuristics = require("../utilities/heuristics.js");
 const dateRange = require("../utilities/dateRange.js");
 require("../utilities/misc.js");
 
-const origins = require("../config.js").origins;
+const config = require("../config.js").origins;
 
 const dataRoot = "./data/";
 function viewsRoot(origin) { return dataRoot + origin + "/views/"; }
@@ -28,7 +28,7 @@ function processRequest(req, res) {
 
 		let allowedOrigins = [];
 		for (const originHostname of Object.keys(origins)) {
-			if (origins[originHostname].allowedUsers.includes(user)) {
+			if (config[originHostname].allowedUsers.includes(user)) {
 				allowedOrigins.push(originHostname)
 			}
 		}
@@ -47,7 +47,7 @@ function processRequest(req, res) {
 	// Check that requested origin exists and that the user is allowed to see it.
 	origin = path.parameters?.origin;
 	if (origin === undefined || !origins.hasOwnProperty(origin) ||
-		!origins[origin].allowedUsers.includes(user)) {
+		!config[origin].allowedUsers.includes(user)) {
 		res.writeHead(400);
 		res.end();
 		return;
@@ -111,23 +111,22 @@ async function getStats(origin, range) {
  * Also stores the result in cache.
  *
  * A stats file or "container" is as follows:
- * version	The version of Analytique.
- * stats		The object containing the stats.
- *   viewTotal				The total number of views in this range before filter.
- *   sessionTotal			The total number of sessions in this range.
- *   avgSessionLength		Average number of page views per session.
- *   pageViews				Number of views per page.
- *   errorViews				Number of views per error page.
- *   acquisitionChannels	Number of sessions per acquisition channel.
- *   referrerOrigins		Number of landings per referrer origin.
- *   landings				Number of landings per URL.
- *   bilingualismClasses	Number of sessions per bilingualism class.
- *   countries				Number of sessions per country.
- *   cities					Number of sessions per Canadian city.
- *   oses					Number of sessions per OS.
- *   browsers				Number of sessions per browser.
- *   screenBreakpoints		Number of sessions per breakpoint.
- *   excludedTraffic		Number of views per exclusion motive.
+ * version				The version of Analytique.
+ * viewTotal			The total number of views in this range before filter.
+ * sessionTotal			The total number of sessions in this range.
+ * avgSessionLength		Average number of page views per session.
+ * pageViews			Number of views per page.
+ * errorViews			Number of views per error page.
+ * acquisitionChannels	Number of sessions per acquisition channel.
+ * referrerOrigins		Number of landings per referrer origin.
+ * landings				Number of landings per URL.
+ * bilingualismClasses	Number of sessions per bilingualism class.
+ * countries			Number of sessions per country.
+ * cities				Number of sessions per Canadian city.
+ * oses					Number of sessions per OS.
+ * browsers				Number of sessions per browser.
+ * screenBreakpoints	Number of sessions per breakpoint.
+ * excludedTraffic		Number of views per exclusion motive.
  *
  * Most of these data fields use a sort of associative array solution that uses
  * an array of object. Each object has a "key" and "value" property.
@@ -137,23 +136,21 @@ async function buildStats(origin, range) {
 
 		let stats = {
 			version: 1,
-			stats: {
-				viewTotal: sessions.viewTotal,
-				sessionTotal: 0,
-				avgSessionLength: undefined,
-				pageViews: {},
-				errorViews: {},
-				acquisitionChannels: {},
-				referrerOrigins: {},
-				landings: {},
-				bilingualismClasses: {},
-				countries: {},
-				cities: {},
-				oses: {},
-				browsers: {},
-				screenBreakpoints: {},
-				excludedTraffic: sessions.excludedTraffic
-			}
+			viewTotal: sessions.viewTotal,
+			sessionTotal: 0,
+			avgSessionLength: undefined,
+			pageViews: {},
+			errorViews: {},
+			acquisitionChannels: {},
+			referrerOrigins: {},
+			landings: {},
+			bilingualismClasses: {},
+			countries: {},
+			cities: {},
+			oses: {},
+			browsers: {},
+			screenBreakpoints: {},
+			excludedTraffic: sessions.excludedTraffic
 		};
 
 		// Holds the total number of page views for all sessions in the range.
@@ -163,7 +160,7 @@ async function buildStats(origin, range) {
 		for (const session of sessions.sessions) {
 
 			// Increment number of sessions.
-			stats.stats.sessionTotal++;
+			stats.sessionTotal++;
 
 			let landingSet = false;
 
@@ -177,94 +174,94 @@ async function buildStats(origin, range) {
 
 				// Landing View
 				if (!landingSet) {
-					if (stats.stats.landings[normalizedURL] === undefined) {
-						stats.stats.landings[normalizedURL] = 0;
+					if (stats.landings[normalizedURL] === undefined) {
+						stats.landings[normalizedURL] = 0;
 					}
-					stats.stats.landings[normalizedURL]++;
+					stats.landings[normalizedURL]++;
 					landingSet = true;
 				}
 
 				// Page and Error Views
 				const viewArray = view.error ? "errorViews" : "pageViews";
-				if (stats.stats[viewArray][normalizedURL] === undefined) {
-					stats.stats[viewArray][normalizedURL] = 0;
+				if (stats[viewArray][normalizedURL] === undefined) {
+					stats[viewArray][normalizedURL] = 0;
 				}
-				stats.stats[viewArray][normalizedURL]++;
+				stats[viewArray][normalizedURL]++;
 			}
 
 			// Acquisition Channels
-			if (stats.stats.acquisitionChannels[session.acquisitionChannel] === undefined) {
-				stats.stats.acquisitionChannels[session.acquisitionChannel] = 0;
+			if (stats.acquisitionChannels[session.acquisitionChannel] === undefined) {
+				stats.acquisitionChannels[session.acquisitionChannel] = 0;
 			}
-			stats.stats.acquisitionChannels[session.acquisitionChannel]++;
+			stats.acquisitionChannels[session.acquisitionChannel]++;
 
 			// Referrer Origins
 			if (session.referrerOrigin !== "") {
 				const referrerOrigin = heuristics.normalizeOriginURL(session.referrerOrigin);
-				if (stats.stats.referrerOrigins[referrerOrigin] === undefined) {
-					stats.stats.referrerOrigins[referrerOrigin] = 0;
+				if (stats.referrerOrigins[referrerOrigin] === undefined) {
+					stats.referrerOrigins[referrerOrigin] = 0;
 				}
-				stats.stats.referrerOrigins[referrerOrigin]++;
+				stats.referrerOrigins[referrerOrigin]++;
 			}
 
 			// Bilingualism
 			const bilingualismClass = heuristics.inferBilingualismClass(session.languages);
-			if (stats.stats.bilingualismClasses[bilingualismClass] === undefined) {
-				stats.stats.bilingualismClasses[bilingualismClass] = 0;
+			if (stats.bilingualismClasses[bilingualismClass] === undefined) {
+				stats.bilingualismClasses[bilingualismClass] = 0;
 			}
-			stats.stats.bilingualismClasses[bilingualismClass]++;
+			stats.bilingualismClasses[bilingualismClass]++;
 
 			// Countries
-			if (stats.stats.countries[session.country] === undefined) {
-				stats.stats.countries[session.country] = 0;
+			if (stats.countries[session.country] === undefined) {
+				stats.countries[session.country] = 0;
 			}
-			stats.stats.countries[session.country]++;
+			stats.countries[session.country]++;
 
 			// Cities
 			if (session.city !== undefined) {
-				if (stats.stats.cities[session.city] === undefined) {
-					stats.stats.cities[session.city] = 0;
+				if (stats.cities[session.city] === undefined) {
+					stats.cities[session.city] = 0;
 				}
-				stats.stats.cities[session.city]++;
+				stats.cities[session.city]++;
 			}
 
 			// OSes
-			if (stats.stats.oses[session.os] === undefined) {
-				stats.stats.oses[session.os] = 0;
+			if (stats.oses[session.os] === undefined) {
+				stats.oses[session.os] = 0;
 			}
-			stats.stats.oses[session.os]++;
+			stats.oses[session.os]++;
 
 			// Browsers
-			if (stats.stats.browsers[session.browser] === undefined) {
-				stats.stats.browsers[session.browser] = 0;
+			if (stats.browsers[session.browser] === undefined) {
+				stats.browsers[session.browser] = 0;
 			}
-			stats.stats.browsers[session.browser]++;
+			stats.browsers[session.browser]++;
 
 			// Screen Breakpoints
-			if (stats.stats.screenBreakpoints[session.screenBreakpoint] === undefined) {
-				stats.stats.screenBreakpoints[session.screenBreakpoint] = 0;
+			if (stats.screenBreakpoints[session.screenBreakpoint] === undefined) {
+				stats.screenBreakpoints[session.screenBreakpoint] = 0;
 			}
-			stats.stats.screenBreakpoints[session.screenBreakpoint]++;
+			stats.screenBreakpoints[session.screenBreakpoint]++;
 		}
 
 		// Average number of page views per session.
-		stats.stats.avgSessionLength = viewTotal / stats.stats.sessionTotal;
+		stats.avgSessionLength = viewTotal / stats.sessionTotal;
 
 		// For sorting, convert "associative arrays" (objects) to flat arrays.
 		// The result is an array of objects, each containing the key and value
 		// of what was previously a single object field.
-		stats.stats.pageViews = stats.stats.pageViews.sortedAssociativeArray();
-		stats.stats.errorViews = stats.stats.errorViews.sortedAssociativeArray();
-		stats.stats.landings = stats.stats.landings.sortedAssociativeArray();
-		stats.stats.acquisitionChannels = stats.stats.acquisitionChannels.sortedAssociativeArray();
-		stats.stats.referrerOrigins = stats.stats.referrerOrigins.sortedAssociativeArray();
-		stats.stats.bilingualismClasses = stats.stats.bilingualismClasses.sortedAssociativeArray();
-		stats.stats.countries = stats.stats.countries.sortedAssociativeArray();
-		stats.stats.cities = stats.stats.cities.sortedAssociativeArray();
-		stats.stats.oses = stats.stats.oses.sortedAssociativeArray();
-		stats.stats.browsers = stats.stats.browsers.sortedAssociativeArray();
-		stats.stats.screenBreakpoints = stats.stats.screenBreakpoints.sortedAssociativeArray();
-		stats.stats.excludedTraffic = stats.stats.excludedTraffic.sortedAssociativeArray();
+		stats.pageViews = stats.pageViews.sortedAssociativeArray();
+		stats.errorViews = stats.errorViews.sortedAssociativeArray();
+		stats.landings = stats.landings.sortedAssociativeArray();
+		stats.acquisitionChannels = stats.acquisitionChannels.sortedAssociativeArray();
+		stats.referrerOrigins = stats.referrerOrigins.sortedAssociativeArray();
+		stats.bilingualismClasses = stats.bilingualismClasses.sortedAssociativeArray();
+		stats.countries = stats.countries.sortedAssociativeArray();
+		stats.cities = stats.cities.sortedAssociativeArray();
+		stats.oses = stats.oses.sortedAssociativeArray();
+		stats.browsers = stats.browsers.sortedAssociativeArray();
+		stats.screenBreakpoints = stats.screenBreakpoints.sortedAssociativeArray();
+		stats.excludedTraffic = stats.excludedTraffic.sortedAssociativeArray();
 
 		// Save stats to cache.
 		const dirPath = statsRoot(origin) + range.type;
@@ -310,7 +307,7 @@ async function getSessions(origin, range) {
 
 
 /**
- * Builds and returns sessions from a call to getViews(range).
+ * Builds and returns sessions from a call to getBeacons(range).
  * Also stores the result in cache.
  *
  * A sessions file or "container" is as follows:
@@ -330,21 +327,24 @@ async function getSessions(origin, range) {
  *   os
  *   browser
  *   screenBreakpoint
- *   views			Array of objects, each with page title, URL, and whether it’s an error.
+ *   views				Array of view objects.
+ *      title			Page title.
+ *      url				Page URL.
+ *      error			Whether title matches an error pattern in origin’s config.
  *
  * → See the View documentation for more detais.
  * Timestamps are in milliseconds since 1 January 1970 UTC.
  */
 async function buildSessions(origin, range) {
-	return getViews(origin, range).then(async (views) => {
+	return getBeacons(origin, range).then(async (views) => {
 
 		let sessions = {
 			version: 1,
 			viewTotal: 0,
 			excludedTraffic: {
-				excludedTests: 0,
-				excludedBots: 0,
-				excludedSpam: 0
+				tests: 0,
+				bots: 0,
+				spam: 0
 			},
 			sessions: []
 		};
@@ -362,7 +362,7 @@ async function buildSessions(origin, range) {
 			sessions.viewTotal++;
 
 			// True if the view is on an error page.
-			const isErrorView = view[3].includesAny(origins[origin].errorPagePatterns);
+			const isErrorView = view[3].includesAny(config[origin].errorPagePatterns);
 
 			// If view is part of the same session, it must...
 			if (previousView !== undefined
@@ -387,14 +387,14 @@ async function buildSessions(origin, range) {
 				}
 
 				// Filter out some IP addresses.
-				if (origins[origin].excludeClientIPs.includes(view[12])) {
-					sessions.excludedTraffic.excludedTests++;
+				if (config[origin].excludeClientIPs.includes(view[12])) {
+					sessions.excludedTraffic.tests++;
 					continue;
 				}
 
 				// Filter out bots.
 				if (heuristics.inferIfBot(view[11])) {
-					sessions.excludedTraffic.excludedBots++;
+					sessions.excludedTraffic.bots++;
 					continue;
 				}
 
@@ -415,8 +415,8 @@ async function buildSessions(origin, range) {
 				currentSession.country = await heuristics.inferCountry(view[12]);
 
 				// Filter out some countries.
-				if (origins[origin].excludeCountries.includes(currentSession.country)) {
-					sessions.excludedTraffic.excludedSpam++;
+				if (config[origin].excludeCountries.includes(currentSession.country)) {
+					sessions.excludedTraffic.spam++;
 					continue;
 				}
 
@@ -449,8 +449,9 @@ async function buildSessions(origin, range) {
 		}
 
 		// Save data to cache.
-		const filePath = sessionsRoot(origin) + range.type + "/" + range.value + ".json";
-		fs.mkdir(sessionsRoot(origin) + range.type, { recursive: true }).then(() => {
+		const folder = sessionsRoot(origin) + range.type
+		const filePath = folder + "/" + range.value + ".json";
+		fs.mkdir(folder, { recursive: true }).then(() => {
 			fs.writeFile(filePath, JSON.stringify(sessions));
 		});
 
@@ -480,16 +481,16 @@ async function buildSessions(origin, range) {
  *
  * Timestamps are in milliseconds since 1 January 1970 UTC.
  */
-async function getViews(origin, range) {
-	let fileReadPromises = [];
+async function getBeacons(origin, range) {
+	const fileReadPromises = [];
 
 	// Issue a promise for each month-file.
 	for (const month of range.monthRange()) {
 		const promise = fs.readFile(viewsRoot(origin) + month + ".tsv", "utf8")
-			.then(rawView => {
+			.then(rawBeacon => {
 				// Format the view.
-				return rawView.trim().split("\n")
-					.map(rawView => rawView.split("\t")
+				return rawBeacon.trim().split("\n")
+					.map(rawBeacon => rawBeacon.split("\t")
 					.map(rawField => decodeURI(rawField)));
 			})
 			.catch(e => console.log(e));
@@ -497,7 +498,7 @@ async function getViews(origin, range) {
 		fileReadPromises.push(promise);
 	}
 
-	return Promise.all(fileReadPromises).then(views => views.flat(1))
+	return Promise.all(fileReadPromises).then(beacons => beacons.flat(1))
 		.catch(e => console.log(e));
 }
 

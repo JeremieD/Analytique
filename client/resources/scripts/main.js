@@ -230,9 +230,9 @@ function updateMainView() {
 
 	view.rangeDisplay.innerText = range.longForm;
 
-	view.sessionTotal.innerText = model.stats.sessionTotal;
+	view.sessionTotal.innerText = model.sessionTotal;
 
-	const avgSessionLengthFormatted = model.stats.avgSessionLength.round(2);
+	const avgSessionLengthFormatted = model.avgSessionLength.round(2);
 	view.avgSessionLength.innerHTML = avgSessionLengthFormatted
 		+ "<small> vue" + (avgSessionLengthFormatted === 1 ? "" : "s") + "</small>";
 
@@ -288,7 +288,7 @@ function updateMainView() {
 
 	for (let i = 0; i < listViews.length; i++) {
 		listViews[i].innerHTML = "";
-		for (let dataPoint of model.stats[listViewsModels[i]]) {
+		for (let dataPoint of model[listViewsModels[i]]) {
 			if (listViews[i].children.length > 5) {
 				break;
 			}
@@ -310,7 +310,7 @@ function updateMainView() {
 
 			const dataPoint3 = document.createElement("data");
 			dataPoint3.classList.add("numerical");
-			const oneHundredPercent = model.stats[listViewsOneHundredPercents[i]];
+			const oneHundredPercent = model[listViewsOneHundredPercents[i]];
 			dataPoint3.innerHTML = (dataPoint.value / oneHundredPercent * 100).round() + "%";
 
 			newElement.append(dataPoint1, dataPoint2, dataPoint3);
@@ -336,12 +336,12 @@ function updateSecondaryView() {
 		let previousRange = new DateRange(previousMonth);
 		sessionTotalData.points.push({
 			label: monthsDict[previousRange.month],
-			y: secondaryModel[previousMonth].stats.sessionTotal
+			y: secondaryModel[previousMonth].sessionTotal
 		});
 	}
 	sessionTotalData.points.push({
 		label: monthsDict[range.month],
-		y: model.stats.sessionTotal
+		y: model.sessionTotal
 	});
 
 	// Draw session total graph
@@ -357,12 +357,12 @@ function updateSecondaryView() {
 		let previousRange = new DateRange(previousMonth);
 		sessionLengthData.points.push({
 			label: monthsDict[previousRange.month],
-			y: secondaryModel[previousMonth].stats.avgSessionLength
+			y: secondaryModel[previousMonth].avgSessionLength
 		});
 	}
 	sessionLengthData.points.push({
 		label: monthsDict[range.month],
-		y: model.stats.avgSessionLength
+		y: model.avgSessionLength
 	});
 
 	// Draw session length graph

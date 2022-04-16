@@ -44,9 +44,9 @@ const screenBreakpointsDict = {
 };
 
 const excludedTrafficDict = {
-	"excludedTests": "Moi",
-	"excludedBots": "Robots",
-	"excludedSpam": "Spam",
+	"tests": "Moi",
+	"bots": "Robots",
+	"spam": "Spam",
 };
 
 
