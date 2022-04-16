@@ -42,8 +42,10 @@ function processRequest(req, res) {
 		range = new dateRange.DateRange(path.parameters.range);
 	}
 
+	// Check that requested origin exists and that the user is allowed to see it.
 	origin = path.parameters?.origin;
-	if (origin === undefined) {
+	if (origin === undefined || !origins.hasOwnProperty(origin) ||
+		!origins[origin].allowedUsers.includes(account.getUser(req))) {
 		res.writeHead(400);
 		res.end();
 		return;
