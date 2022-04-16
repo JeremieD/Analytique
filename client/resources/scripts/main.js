@@ -109,7 +109,7 @@ function refresh() {
 		for (let viewComponent of Object.keys(view)) {
 			view[viewComponent].classList.add("loading");
 		}
-	}, 250);
+	}, 50);
 
 
 	// Update models then update the views.
