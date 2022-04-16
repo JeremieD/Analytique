@@ -38,10 +38,14 @@ function processRequest(req, res) {
 	}
 
 
-	let range, origin;
+	let range, origin, filter;
 
 	if ("range" in path.parameters) {
 		range = new dateRange.DateRange(path.parameters.range);
+	}
+
+	if ("filter" in path.parameters) {
+		filter = path.parameters.filter;
 	}
 
 	// Check that requested origin exists and that the user is allowed to see it.
@@ -55,7 +59,7 @@ function processRequest(req, res) {
 
 	// Respond with stats for the given origin and range.
 	if (path.filename === "stats") {
-		getStats(origin, range).then(data => {
+		getStats(origin, range, filter).then(data => {
 			data = JSON.stringify(data);
 			static.serve(req, res, data, "application/json", "auto");
 		})
@@ -80,7 +84,12 @@ function processRequest(req, res) {
  * Checks the cache for the requested stats.
  * Returns data from cache, or calls buildStats(range) and returns that.
  */
-async function getStats(origin, range) {
+async function getStats(origin, range, filter) {
+	// If filter is defined, ignore cache and build from scratch.
+	if (filter !== undefined) {
+		return buildStats(origin, range, filter);
+	}
+
 	const to = range.to();
 	const lastMonth = to.year + "-" + to.month.toString().padStart(2, "0");
 	const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
@@ -122,7 +131,7 @@ async function getStats(origin, range) {
  * landings				Number of landings per URL.
  * bilingualismClasses	Number of sessions per bilingualism class.
  * countries			Number of sessions per country.
- * cities				Number of sessions per Canadian city.
+ * cities				Number of sessions per city, for some countries.
  * oses					Number of sessions per OS.
  * browsers				Number of sessions per browser.
  * screenBreakpoints	Number of sessions per breakpoint.
@@ -131,7 +140,7 @@ async function getStats(origin, range) {
  * Most of these data fields use a sort of associative array solution that uses
  * an array of object. Each object has a "key" and "value" property.
  */
-async function buildStats(origin, range) {
+async function buildStats(origin, range, filter) {
 	return getSessions(origin, range).then(sessions => {
 
 		let stats = {
@@ -159,35 +168,98 @@ async function buildStats(origin, range) {
 		// For every session in the range...
 		for (const session of sessions.sessions) {
 
-			// Increment number of sessions.
-			stats.sessionTotal++;
+			const referrerOrigin = heuristics.normalizeOriginURL(session.referrerOrigin);
+			const bilingualismClass = heuristics.inferBilingualismClass(session.languages);
 
-			let landingSet = false;
+			let landing;
+			let views = {
+				pageViews: [],
+				errorViews: []
+			}
 
 			// For every view in this session...
 			for (let view of session.views) {
-
-				// Increment number of views in the range.
-				viewTotal++;
-
 				const normalizedURL = (new uri.URIPath(view.url)).pathname;
 
-				// Landing View
-				if (!landingSet) {
-					if (stats.landings[normalizedURL] === undefined) {
-						stats.landings[normalizedURL] = 0;
-					}
-					stats.landings[normalizedURL]++;
-					landingSet = true;
+				if (landing === undefined) {
+					landing = normalizedURL;
 				}
 
 				// Page and Error Views
 				const viewArray = view.error ? "errorViews" : "pageViews";
-				if (stats[viewArray][normalizedURL] === undefined) {
-					stats[viewArray][normalizedURL] = 0;
-				}
-				stats[viewArray][normalizedURL]++;
+				views[viewArray].push(normalizedURL);
 			}
+
+			// Filter sessions.
+			if (filter !== undefined) {
+				const [filterKey, filterValue] = filter.split(":").map(decodeURIComponent);
+
+				if (filterKey === "pageViews" &&
+					!views.pageViews.includes(filterValue)) {
+					continue;
+				}
+				if (filterKey === "errorViews" &&
+					!views.errorViews.includes(filterValue)) {
+					continue;
+				}
+				if (filterKey === "acquisitionChannels" &&
+					filterValue !== session.acquisitionChannel) {
+					continue;
+				}
+				if (filterKey === "referrerOrigins" &&
+					filterValue !== referrerOrigin) {
+					continue;
+				}
+				if (filterKey === "landings" &&
+					filterValue !== landing) {
+					continue;
+				}
+				if (filterKey === "bilingualismClasses" &&
+					filterValue !== bilingualismClass) {
+					continue;
+				}
+				if (filterKey === "countries" &&
+					filterValue !== session.country) {
+					continue;
+				}
+				if (filterKey === "cities" &&
+					filterValue !== session.city) {
+					continue;
+				}
+				if (filterKey === "oses" &&
+					filterValue !== session.os) {
+					continue;
+				}
+				if (filterKey === "browsers" &&
+					filterValue !== session.browser) {
+					continue;
+				}
+				if (filterKey === "screenBreakpoints" &&
+					filterValue !== session.screenBreakpoint) {
+					continue;
+				}
+			}
+
+			for (const url of views.pageViews) {
+				if (stats.pageViews[url] === undefined) {
+					stats.pageViews[url] = 0;
+				}
+				stats.pageViews[url]++;
+				viewTotal++;
+			}
+
+			for (const url of views.errorViews) {
+				if (stats.errorViews[url] === undefined) {
+					stats.errorViews[url] = 0;
+				}
+				stats.errorViews[url]++;
+				viewTotal++;
+			}
+
+			if (stats.landings[landing] === undefined) {
+				stats.landings[landing] = 0;
+			}
+			stats.landings[landing]++;
 
 			// Acquisition Channels
 			if (stats.acquisitionChannels[session.acquisitionChannel] === undefined) {
@@ -197,7 +269,6 @@ async function buildStats(origin, range) {
 
 			// Referrer Origins
 			if (session.referrerOrigin !== "") {
-				const referrerOrigin = heuristics.normalizeOriginURL(session.referrerOrigin);
 				if (stats.referrerOrigins[referrerOrigin] === undefined) {
 					stats.referrerOrigins[referrerOrigin] = 0;
 				}
@@ -205,7 +276,6 @@ async function buildStats(origin, range) {
 			}
 
 			// Bilingualism
-			const bilingualismClass = heuristics.inferBilingualismClass(session.languages);
 			if (stats.bilingualismClasses[bilingualismClass] === undefined) {
 				stats.bilingualismClasses[bilingualismClass] = 0;
 			}
@@ -242,6 +312,9 @@ async function buildStats(origin, range) {
 				stats.screenBreakpoints[session.screenBreakpoint] = 0;
 			}
 			stats.screenBreakpoints[session.screenBreakpoint]++;
+
+			// Increment number of sessions.
+			stats.sessionTotal++;
 		}
 
 		// Average number of page views per session.
@@ -263,12 +336,14 @@ async function buildStats(origin, range) {
 		stats.screenBreakpoints = stats.screenBreakpoints.sortedAssociativeArray();
 		stats.excludedTraffic = stats.excludedTraffic.sortedAssociativeArray();
 
-		// Save stats to cache.
-		const dirPath = statsRoot(origin) + range.type;
-		const filePath = dirPath + "/" + range.value + ".json";
-		fs.mkdir(dirPath, { recursive: true }).then(() => {
-			fs.writeFile(filePath, JSON.stringify(stats));
-		});
+		// Save stats to cache, except for filtered data.
+		if (filter === undefined) {
+			const dirPath = statsRoot(origin) + range.type;
+			const filePath = dirPath + "/" + range.value + ".json";
+			fs.mkdir(dirPath, { recursive: true }).then(() => {
+				fs.writeFile(filePath, JSON.stringify(stats));
+			});
+		}
 
 		return stats;
 	})

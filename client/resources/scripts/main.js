@@ -11,6 +11,9 @@ var earliestRange;
 var model = {}; // Data for the current range.
 var secondaryModel = {}; // Anterior data.
 
+var filter = "";
+var selectedListElement;
+
 // Holds cached stats data.
 var modelCache = {};
 var modelCacheModTime = {};
@@ -79,6 +82,8 @@ whenDOMReady(() => {
 
 function switchToOrigin(newOrigin) {
 	origin = newOrigin;
+	filter = "";
+
 	view.originSelector.value = origin;
 	earliestRange = httpGet("/api/earliest?origin=" + origin).then(value => {
 		const newEarliestRange = new DateRange(value);
@@ -146,16 +151,21 @@ function updateMainModel() {
 			modelCacheModTime[origin] = {};
 		}
 
+		if (!modelCache[origin].hasOwnProperty(shortRange)) {
+			modelCache[origin][shortRange] = {};
+			modelCacheModTime[origin][shortRange] = {};
+		}
+
 		// If cache is fresh, serve from cache, otherwise, fetch from server.
-		if (Date.now() - modelCacheModTime[origin][shortRange] < cacheTTL) {
-			model = modelCache[origin][shortRange];
+		if (Date.now() - modelCacheModTime[origin][shortRange][filter] < cacheTTL) {
+			model = modelCache[origin][shortRange][filter];
 			resolve();
 
 		} else {
-			fetchStats(shortRange).then(data => {
+			fetchStats(shortRange, filter).then(data => {
 				model = data;
-				modelCache[origin][shortRange] = data;
-				modelCacheModTime[origin][shortRange] = Date.now();
+				modelCache[origin][shortRange][filter] = data;
+				modelCacheModTime[origin][shortRange][filter] = Date.now();
 				resolve();
 			});
 		}
@@ -191,16 +201,21 @@ function updateSecondaryModel() {
 						modelCacheModTime[origin] = {};
 					}
 
+					if (!modelCache[origin].hasOwnProperty(range)) {
+						modelCache[origin][range] = {};
+						modelCacheModTime[origin][range] = {};
+					}
+
 					// If cache is fresh, serve from cache, otherwise, fetch from server.
-					if (Date.now() - modelCacheModTime[origin][range] < cacheTTL) {
-						secondaryModel[range] = modelCache[origin][range];
+					if (Date.now() - modelCacheModTime[origin][range][filter] < cacheTTL) {
+						secondaryModel[range] = modelCache[origin][range][filter];
 						resolve();
 
 					} else {
-						fetchStats(range).then(data => {
+						fetchStats(range, filter).then(data => {
 							secondaryModel[range] = data;
-							modelCache[origin][range] = data;
-							modelCacheModTime[origin][range] = Date.now();
+							modelCache[origin][range][filter] = data;
+							modelCacheModTime[origin][range][filter] = Date.now();
 							resolve();
 						});
 					}
@@ -218,8 +233,14 @@ function updateSecondaryModel() {
 /*
  * Downdloads stats data from the server.
  */
-function fetchStats(range) {
-	return httpGet("/api/stats?origin=" + origin + "&range=" + range).then(JSON.parse);
+function fetchStats(range, filter) {
+	let url = "/api/stats?origin=" + origin + "&range=" + range;
+
+	if (filter !== "") {
+		url += "&filter=" + filter;
+	}
+
+	return httpGet(url).then(JSON.parse);
 }
 
 
@@ -287,16 +308,32 @@ function updateMainView() {
 	];
 
 	for (let i = 0; i < listViews.length; i++) {
-		listViews[i].innerHTML = "";
+
+		// Clear all lists except for the selected item.
+		for (const item of listViews[i].querySelectorAll("li:not(.selected)")) {
+			item.remove();
+		}
+
 		for (let dataPoint of model[listViewsModels[i]]) {
 			if (listViews[i].children.length > 5) {
 				break;
 			}
 
+			const filterValue = encodeURIComponent(listViewsModels[i])
+						+ ":" + encodeURIComponent(dataPoint.key);
+
+			// If this data point was selected for filtering, don’t create a new element.
+			let newElement;
+			if (filter === filterValue) {
+				newElement = selectedListElement;
+				newElement.innerHTML = "";
+			} else {
+				newElement = document.createElement("li");
+			}
+
 			// Formats the key according to a function.
 			const transformedKey = listViewsTransforms[i](dataPoint.key);
 
-			const newElement = document.createElement("li");
 			if (dataPoint.key === "" || transformedKey.includes("Autre")) {
 				newElement.classList.add("last");
 			}
@@ -314,6 +351,32 @@ function updateMainView() {
 			dataPoint3.innerHTML = (dataPoint.value / oneHundredPercent * 100).round() + "%";
 
 			newElement.append(dataPoint1, dataPoint2, dataPoint3);
+
+			// If this data point was selected for filtering, skip the last part.
+			if (filter === filterValue) {
+				continue;
+			}
+
+			// Handle click on list item by filtering.
+			if (listViewsOneHundredPercents[i] === "sessionTotal") {
+				newElement.addEventListener("click", () => {
+					if (filter !== filterValue) {
+						filter = filterValue;
+						selectedListElement?.classList.remove("selected");
+						newElement.classList.add("selected");
+						selectedListElement = newElement;
+						view.rangeDisplay.classList.add("filtered");
+
+					} else {
+						filter = "";
+						newElement.classList.remove("selected");
+						view.rangeDisplay.classList.remove("filtered");
+					}
+
+					refresh();
+				});
+			}
+
 
 			listViews[i].append(newElement);
 		}
