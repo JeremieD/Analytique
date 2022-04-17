@@ -17,13 +17,15 @@ var selectedListElement;
 // Holds cached stats data.
 var modelCache = {};
 var modelCacheModTime = {};
-const cacheTTL = 30000; // 30s to live.
+const cacheTTL = 300000; // 5min to live.
 
 // Holds references to the DOM objects that display the data.
 const view = {};
 
 // Holds the view-model’s current range.
 let range = new DateRange();
+
+let loadingAnimation;
 
 
 whenDOMReady(() => {
@@ -108,15 +110,6 @@ function refresh() {
 		view.previousRangeButton.disabled = isFirstRange;
 	});
 
-
-	// Sets all view objects to their loading state. (with a delay)
-	const loadingAnimationDelay = setTimeout(() => {
-		for (let viewComponent of Object.keys(view)) {
-			view[viewComponent].classList.add("loading");
-		}
-	}, 50);
-
-
 	// Update models then update the views.
 	const main = updateMainModel().then(() => {
 		updateMainView();
@@ -125,17 +118,24 @@ function refresh() {
 
 	Promise.all([main, secondary]).then(() => {
 		updateSecondaryView();
+	})
+	.catch(e => console.error)
+	.finally(() => {
+		// De-queues the loading animation.
+		clearTimeout(loadingAnimation);
 
 		// Sets all view objects to their loaded state.
 		for (let viewComponent of Object.keys(view)) {
 			view[viewComponent].classList.remove("loading");
 		}
-	})
-	.catch(e => console.error)
-	.finally(() => {
-		// De-queues the loading animation.
-		clearTimeout(loadingAnimationDelay);
 	});
+
+	// Sets all view objects to their loading state. (with a delay)
+	loadingAnimation = setTimeout(() => {
+		for (let viewComponent of Object.keys(view)) {
+			view[viewComponent].classList.add("loading");
+		}
+	}, 100);
 }
 
 
