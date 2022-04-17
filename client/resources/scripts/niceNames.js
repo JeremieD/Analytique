@@ -4,7 +4,6 @@ const acquisitionChannelsDict = {
 	"social": "Social",
 	"other": "Autre référence"
 };
-
 const bilingualismClassesDict = {
 	"en": "Anglais, pas de français",
 	"en+": "Bilingue, anglais d’abord",
@@ -12,7 +11,6 @@ const bilingualismClassesDict = {
 	"fr+": "Bilingue, français d’abord",
 	"al": "Autres langues seulement"
 };
-
 const countriesDict = {
 	"CA": "Canada",
 	"US": "États-Unis",
@@ -35,14 +33,12 @@ const countriesDict = {
 	"BE": "Belgique",
 	"": "Indéterminé"
 };
-
 const screenBreakpointsDict = {
 	"desktop": "Grand <small>(>1080px)</small>",
 	"tablet": "Moyen <small>(≤1080px)</small>",
 	"mobile": "Petit <small>(≤800px)</small>",
 	"xsmall": "Mini <small>(≤360px)</small>"
 };
-
 const excludedTrafficDict = {
 	"tests": "Moi",
 	"bots": "Robots",
@@ -62,7 +58,7 @@ function _identity(input) {
 
 
 /**
- * Converts the acquisition channel code to its French string.
+ * Converts the acquisition channel code to a French string.
  */
 function niceAcquisitionChannelName(input) {
 	if (acquisitionChannelsDict[input] !== "") {
@@ -72,10 +68,11 @@ function niceAcquisitionChannelName(input) {
 
 
 /**
- * Simplifies the  URL.
+ * Simplifies the URL.
  */
 function niceOriginName(input) {
-	if (input.includes("jeremiedupuis.com")) {
+	// Don’t touch variants of the current origin.
+	if (input.includes(origin)) {
 		return input;
 	}
 

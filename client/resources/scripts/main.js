@@ -2,21 +2,22 @@
 const availableOrigins = httpGet("/api/origins").then(JSON.parse);
 
 // Holds the current origin.
-var origin;
+let origin;
 
 // Query the earliest available month with data.
-var earliestRange;
+let earliestRange;
 
-// Holds stats data.
-var model = {}; // Data for the current range.
-var secondaryModel = {}; // Anterior data.
+// Holds stats data for current and anterior ranges.
+let model = {};
+let secondaryModel = {};
 
-var filter = "";
-var selectedListElement;
+// Current filter value and selected data point.
+let filter = "";
+let selectedListElement;
 
 // Holds cached stats data.
-var modelCache = {};
-var modelCacheModTime = {};
+let modelCache = {};
+let modelCacheModTime = {};
 const cacheTTL = 300000; // 5min to live.
 
 // Holds references to the DOM objects that display the data.
@@ -25,6 +26,7 @@ const view = {};
 // Holds the view-model’s current range.
 let range = new DateRange();
 
+// Reference to the queued loading animation.
 let loadingAnimation;
 
 
@@ -48,15 +50,12 @@ whenDOMReady(() => {
 	view.screenBreakpoints = document.getElementById("screen-breakpoints");
 	view.errorPages = document.getElementById("error-pages");
 	view.excludedTraffic = document.getElementById("excluded-traffic");
-
 	view.previousRangeButton = document.getElementById("previous-range")
 	view.nextRangeButton = document.getElementById("next-range")
-
 
 	// Triggers for range buttons.
 	view.previousRangeButton.addEventListener("click", e => previousRange(e));
 	view.nextRangeButton.addEventListener("click", e => nextRange(e));
-
 	document.addEventListener("keydown", e => {
 		if (e.key === "ArrowLeft" && !view.previousRangeButton.disabled) {
 			previousRange(e);
@@ -66,10 +65,12 @@ whenDOMReady(() => {
 		}
 	});
 
+	// Trigger for origin switcher.
 	view.originSelector.addEventListener("change", () => {
 		switchToOrigin(view.originSelector.value);
 	});
 
+	// Load the first available origin whenever possible.
 	availableOrigins.then(origins => {
 		for (let origin of origins) {
 			const option = document.createElement("option");
@@ -82,27 +83,55 @@ whenDOMReady(() => {
 });
 
 
+/*
+ * Switch view-model to the given origin.
+ */
 function switchToOrigin(newOrigin) {
 	origin = newOrigin;
 	filter = "";
 
+	// Sets the origin switcher display value.
 	view.originSelector.value = origin;
+
+	// Wait for earliestRange before updating the view.
 	earliestRange = httpGet("/api/earliest?origin=" + origin).then(value => {
+		// If range is unavailable in the new origin, select the earliest range.
 		const newEarliestRange = new DateRange(value);
 		if (newEarliestRange.laterThan(range)) {
 			range = newEarliestRange;
 		}
-		refresh();
+
+		update();
 		return newEarliestRange;
 	});
 }
 
 
 /*
+ * Selects the previous range and refresh.
+ */
+function previousRange(e) {
+	e?.preventDefault();
+	range.previous();
+	update();
+}
+
+
+/*
+ * Selects the next range and refresh.
+ */
+function nextRange(e) {
+	e?.preventDefault();
+	range.next();
+	update();
+}
+
+
+/*
  * Checks data availability, then updates the view.
  */
-function refresh() {
-	// Checks that range is in bound.
+function update() {
+	// Check that range is in bound.
 	const isLastRange = range.laterThan((new DateRange()).minus(1));
 	view.nextRangeButton.disabled = isLastRange;
 	earliestRange.then(value => {
@@ -111,13 +140,16 @@ function refresh() {
 	});
 
 	// Update models then update the views.
-	const main = updateMainModel().then(() => {
-		updateMainView();
+	const main = refreshMainModel().then(() => {
+		// As soon as the main model is ready, draw the main view.
+		drawMainView();
 	});
-	const secondary = updateSecondaryModel();
 
+	const secondary = refreshSecondaryModel();
+
+	// Wait for both the main and secondary models before drawing secondary view.
 	Promise.all([main, secondary]).then(() => {
-		updateSecondaryView();
+		drawSecondaryView();
 	})
 	.catch(e => console.error)
 	.finally(() => {
@@ -131,6 +163,8 @@ function refresh() {
 	});
 
 	// Sets all view objects to their loading state. (with a delay)
+	// Doing this after requesting view-model updates avoids race conditions
+	// that can lead to an infinite loading animation.
 	loadingAnimation = setTimeout(() => {
 		for (let viewComponent of Object.keys(view)) {
 			view[viewComponent].classList.add("loading");
@@ -140,17 +174,17 @@ function refresh() {
 
 
 /*
- * Updates the model from cache or fetch new data.
+ * Load the model from cache or fetch from server.
  */
-function updateMainModel() {
+function refreshMainModel() {
 	return new Promise(function(resolve, reject) {
 		const shortRange = range.shortForm;
 
+		// Ensure safe access to cache fields.
 		if (!modelCache.hasOwnProperty(origin)) {
 			modelCache[origin] = {};
 			modelCacheModTime[origin] = {};
 		}
-
 		if (!modelCache[origin].hasOwnProperty(shortRange)) {
 			modelCache[origin][shortRange] = {};
 			modelCacheModTime[origin][shortRange] = {};
@@ -173,10 +207,11 @@ function updateMainModel() {
 }
 
 /*
- * Updates the secondary model from cache or fetch new data.
+ * Load the secondary models from cache or fetch from server.
  */
-function updateSecondaryModel() {
+function refreshSecondaryModel() {
 	return new Promise(function(resolve, reject) {
+		// Wait for earliestRange.
 		earliestRange.then(value => {
 
 			// Clear model.
@@ -184,7 +219,7 @@ function updateSecondaryModel() {
 
 			let anteriorData = [];
 
-			// Construct a list of past ranges.
+			// Construct list of past ranges.
 			let anteriorRanges = [];
 			const lowerBound = value.minus(1);
 			let anteriorRange = range.minus(1);
@@ -193,14 +228,15 @@ function updateSecondaryModel() {
 				anteriorRange = anteriorRange.minus(1);
 			}
 
+			// For each anterior range...
 			for (const range of anteriorRanges) {
 				anteriorData.push(new Promise(function(resolve, reject) {
 
+					// Ensure safe access to cache fields.
 					if (!modelCache.hasOwnProperty(origin)) {
 						modelCache[origin] = {};
 						modelCacheModTime[origin] = {};
 					}
-
 					if (!modelCache[origin].hasOwnProperty(range)) {
 						modelCache[origin][range] = {};
 						modelCacheModTime[origin][range] = {};
@@ -222,6 +258,7 @@ function updateSecondaryModel() {
 				}));
 			}
 
+			// When all anterior models are loaded, resolve.
 			Promise.all(anteriorData).then(() => {
 				resolve();
 			});
@@ -231,7 +268,7 @@ function updateSecondaryModel() {
 
 
 /*
- * Downdloads stats data from the server.
+ * Downloads stats data from the server.
  */
 function fetchStats(range, filter) {
 	let url = "/api/stats?origin=" + origin + "&range=" + range;
@@ -247,17 +284,19 @@ function fetchStats(range, filter) {
 /*
  * Updates the view with data from the main model object.
  */
-function updateMainView() {
-
+function drawMainView() {
+	// Sets the title.
 	view.rangeDisplay.innerText = range.longForm;
 
+	// Big session total.
 	view.sessionTotal.innerText = model.sessionTotal;
 
+	// Big engagement value.
 	const avgSessionLengthFormatted = model.avgSessionLength.round(2);
 	view.avgSessionLength.innerHTML = avgSessionLengthFormatted
 		+ "<small> vue" + (avgSessionLengthFormatted === 1 ? "" : "s") + "</small>";
 
-	// Build the "list views".
+	// Build the list views.
 	const listViews = [
 		view.pageViews,
 		view.acquisitionChannels,
@@ -307,6 +346,7 @@ function updateMainView() {
 		"sessionTotal", "viewTotal"
 	];
 
+	// For each list view or “card”...
 	for (let i = 0; i < listViews.length; i++) {
 
 		// Clear all lists except for the selected item.
@@ -314,16 +354,19 @@ function updateMainView() {
 			item.remove();
 		}
 
+		// For each data point for that...
 		for (let dataPoint of model[listViewsModels[i]]) {
+			// Allow no more than 6 data points.
 			if (listViews[i].children.length > 5) {
 				break;
 			}
 
+			// Determine the filter key.
 			const filterValue = encodeURIComponent(listViewsModels[i])
 						+ ":" + encodeURIComponent(dataPoint.key);
 
-			// If this data point was selected for filtering, don’t create a new element.
 			let newElement;
+			// If data point is selected for filtering, don’t create new element.
 			if (filter === filterValue) {
 				newElement = selectedListElement;
 				newElement.innerHTML = "";
@@ -331,13 +374,15 @@ function updateMainView() {
 				newElement = document.createElement("li");
 			}
 
-			// Formats the key according to a function.
+			// Format the key according to a function.
 			const transformedKey = listViewsTransforms[i](dataPoint.key);
 
+			// Style empty and “Autre” data points differently.
 			if (dataPoint.key === "" || transformedKey.includes("Autre")) {
 				newElement.classList.add("last");
 			}
 
+			// Create data elements and append to the list element.
 			const dataPoint1 = document.createElement("data");
 			dataPoint1.innerHTML = transformedKey;
 
@@ -357,9 +402,11 @@ function updateMainView() {
 				continue;
 			}
 
-			// Handle click on list item by filtering.
+			// Handle click on list item by filtering,
+			// except those that are not valued in sessions.
 			if (listViewsOneHundredPercents[i] === "sessionTotal") {
 				newElement.addEventListener("click", () => {
+					// If the clicked list item is not currently selected...
 					if (filter !== filterValue) {
 						filter = filterValue;
 						selectedListElement?.classList.remove("selected");
@@ -367,16 +414,15 @@ function updateMainView() {
 						selectedListElement = newElement;
 						view.rangeDisplay.classList.add("filtered");
 
-					} else {
+					} else { // ...othersise...
 						filter = "";
 						newElement.classList.remove("selected");
 						view.rangeDisplay.classList.remove("filtered");
 					}
 
-					refresh();
+					update();
 				});
 			}
-
 
 			listViews[i].append(newElement);
 		}
@@ -387,7 +433,7 @@ function updateMainView() {
 /*
  * Updates the view with data from the secondary model object.
  */
-function updateSecondaryView() {
+function drawSecondaryView() {
 	const previousMonths = Object.keys(secondaryModel);
 
 	// Assemble data for session total graph
@@ -395,6 +441,8 @@ function updateSecondaryView() {
 		points: [],
 		floatingDigits: 0
 	};
+
+	// Add data from previous months.
 	for (let previousMonth of previousMonths) {
 		let previousRange = new DateRange(previousMonth);
 		sessionTotalData.points.push({
@@ -402,6 +450,8 @@ function updateSecondaryView() {
 			y: secondaryModel[previousMonth].sessionTotal
 		});
 	}
+
+	// Add data from currently selected month.
 	sessionTotalData.points.push({
 		label: monthsDict[range.month],
 		y: model.sessionTotal
@@ -416,6 +466,8 @@ function updateSecondaryView() {
 		points: [],
 		floatingDigits: 2
 	};
+
+	// Add data from previous months.
 	for (let previousMonth of previousMonths) {
 		let previousRange = new DateRange(previousMonth);
 		sessionLengthData.points.push({
@@ -423,6 +475,8 @@ function updateSecondaryView() {
 			y: secondaryModel[previousMonth].avgSessionLength
 		});
 	}
+
+	// Add data from currently selected month.
 	sessionLengthData.points.push({
 		label: monthsDict[range.month],
 		y: model.avgSessionLength
@@ -430,24 +484,4 @@ function updateSecondaryView() {
 
 	// Draw session length graph
 	view.avgSessionLengthGraph.draw(sessionLengthData);
-}
-
-
-/*
- * Selects the previous range and refresh.
- */
-function previousRange(e) {
-	e?.preventDefault();
-	range.previous();
-	refresh();
-}
-
-
-/*
- * Selects the next range and refresh.
- */
-function nextRange(e) {
-	e?.preventDefault();
-	range.next();
-	refresh();
 }

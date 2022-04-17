@@ -8,6 +8,9 @@ function whenDOMReady(callback, options = { once: true, passive: true }) {
 }
 
 
+/*
+ * Async wrapper for XMLHttpRequest.
+ */
 async function httpGet(url) {
 	return new Promise(function(resolve, reject) {
 		const httpRequest = new XMLHttpRequest();
@@ -36,6 +39,9 @@ async function httpGet(url) {
 }
 
 
-Number.prototype.round = function(decimalPlace = 0) {
-	return Math.round(this * 10 ** decimalPlace) / 10 ** decimalPlace;
+/*
+ * Simple rounding function with arbitrary number decimal places.
+ */
+Number.prototype.round = function(decimalPlaces = 0) {
+	return Math.round(this * 10 ** decimalPlaces) / 10 ** decimalPlaces;
 }

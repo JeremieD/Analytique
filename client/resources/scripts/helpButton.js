@@ -10,7 +10,7 @@ class HelpButton extends HTMLElement {
 		this.tooltipElement.innerHTML = this.innerHTML;
 
 		this.innerHTML = HelpButton.icon;
-		
+
 		this.abortController;
 
 		if (!this.hasAttribute("tabindex")) {

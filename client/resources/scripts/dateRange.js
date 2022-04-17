@@ -87,8 +87,7 @@ class DateRange {
 
 
 const monthsDict = [
-	"Janvier", "Février", "Mars",
-	"Avril", "Mai", "Juin",
-	"Juillet", "Août", "Septembre",
-	"Octobre", "Novembre", "Décembre",
+	"Janvier", "Février", "Mars", "Avril",
+	"Mai", "Juin", "Juillet", "Août",
+	"Septembre", "Octobre", "Novembre", "Décembre",
 ];
