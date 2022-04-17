@@ -434,6 +434,12 @@ async function buildSessions(origin, range) {
 		}
 
 		for (const view of views) {
+			// Ignore repeated page views.
+			if (previousView !== undefined &&
+				view[3] === previousView[3] && view[4] === previousView[4]) {
+				continue;
+			}
+
 			sessions.viewTotal++;
 
 			// True if the view is on an error page.
