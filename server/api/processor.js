@@ -434,11 +434,6 @@ async function buildSessions(origin, range) {
 		}
 
 		for (const view of views) {
-			// Ignore repeated page views.
-			if (previousView !== undefined &&
-				view[3] === previousView[3] && view[4] === previousView[4]) {
-				continue;
-			}
 
 			sessions.viewTotal++;
 
@@ -452,6 +447,11 @@ async function buildSessions(origin, range) {
 				&& view[2] === previousView[2] // be in the same timezone.
 				&& (view[5] === previousView[4] // follow previous view.
 				|| view[5] === "")) { // or have no referrer.
+
+				// Skip identical page views (most likely page refreshes).
+				if (view[3] === previousView[3] && view[4] === previousView[4]) {
+					continue;
+				}
 
 				currentSession.views.push({
 					title: view[3],
