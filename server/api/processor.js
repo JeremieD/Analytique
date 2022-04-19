@@ -442,8 +442,8 @@ async function buildSessions(origin, range) {
 
 			// If view is part of the same session, it must...
 			if (previousView !== undefined
-				&& view[12] === previousView[12] // have the same IP address.
-				&& view[11] === previousView[11] // have the same user-agent string.
+				&& view[11] === previousView[11] // have the same IP address.
+				&& view[10] === previousView[10] // have the same user-agent string.
 				&& view[2] === previousView[2] // be in the same timezone.
 				&& (view[5] === previousView[4] // follow previous view.
 				|| view[5] === "")) { // or have no referrer.
@@ -458,7 +458,6 @@ async function buildSessions(origin, range) {
 					url: view[4].replace(/https?:\/\//, "").substr(origin.length),
 					error: isErrorView
 				});
-				currentSession.latestTime = view[10];
 
 			} else { // Otherwise, begin a new session.
 
@@ -468,13 +467,13 @@ async function buildSessions(origin, range) {
 				}
 
 				// Filter out some IP addresses.
-				if (config[origin].excludeClientIPs.includes(view[12])) {
+				if (config[origin].excludeClientIPs.includes(view[11])) {
 					sessions.excludedTraffic.tests++;
 					continue;
 				}
 
 				// Filter out bots.
-				if (heuristics.inferIfBot(view[11])) {
+				if (heuristics.inferIfBot(view[10])) {
 					sessions.excludedTraffic.bots++;
 					continue;
 				}
@@ -493,7 +492,7 @@ async function buildSessions(origin, range) {
 				}
 				currentSession.languages = currentSession.languages.unique();
 
-				currentSession.country = await heuristics.inferCountry(view[12]);
+				currentSession.country = await heuristics.inferCountry(view[11]);
 
 				// Filter out some countries.
 				if (config[origin].excludeCountries.includes(currentSession.country)) {
@@ -503,14 +502,14 @@ async function buildSessions(origin, range) {
 
 				// Get some cities according to config.
 				if (config[origin].focusCountries.includes(currentSession.country)) {
-					const city = await heuristics.inferCity(view[12]);
+					const city = await heuristics.inferCity(view[11]);
 					if (city !== undefined) {
 						currentSession.city = city;
 					}
 				}
 
-				currentSession.os = heuristics.inferOS(view[11]);
-				currentSession.browser = heuristics.inferBrowser(view[11]);
+				currentSession.os = heuristics.inferOS(view[10]);
+				currentSession.browser = heuristics.inferBrowser(view[10]);
 				currentSession.screenBreakpoint = heuristics.inferScreenBreakpoint(view[8]);
 
 				currentSession.views = [];
@@ -556,9 +555,8 @@ async function buildSessions(origin, range) {
  * [7]	languages			Ordered list of language codes.
  * [8]	windowInnerSize		Inner size of the page in the format “WxH”.
  * [9]	windowOuterSize		Outer size of the page in the format “WxH”.
- * [10]	latestTime			The time collected when the beacon was received.
- * [11]	userAgent			The browser user-agent string of the request.
- * [12]	ipAddress			The IP address of the client.
+ * [10]	userAgent			The browser user-agent string of the request.
+ * [11]	ipAddress			The IP address of the client.
  *
  * Timestamps are in milliseconds since 1 January 1970 UTC.
  */

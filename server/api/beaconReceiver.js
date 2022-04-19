@@ -38,9 +38,8 @@ function receive(req, res) {
 		}
 
 		// Complete the beacon data.
-		beacon[10] = encodeURI(Date.now());
-		beacon[11] = encodeURI(req.headers["user-agent"]);
-		beacon[12] = encodeURI(req.headers["x-forwarded-for"] ?? req.connection.remoteAddress);
+		beacon[10] = encodeURI(req.headers["user-agent"]);
+		beacon[11] = encodeURI(req.headers["x-forwarded-for"] ?? req.connection.remoteAddress);
 
 
 		// Write the beacon data to file.
