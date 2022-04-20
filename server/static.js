@@ -67,11 +67,7 @@ function serveFile(req, res, urlOverride) {
 		if (stats.mtimeMs <= fileCache[pathname]?.modTime) {
 
 			// If the requested ETag corresponds to the one in cache, send 304.
-			const requestedETag = req.headers["if-none-match"];
-			if (fileCache[pathname].eTag === requestedETag) {
-				res.setHeader("ETag", fileCache[pathname].eTag);
-				res.writeHead(304);
-				res.end();
+			if (eTagMatches(req, res, fileCache[pathname].eTag)) {
 				return;
 			}
 
@@ -125,6 +121,10 @@ function serveFile(req, res, urlOverride) {
  * Serve a 200 response with the given content and headers.
  */
 function serve(req, res, content, mimeType, encoding = "identity", eTag) {
+	if (eTagMatches(req, res, eTag)) {
+		return;
+	}
+
 	if (encoding === "auto") {
 		encoding = compress.getBestEncoding(req.headers["accept-encoding"], content.length * 8);
 		content = compress.encode(content, encoding);
@@ -158,6 +158,25 @@ function serveError(res, msg = "", code = 404) {
 
 
 /*
+ * Compares a given ETag with the requested one and short-circuits
+ * the request if they match, returning 304.
+ */
+function eTagMatches(req, res, eTag = "") {
+	const requestedETag = req.headers["if-none-match"];
+
+	if (eTag === requestedETag) {
+		res.setHeader("ETag", eTag);
+		res.writeHead(304);
+		res.end();
+		return true;
+
+	} else {
+		return false;
+	}
+}
+
+
+/*
  * Returns the ETag for the given value.
  * This Etag is based on a simple hash of the passed value.
  */
@@ -172,4 +191,4 @@ function getETagFrom(value) {
 }
 
 
-module.exports = { serveFile, serve, serveError };
+module.exports = { serveFile, serve, serveError, getETagFrom };

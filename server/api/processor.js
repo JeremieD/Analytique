@@ -33,7 +33,9 @@ function processRequest(req, res) {
 			}
 		}
 
-		static.serve(req, res, JSON.stringify(allowedOrigins), "application/json", "auto");
+		const eTag = static.getETagFrom(JSON.stringify(allowedOrigins) + user);
+
+		static.serve(req, res, JSON.stringify(allowedOrigins), "application/json", "auto", eTag);
 		return;
 	}
 
@@ -60,7 +62,8 @@ function processRequest(req, res) {
 	if (path.filename === "stats") {
 		getStats(origin, range, filter).then(data => {
 			data = JSON.stringify(data);
-			static.serve(req, res, data, "application/json", "auto");
+			const eTag = static.getETagFrom(data + user);
+			static.serve(req, res, data, "application/json", "auto", eTag);
 		})
 		.catch(e => console.log(e));
 
@@ -69,7 +72,8 @@ function processRequest(req, res) {
 		fs.readdir(viewsRoot(origin)).then(files => {
 			files = files.filter(filename => filename[0] !== ".").sort();
 			const value = files[0].split(".")[0];
-			static.serve(req, res, value, "text/plain", "auto");
+			const eTag = static.getETagFrom(value + origin + user);
+			static.serve(req, res, value, "text/plain", "auto", eTag);
 		})
 		.catch(e => console.log(e));
 
