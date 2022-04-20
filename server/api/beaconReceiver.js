@@ -23,8 +23,7 @@ function receive(req, res) {
 
 		if (beacon[0] !== "1" || beacon.length !== 10) {
 			// Received beacon is invalid.
-			res.writeHead(400);
-			res.end();
+			serveError(res, `Received an invalid beacon: “${beacon}”`, 400);
 			return;
 		}
 
@@ -32,8 +31,7 @@ function receive(req, res) {
 
 		if (!origins.includes(origin)) {
 			// Received beacon is for an unregistered origin.
-			res.writeHead(400);
-			res.end();
+			serveError(res, `A beacon was received for unknown origin “${origin}”`, 400);
 			return;
 		}
 

@@ -52,8 +52,7 @@ function processRequest(req, res) {
 	origin = path.parameters?.origin;
 	if (origin === undefined || !config.hasOwnProperty(origin) ||
 		!config[origin].allowedUsers.includes(user)) {
-		res.writeHead(400);
-		res.end();
+		serveError(res, "The logged in user is not allowed to see the requested origin.", 400);
 		return;
 	}
 
