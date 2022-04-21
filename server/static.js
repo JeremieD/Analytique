@@ -54,8 +54,6 @@ function serveFile(req, res, urlOverride) {
 	fs.stat(realPath).then(stats => {
 
 		// Set basic headers.
-		res.setHeader("Vary", "Accept-Encoding");
-		res.setHeader("Cache-Control", cachePolicies[extension]);
 
 		// Determine the best compression method.
 		const requestedEncodings = req.headers["accept-encoding"];
@@ -75,7 +73,7 @@ function serveFile(req, res, urlOverride) {
 			if (fileCache[pathname].encodings[encoding]) {
 				serve(req, res, fileCache[pathname].encodings[encoding],
 					  mimeTypes[extension], encoding,
-					  fileCache[pathname].eTag);
+					  cachePolicies[extension], fileCache[pathname].eTag);
 				return;
 			}
 
@@ -120,20 +118,23 @@ function serveFile(req, res, urlOverride) {
 /*
  * Serve a 200 response with the given content and headers.
  */
-function serve(req, res, content, mimeType, encoding = "identity", eTag) {
+function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, eTag) {
 	if (eTagMatches(req, res, eTag)) {
 		return;
 	}
 
+	if (cachePolicy !== undefined) {
+		res.setHeader("Cache-Control", cachePolicy);
+	}
+
+	res.setHeader("Vary", "Accept-Encoding");
 	if (encoding === "auto") {
 		encoding = compress.getBestEncoding(req.headers["accept-encoding"], content.length * 8);
 		content = compress.encode(content, encoding);
 	}
-
 	if (encoding !== "identity") {
 		res.setHeader("Content-Encoding", encoding);
 	}
-
 	res.setHeader("Content-Type", mimeType);
 
 	if (eTag !== undefined) {

@@ -34,7 +34,7 @@ function processRequest(req, res) {
 		}
 
 		const eTag = static.getETagFrom(JSON.stringify(allowedOrigins) + user);
-		static.serve(req, res, JSON.stringify(allowedOrigins), "application/json", "auto", eTag);
+		static.serve(req, res, JSON.stringify(allowedOrigins), "application/json", "auto", "private", eTag);
 		return;
 	}
 
@@ -62,7 +62,7 @@ function processRequest(req, res) {
 			data = JSON.stringify(data);
 
 			const eTag = static.getETagFrom(data + user);
-			static.serve(req, res, data, "application/json", "auto", eTag);
+			static.serve(req, res, data, "application/json", "auto", "private", eTag);
 		})
 		.catch(e => console.log(e));
 
@@ -73,7 +73,7 @@ function processRequest(req, res) {
 			const value = files[0].split(".")[0];
 
 			const eTag = static.getETagFrom(value + origin + user);
-			static.serve(req, res, value, "text/plain", "auto", eTag);
+			static.serve(req, res, value, "text/plain", "auto", "private", eTag);
 		})
 		.catch(e => console.log(e));
 
