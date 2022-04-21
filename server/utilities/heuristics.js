@@ -5,7 +5,8 @@ const config = require("../config.js").analytics;
 
 const ipGeoCountryCache = {};
 const ipGeoCityCache = {};
-const ipGeoHost = "http://ipinfo.io/";
+const ipGeoCacheTTL = 3600000*24*7; // 7 days.
+const ipGeoAddress = "http://ipinfo.io/";
 const ipGeoCountryParameters = "/country?token=" + config.ipGeoToken;
 const ipGeoCityParameters = "/city?token=" + config.ipGeoToken;
 
@@ -17,24 +18,24 @@ const searchEnginesDomains = [
 	"searchengines.com", "4loot.com", "alhea.com", "alot.com", "aol.com", "aolsearch.com", "ask.com", "avg.com", "b1.org", "babylon.com", "baidu.cn", "baidu.co.th", "baidu.com", "bing.com", "blackle.com", "blekko.com", "blindsearch.fejus.com", "bt.com", "centurylink.net", "charter.net", "clearch.org", "cnn.com", "daum.net", "devilfinder.com", "dmoz.org", "dogpile.com", "duckduckgo.com", "ekolay.net", "entireweb.com", "excite.com", "fast.ng", "findgala.com", "findsmarter.com", "findsmarter.ru", "g.cn", "genieo.com", "go.speedbit.com", "goofram.com", "google.ac", "google.ad", "google.ae", "google.al", "google.am", "google.as", "google.at", "google.az", "google.ba", "google.be", "google.bf", "google.bg", "google.bi", "google.bj", "google.bs", "google.bt", "google.by", "google.ca", "google.cat", "google.cc", "google.cd", "google.cf", "google.cg", "google.ch", "google.ci", "google.cl", "google.cm", "google.cn", "google.co.ao", "google.co.bw", "google.co.ck", "google.co.cr", "google.co.id", "google.co.il", "google.co.in", "google.co.jp", "google.co.ke", "google.co.kr", "google.co.ls", "google.co.ma", "google.co.mz", "google.co.nz", "google.co.th", "google.co.tz", "google.co.ug", "google.co.uk", "google.co.uz", "google.co.ve", "google.co.vi", "google.co.za", "google.co.zm", "google.co.zw", "google.com", "google.cv", "google.cz", "google.de", "google.dj", "google.dk", "google.dm", "google.dz", "google.ee", "google.es", "google.fi", "google.fm", "google.fr", "google.ga", "google.gd", "google.ge", "google.gf", "google.gg", "google.gl", "google.gm", "google.gp", "google.gr", "google.gy", "google.hn", "google.hr", "google.ht", "google.hu", "google.ie", "google.im", "google.io", "google.iq", "google.is", "google.it", "google.it.ao", "google.je", "google.jo", "google.kg", "google.ki", "google.kz", "google.la", "google.li", "google.lk", "google.lt", "google.lu", "google.lv", "google.md", "google.me", "google.mg", "google.mk", "google.ml", "google.mn", "google.ms", "google.mu", "google.mv", "google.mw", "google.ne", "google.nl", "google.no", "google.nr", "google.nu", "google.pl", "google.pn", "google.ps", "google.pt", "google.ro", "google.rs", "google.ru", "google.rw", "google.sc", "google.se", "google.sh", "google.si", "google.sk", "google.sm", "google.sn", "google.so", "google.st", "google.td", "google.tg", "google.tk", "google.tl", "google.tm", "google.tn", "google.to", "google.tt", "google.us", "google.vg", "google.vu", "google.ws", "heapr.com", "hotbot.com", "iboogie.com", "inbox.com", "incredibar.com", "info.com", "infospace.com", "isearch-123.com", "iseek.com", "izito.com", "k9safesearch.com", "kidrex.org", "kvasir.no", "lycos.com", "mamma.com", "monstercrawler.com", "myallsearch.com", "mynet.com", "mysearchresults.com", "myway.com", "mywebsearch.com", "naver.com", "out1000.com", "pageset.com", "portal.tds.net", "qone8.com", "qrobe.it", "rambler.ru", "redz.com", "safehomepage.com", "safesearch.net", "search-results.com", "search.centurylink.com", "search.com", "search.comcast.net", "search.earthlink.net", "search.frontier.com", "search.iminent.com", "search.incredimail.com", "search.juno.com", "search.mail.com", "search.orange.co.uk", "search.pch.com", "search.peoplepc.com", "search.quebles.com", "search.snap.do", "search.snapdo.com", "search.sweetim.com", "search.thunderstone.com", "search.toolbars.alexa.com", "search.twcc.com", "search.walla.co.il", "search.zonealarm.com", "searchalot.com", "searchassist.verizon.com", "searchfunmoods.com", "searchlock.com", "searchresults.verizon.com", "searchtool.com", "seznam.cz", "similarsitesearch.com", "so.com", "sogou.com", "spacetime3d.com", "spezify.com", "start.funmoods.com", "start.iminent.com", "start.toshiba.com", "startgoogle.startpagina.nl", "startpage.com", "startsiden.no", "surfcanyon.com", "swagbucks.com", "terra.com", "thenet1.com", "torcho.com", "tuvaro.com", "ustart.org", "virgilio.it", "voila.fr", "web.canoe.ca", "webcache.googleusercontent.com", "webcrawler.com", "webhelper.centurylink.com", "webssearches.com", "windstream.net", "wolframalpha.com", "wow.com", "wowway.net", "wp.pl", "www1.dlinksearch.com", "yabigo.com", "yahoo.co.jp", "yahoo.com", "yaimo.com", "yam.com", "yandex.by", "yandex.com", "yandex.com.tr", "yandex.kz", "yandex.ru", "yandex.ua", "yippy.com", "zapmeta.com", "ecosia.org"
 ];
 const oses = {
-	"Android": ["Android"],
-	"Linux": ["linux", "Linux"],
-	"iOS": ["like Mac OS X"],
-	"macOS": ["Macintosh", "Mac OS X"],
-	"Windows": ["Windows NT", "win32"],
-	"Windows Phone": ["Windows Phone"],
-	"Chrome OS": ["CrOS"]
+	"Android": [ "Android" ],
+	"Linux": [ "linux", "Linux" ],
+	"iOS": [ "like Mac OS X" ],
+	"macOS": [ "Macintosh", "Mac OS X" ],
+	"Windows": [ "Windows NT", "win32" ],
+	"Windows Phone": [ "Windows Phone" ],
+	"Chrome OS": [ "CrOS" ]
 };
 const browsers = {
-	"Edge": ["Edge"],
-	"Edge (Chromium)": ["Edg"],
-	"Internet Explorer": ["MSIE"],
-	"Firefox": ["Firefox/", "FxiOS"],
-	"Chrome": ["Chrome", "CriOS"],
-	"Surf": ["Surf"],
-	"Safari": ["Safari", "iPhone", "iPad"],
-	"Opera": ["OPR", "opera"],
-	"cURL": ["curl", "CURL"]
+	"Edge": [ "Edge" ],
+	"Edge (Chromium)": [ "Edg" ],
+	"Internet Explorer": [ "MSIE" ],
+	"Firefox": [ "Firefox/", "FxiOS" ],
+	"Chrome": [ "Chrome", "CriOS" ],
+	"Surf": [ "Surf" ],
+	"Safari": [ "Safari", "iPhone", "iPad" ],
+	"Opera": [ "OPR", "opera" ],
+	"cURL": [ "curl", "CURL" ]
 };
 
 
@@ -45,12 +46,12 @@ const browsers = {
 async function inferCountry(ipAddress) {
 	return new Promise(function(resolve, reject) {
 
-		// Use the cached result if it is less than 7 days old.
-		if (ipGeoCountryCache[ipAddress]?.time + 3600000*24*7 > Date.now()) {
+		// Use the cached result if it is fresh.
+		if (ipGeoCountryCache[ipAddress]?.time + ipGeoCacheTTL > Date.now()) {
 			return resolve(ipGeoCountryCache[ipAddress].countryCode);
 		}
 
-		http.get(ipGeoHost + ipAddress + ipGeoCountryParameters, res => {
+		http.get(ipGeoAddress + ipAddress + ipGeoCountryParameters, res => {
 			let rawData = "";
 
 			res.on("data", chunk => {
@@ -76,12 +77,12 @@ async function inferCountry(ipAddress) {
 async function inferCity(ipAddress) {
 	return new Promise(function(resolve, reject) {
 
-		// Use the cached result if it is less than 7 days old.
-		if (ipGeoCityCache[ipAddress]?.time + 3600000*24*7 > Date.now()) {
+		// Use the cached result if it is fresh.
+		if (ipGeoCityCache[ipAddress]?.time + ipGeoCacheTTL > Date.now()) {
 			return resolve(ipGeoCityCache[ipAddress].countryCode);
 		}
 
-		http.get(ipGeoHost + ipAddress + ipGeoCityParameters, res => {
+		http.get(ipGeoAddress + ipAddress + ipGeoCityParameters, res => {
 			let rawData = "";
 
 			res.on("data", chunk => {

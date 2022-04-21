@@ -19,8 +19,8 @@ function receive(req, res) {
 	});
 
 	req.on("end", function() {
-		const beacon = body.split("\t");
 
+		const beacon = body.split("\t");
 		if (beacon[0] !== "1" || beacon.length !== 10) {
 			// Received beacon is invalid.
 			serveError(res, `Received an invalid beacon: “${beacon}”`, 400);
@@ -28,7 +28,6 @@ function receive(req, res) {
 		}
 
 		const origin = new URL(beacon[4]).hostname;
-
 		if (!origins.includes(origin)) {
 			// Received beacon is for an unregistered origin.
 			serveError(res, `A beacon was received for unknown origin “${origin}”`, 400);
