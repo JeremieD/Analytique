@@ -54,14 +54,14 @@ whenDOMReady(() => {
 	view.nextRangeButton = document.getElementById("next-range")
 
 	// Triggers for range buttons.
-	view.previousRangeButton.addEventListener("click", e => previousRange(e));
-	view.nextRangeButton.addEventListener("click", e => nextRange(e));
-	document.addEventListener("keydown", e => {
+	view.previousRangeButton.addEventListener("click", previousRange);
+	view.nextRangeButton.addEventListener("click", nextRange);
+	window.addEventListener("keydown", e => {
 		if (e.key === "ArrowLeft" && !view.previousRangeButton.disabled) {
-			previousRange(e);
+			previousRange();
 
 		} else if (e.key === "ArrowRight" && !view.nextRangeButton.disabled) {
-			nextRange(e);
+			nextRange();
 		}
 	});
 
@@ -110,8 +110,7 @@ function switchToOrigin(newOrigin) {
 /*
  * Selects the previous range and refresh.
  */
-function previousRange(e) {
-	e?.preventDefault();
+function previousRange() {
 	range.previous();
 	update();
 }
@@ -120,8 +119,7 @@ function previousRange(e) {
 /*
  * Selects the next range and refresh.
  */
-function nextRange(e) {
-	e?.preventDefault();
+function nextRange() {
 	range.next();
 	update();
 }
@@ -134,9 +132,15 @@ function update() {
 	// Check that range is in bound.
 	const isLastRange = range.laterThan((new DateRange()).minus(1));
 	view.nextRangeButton.disabled = isLastRange;
+	if (view.nextRangeButton.disabled) {
+		view.nextRangeButton.blur();
+	}
 	earliestRange.then(value => {
 		const isFirstRange = range.earlierThan(value.plus(1));
 		view.previousRangeButton.disabled = isFirstRange;
+		if (view.previousRangeButton.disabled) {
+			view.previousRangeButton.blur();
+		}
 	});
 
 	// Update models then update the views.
