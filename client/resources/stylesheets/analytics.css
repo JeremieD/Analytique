@@ -171,8 +171,10 @@ h3 {
 
 .card>ol>li {
 	display: grid;
+	position: relative;
 	grid-template-columns: 1fr repeat(2, minmax(3ch, max-content));
 	gap: 8px;
+	align-items: center;
 	cursor: pointer;
 }
 
@@ -183,10 +185,13 @@ h3 {
 .card>ol>li::before {
 	content: "";
 	position: absolute;
-	left: 0;
-	transform: translateY(-6px);
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	box-sizing: content-box;
 	width: 100%;
-	height: 2.25em;
+	height: 100%;
+	padding: 6px 24px;
 	background-color: var(--color-accent);
 	opacity: 0;
 	transition: .2s ease opacity;
