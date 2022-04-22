@@ -1,5 +1,6 @@
 // Holds references to the DOM objects that display the data.
 const view = {};
+const secondaryView = {};
 
 // Holds stats data for current and anterior ranges.
 let model = {};
@@ -35,9 +36,9 @@ whenDOMReady(() => {
 	view.originSelector = document.getElementById("origin-selector");
 	view.rangeDisplay = document.getElementById("range-display");
 	view.sessionTotal = document.getElementById("session-total");
-	view.sessionTotalGraph = document.getElementById("session-total-graph");
+	secondaryView.sessionTotalGraph = document.getElementById("session-total-graph");
 	view.avgSessionLength = document.getElementById("avg-session-length");
-	view.avgSessionLengthGraph = document.getElementById("avg-session-length-graph");
+	secondaryView.avgSessionLengthGraph = document.getElementById("avg-session-length-graph");
 	view.pageViews = document.getElementById("page-views");
 	view.acquisitionChannels = document.getElementById("acquisition-channels");
 	view.referrerOrigins = document.getElementById("referrer-origins");
@@ -147,6 +148,10 @@ function update() {
 	const main = refreshMainModel().then(() => {
 		// As soon as the main model is ready, draw the main view.
 		drawMainView();
+		// Set view objects to their loaded state.
+		for (let viewComponent of Object.keys(view)) {
+			view[viewComponent].classList.remove("loading");
+		}
 	});
 
 	const secondary = refreshSecondaryModel();
@@ -160,9 +165,9 @@ function update() {
 		// De-queues the loading animation.
 		clearTimeout(loadingAnimation);
 
-		// Sets all view objects to their loaded state.
-		for (let viewComponent of Object.keys(view)) {
-			view[viewComponent].classList.remove("loading");
+		// Set view objects to their loaded state.
+		for (let viewComponent of Object.keys(secondaryView)) {
+			secondaryView[viewComponent].classList.remove("loading");
 		}
 	});
 
@@ -172,6 +177,9 @@ function update() {
 	loadingAnimation = setTimeout(() => {
 		for (let viewComponent of Object.keys(view)) {
 			view[viewComponent].classList.add("loading");
+		}
+		for (let viewComponent of Object.keys(secondaryView)) {
+			secondaryView[viewComponent].classList.add("loading");
 		}
 	}, 100);
 }
@@ -462,7 +470,7 @@ function drawSecondaryView() {
 	});
 
 	// Draw session total graph
-	view.sessionTotalGraph.draw(sessionTotalData);
+	secondaryView.sessionTotalGraph.draw(sessionTotalData);
 
 
 	// Assemble data for session length graph
