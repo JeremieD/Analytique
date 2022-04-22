@@ -136,7 +136,7 @@ async function getStats(origin, range, filter) {
  * countries			Number of sessions per country.
  * cities				Number of sessions per city, for some countries.
  * oses					Number of sessions per OS.
- * browsers				Number of sessions per browser.
+ * renderingEngines		Number of sessions per rendering engine.
  * screenBreakpoints	Number of sessions per breakpoint.
  * excludedTraffic		Number of views per exclusion motive.
  *
@@ -160,7 +160,7 @@ async function buildStats(origin, range, filter) {
 			countries: {},
 			cities: {},
 			oses: {},
-			browsers: {},
+			renderingEngines: {},
 			screenBreakpoints: {},
 			excludedTraffic: sessions.excludedTraffic
 		};
@@ -233,8 +233,8 @@ async function buildStats(origin, range, filter) {
 					filterValue !== session.os) {
 					continue;
 				}
-				if (filterKey === "browsers" &&
-					filterValue !== session.browser) {
+				if (filterKey === "renderingEngines" &&
+					filterValue !== session.renderingEngine) {
 					continue;
 				}
 				if (filterKey === "screenBreakpoints" &&
@@ -304,11 +304,11 @@ async function buildStats(origin, range, filter) {
 			}
 			stats.oses[session.os]++;
 
-			// Browsers
-			if (stats.browsers[session.browser] === undefined) {
-				stats.browsers[session.browser] = 0;
+			// Rendering engines
+			if (stats.renderingEngines[session.renderingEngine] === undefined) {
+				stats.renderingEngines[session.renderingEngine] = 0;
 			}
-			stats.browsers[session.browser]++;
+			stats.renderingEngines[session.renderingEngine]++;
 
 			// Screen Breakpoints
 			if (stats.screenBreakpoints[session.screenBreakpoint] === undefined) {
@@ -335,7 +335,7 @@ async function buildStats(origin, range, filter) {
 		stats.countries = stats.countries.sortedAssociativeArray();
 		stats.cities = stats.cities.sortedAssociativeArray();
 		stats.oses = stats.oses.sortedAssociativeArray();
-		stats.browsers = stats.browsers.sortedAssociativeArray();
+		stats.renderingEngines = stats.renderingEngines.sortedAssociativeArray();
 		stats.screenBreakpoints = stats.screenBreakpoints.sortedAssociativeArray();
 		stats.excludedTraffic = stats.excludedTraffic.sortedAssociativeArray();
 
@@ -403,7 +403,7 @@ async function getSessions(origin, range) {
  *   country
  *   city				City name iff the country is Canada.
  *   os
- *   browser
+ *   renderingEngine
  *   screenBreakpoint
  *   views				Array of view objects.
  *      title			Page title.
@@ -512,7 +512,7 @@ async function buildSessions(origin, range) {
 				}
 
 				currentSession.os = heuristics.inferOS(view[10]);
-				currentSession.browser = heuristics.inferBrowser(view[10]);
+				currentSession.renderingEngine = heuristics.inferRenderingEngine(view[10]);
 				currentSession.screenBreakpoint = heuristics.inferScreenBreakpoint(view[8]);
 
 				currentSession.views = [];

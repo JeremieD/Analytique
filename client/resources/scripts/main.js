@@ -46,7 +46,7 @@ whenDOMReady(() => {
 	view.countries = document.getElementById("countries");
 	view.cities = document.getElementById("cities");
 	view.oses = document.getElementById("oses");
-	view.browsers = document.getElementById("browsers");
+	view.renderingEngines = document.getElementById("renderingEngines");
 	view.screenBreakpoints = document.getElementById("screen-breakpoints");
 	view.errorPages = document.getElementById("error-pages");
 	view.excludedTraffic = document.getElementById("excluded-traffic");
@@ -310,7 +310,7 @@ function drawMainView() {
 		view.countries,
 		view.cities,
 		view.oses,
-		view.browsers,
+		view.renderingEngines,
 		view.screenBreakpoints,
 		view.errorPages,
 		view.excludedTraffic
@@ -324,7 +324,7 @@ function drawMainView() {
 		"countries",
 		"cities",
 		"oses",
-		"browsers",
+		"renderingEngines",
 		"screenBreakpoints",
 		"errorViews",
 		"excludedTraffic"

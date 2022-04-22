@@ -26,16 +26,14 @@ const oses = {
 	"Windows Phone": [ "Windows Phone" ],
 	"Chrome OS": [ "CrOS" ]
 };
-const browsers = {
-	"Edge": [ "Edge" ],
-	"Edge (Chromium)": [ "Edg" ],
-	"Internet Explorer": [ "MSIE" ],
-	"Firefox": [ "Firefox/", "FxiOS" ],
-	"Chrome": [ "Chrome", "CriOS" ],
-	"Surf": [ "Surf" ],
-	"Safari": [ "Safari", "iPhone", "iPad" ],
-	"Opera": [ "OPR", "opera" ],
-	"cURL": [ "curl", "CURL" ]
+const renderingEngines = {
+	"Goanna": [ "Goanna/" ],
+	"Gecko": [ "Gecko/" ],
+	"Blink": [ "Chrome/" ],
+	"WebKit": [ "AppleWebKit/" ],
+	"Presto": [ "Opera/" ],
+	"Trident": [ "Trident/" ],
+	"EdgeHTML": [ "Edge/" ]
 };
 
 
@@ -148,14 +146,12 @@ function inferOS(userAgent) {
 
 
 /**
- * Returns the browser name, given a user-agent string.
- * The "browsers" are somewhat arbitrary and are mainly used to differentiate
- * rendering engines.
+ * Returns the rendering engine name, given a user-agent string.
  */
-function inferBrowser(userAgent) {
-	for (const browser of Object.keys(browsers)) {
-		if (userAgent.includesAny(browsers[browser])) {
-			return browser;
+function inferRenderingEngine(userAgent) {
+	for (const renderingEngine of Object.keys(renderingEngines)) {
+		if (userAgent.includesAny(renderingEngines[renderingEngine])) {
+			return renderingEngine;
 		}
 	}
 
@@ -248,5 +244,5 @@ function normalizeOriginURL(rawURL) {
 
 
 module.exports = { inferCountry, inferCity, inferIfBot, inferAcquisitionChannel,
-				   inferOS, inferBrowser, inferScreenBreakpoint,
+				   inferOS, inferRenderingEngine, inferScreenBreakpoint,
 				   inferBilingualismClass, normalizeOriginURL };
