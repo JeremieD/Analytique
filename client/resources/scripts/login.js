@@ -25,7 +25,8 @@ whenDOMReady(() => {
 					// If the server responded with a session ID...
 					if (request.responseText.startsWith("_")) {
 						document.cookie = "session=" + request.responseText
-										+ "; secure; path=/";
+										+ "; secure; path=/; expires="
+										+ (new Date(Date.now() + 3600000*24*30)).toUTCString();
 						location.reload();
 
 					} else {
