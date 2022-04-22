@@ -40,9 +40,9 @@ const fileCache = {};
  */
 function serveFile(req, res, urlOverride) {
 	const path = new uri.URIPath(urlOverride ?? req.url);
-	const pathname = path.pathname; // The path without the query.
+	const pathname = path.pathname; // Path without the query.
 	const extension = path.extension; // Just the file extension.
-	const realPath = "./client" + pathname; // The access path on the disk.
+	const realPath = "./client" + pathname; // Access path on disk.
 
 	// If the file extension is unknown, return 404.
 	if (mimeTypes[extension] === undefined) {
@@ -53,18 +53,16 @@ function serveFile(req, res, urlOverride) {
 	// Fetch stats for file, checking that it exists.
 	fs.stat(realPath).then(stats => {
 
-		// Set basic headers.
-
 		// Determine the best compression method.
 		const requestedEncodings = req.headers["accept-encoding"];
 		const encoding = compress.getBestEncoding(requestedEncodings, stats.size);
 
 		let fileCacheIsStale = false;
 
-		// If the cache is fresh...
+		// If cache is fresh...
 		if (stats.mtimeMs <= fileCache[pathname]?.modTime) {
 
-			// If the requested ETag corresponds to the one in cache, send 304.
+			// If requested ETag corresponds to the one in cache, respond 304.
 			if (eTagMatches(req, res, fileCache[pathname].eTag)) {
 				return;
 			}
@@ -81,6 +79,7 @@ function serveFile(req, res, urlOverride) {
 			fileCacheIsStale = true;
 		}
 
+		// Ensure safe access.
 		if (fileCache[pathname] === undefined) {
 			fileCache[pathname] = {};
 		}
@@ -116,7 +115,7 @@ function serveFile(req, res, urlOverride) {
 
 
 /*
- * Serve a 200 response with the given content and headers.
+ * Respond 200 with the given content and headers.
  */
 function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, eTag) {
 	if (eTagMatches(req, res, eTag)) {
@@ -147,7 +146,7 @@ function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, 
 
 
 /*
- * Serve an error with an optional log to the console.
+ * Serves an error with an optional log to the console.
  */
 function serveError(res, msg = "", code = 404) {
 	if (msg !== "") {
@@ -160,7 +159,7 @@ function serveError(res, msg = "", code = 404) {
 
 /*
  * Compares a given ETag with the requested one and short-circuits
- * the request if they match, returning 304.
+ * the request if they match, responding 304.
  */
 function eTagMatches(req, res, eTag = "") {
 	const requestedETag = req.headers["if-none-match"];

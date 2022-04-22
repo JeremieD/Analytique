@@ -13,7 +13,7 @@ class DateRange {
 
 			case 9: // "2021:2022"
 				this.type = "years";
-				if (this.value.substr(0, 4) == this.value.substr(5, 4)) {
+				if (this.value.substr(0, 4) === this.value.substr(5, 4)) {
 					this.value = this.value.substr(0, 4);
 					this.type = "year";
 				}
@@ -25,7 +25,7 @@ class DateRange {
 
 			case 15: // "2022-03:2022-02"
 				this.type = "months";
-				if (this.value.substr(0, 7) == this.value.substr(8, 7)) {
+				if (this.value.substr(0, 7) === this.value.substr(8, 7)) {
 					this.value = this.value.substr(0, 7);
 					this.type = "month";
 				}
@@ -37,7 +37,7 @@ class DateRange {
 
 			case 21: // "2022-03-01:2022-03-07"
 				this.type = "days";
-				if (this.value.substr(0, 11) == this.value.substr(12, 11)) {
+				if (this.value.substr(0, 11) === this.value.substr(12, 11)) {
 					this.value = this.value.substr(0, 11);
 					this.type = "day";
 				}
@@ -103,9 +103,9 @@ class DateRange {
 
 		for (let year = from.year; year <= to.year; year++) {
 			for (let month = 1; month <= 12; month++) {
-				if (year == from.year && month < from.month) {
+				if (year === from.year && month < from.month) {
 					continue;
-				} else if (year == to.year && month > to.month) {
+				} else if (year === to.year && month > to.month) {
 					break;
 				}
 				range.push(year + "-" + month.toString().padStart(2, "0"));

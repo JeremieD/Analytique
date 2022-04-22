@@ -1,5 +1,5 @@
 /**
- * Returns if *any* of the passed needles is included in a string.
+ * Returns whether *any* of the passed needles is included in a string.
  */
 String.prototype.includesAny = function(needles = [""]) {
 	for (let needle of needles) {
@@ -7,7 +7,6 @@ String.prototype.includesAny = function(needles = [""]) {
 			return true;
 		}
 	}
-
 	return false;
 }
 

@@ -53,6 +53,7 @@ class DateRange {
 	}
 
 
+	// Returns whether this date is before the passed date.
 	earlierThan(otherDateRange) {
 		if (this.year === otherDateRange.year) {
 			return this.month < otherDateRange.month;
@@ -60,7 +61,7 @@ class DateRange {
 		return this.year < otherDateRange.year;
 	}
 
-	// Returns true if
+	// Returns whether this date is after the passed date.
 	laterThan(otherDateRange) {
 		if (this.year === otherDateRange.year) {
 			return this.month > otherDateRange.month;

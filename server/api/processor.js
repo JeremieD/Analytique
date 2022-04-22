@@ -34,10 +34,10 @@ function processRequest(req, res) {
 		}
 
 		const eTag = static.getETagFrom(JSON.stringify(allowedOrigins) + user);
+
 		static.serve(req, res, JSON.stringify(allowedOrigins), "application/json", "auto", "private", eTag);
 		return;
 	}
-
 
 	// Check API options.
 	let range, origin, filter;
@@ -150,7 +150,7 @@ async function buildStats(origin, range, filter) {
 			version: 1,
 			viewTotal: sessions.viewTotal,
 			sessionTotal: 0,
-			avgSessionLength: undefined,
+			avgSessionLength: 0,
 			pageViews: {},
 			errorViews: {},
 			acquisitionChannels: {},
@@ -430,7 +430,7 @@ async function buildSessions(origin, range) {
 		let previousView;
 
 		// Inlinable in-loop function that clears the current session.
-		function _closeSession() {
+		const _closeSession = () => {
 			sessions.sessions.push(currentSession);
 			currentSession = {};
 			previousView = undefined;

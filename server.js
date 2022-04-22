@@ -24,7 +24,7 @@ const requestListener = function(req, res) {
 					static.serveFile(req, res, "/interface.html");
 				}
 
-			} else if (req.url.startsWith("/resources/")) { // The front-end requests files
+			} else if (req.url.startsWith("/resources/")) { // Front-end requests files
 				static.serveFile(req, res);
 
 			} else if (pathname === "/collect") { // An origin is trying to send a beacon

@@ -10,7 +10,7 @@ const activeSessions = {};
 
 
 /*
- * Returns true if the request has a valid session ID.
+ * Returns whether the request has a valid session ID.
  * If the session is refused, the login page is served.
  */
 function sessionIsValid(req, res) {
@@ -70,11 +70,17 @@ function login(req, res) {
 }
 
 
+/*
+ * Returns the session ID of the current request.
+ */
 function getSessionID(req) {
 	return cookies.parse(req)?.session;
 }
 
 
+/*
+ * Returns the user of the current request.
+ */
 function getUser(req) {
 	return activeSessions[getSessionID(req)]?.username;
 }

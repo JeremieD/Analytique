@@ -1,5 +1,5 @@
 /*
- * A custom element that displays an interactive graph.
+ * Custom element that displays an interactive graph.
  */
 class Graph extends HTMLElement {
 
@@ -7,7 +7,14 @@ class Graph extends HTMLElement {
 		super();
 	}
 
-
+	/*
+	 * The data object passed to draw the graph looks like this:
+	 * floatingDigits	Integer number of decimal places to round values to.
+	 * points			An array of objects describing the points of the graph.
+	 *   x				X coordinate.
+	 *   y				Y coordinate.
+	 *   label			Label to display for that point.
+	 */
 	draw(data) {
 		// Clear the graph.
 		this.innerHTML = "";

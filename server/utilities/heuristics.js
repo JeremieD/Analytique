@@ -38,7 +38,7 @@ const renderingEngines = {
 
 
 /**
- * Query ipinfo.io for the country of the given IP address. Caches the result.
+ * Queries ipinfo.io for the country of the given IP address. Caches the result.
  * WARNING: Very slow.
  */
 async function inferCountry(ipAddress) {
@@ -69,7 +69,7 @@ async function inferCountry(ipAddress) {
 
 
 /**
- * Query ipinfo.io for the city of the given IP address. Caches the result.
+ * Queries ipinfo.io for the city of the given IP address. Caches the result.
  * WARNING: Very slow.
  */
 async function inferCity(ipAddress) {
@@ -100,7 +100,7 @@ async function inferCity(ipAddress) {
 
 
 /**
- * Return if user agent contains a known bot-identifying string.
+ * Returns whether user agent contains a known bot-identifying string.
  */
 function inferIfBot(userAgent) {
 	return userAgent.includesAny(botPatterns);
@@ -108,12 +108,11 @@ function inferIfBot(userAgent) {
 
 
 /**
- * Given the referrer URL, return the acquisition channel.
- *
- * direct	The user typed in the address manually, or the browser did not include a referrer.
- * social	The user comes from a social media website.
- * organic	The user comes from a search engine.
- * other	The user comes from another website.
+ * Returns the acquisition channel, given the referrer URL, .
+ * direct	User typed in the address manually, or the browser did not include a referrer.
+ * social	User comes from a social media website.
+ * organic	User comes from a search engine.
+ * other	User comes from another website.
  */
 function inferAcquisitionChannel(referrerURL) {
 
@@ -131,7 +130,7 @@ function inferAcquisitionChannel(referrerURL) {
 
 
 /**
- * Returns the OS name, given a user-agent string.
+ * Returns OS name, given a user-agent string.
  */
 function inferOS(userAgent) {
 	for (const os of Object.keys(oses)) {
@@ -146,7 +145,7 @@ function inferOS(userAgent) {
 
 
 /**
- * Returns the rendering engine name, given a user-agent string.
+ * Returns rendering engine name, given a user-agent string.
  */
 function inferRenderingEngine(userAgent) {
 	for (const renderingEngine of Object.keys(renderingEngines)) {
@@ -161,10 +160,9 @@ function inferRenderingEngine(userAgent) {
 
 
 /**
- * Returns the *screen size class*, given a WxH pixel size.
- * This is a 1:1 correspondance to the CSS breakpoints in the main stylesheet,
- * and is not meant to be a good approximation of the actual form factor.
- *
+ * Returns screen size class, given a WxH pixel size.
+ * These correspond to the CSS breakpoints in the main stylesheet,
+ * and are not meant to be a good approximation of the physical form factor.
  * xsmall		The smallest mobile phones, like the original iPhone SE.
  * mobile		Less than 801 pixels wide.
  * tablet		Less than 1081 pixels wide.
@@ -189,8 +187,7 @@ function inferScreenBreakpoint(size) {
 
 
 /**
- * Returns the *bilingualism class*, given an array of language codes.
- *
+ * Returns the bilingualism class, given an array of language codes.
  * fr+	Bilingual, French before English.
  * en+	Bilingual, English before French.
  * fr	French, no English.
@@ -219,15 +216,18 @@ function inferBilingualismClass(languages) {
 	let isBilingual = hasFR && hasEN;
 
 	if (isBilingual) {
-		if (preferred == "fr") {
+		if (preferred === "fr") {
 			return "fr+";
-		} else if (preferred == "en") {
+
+		} else if (preferred === "en") {
 			return "en+";
 		}
 	} else if (hasFR) {
 		return "fr";
+
 	} else if (hasEN) {
 		return "en";
+
 	} else {
 		// console.log(languages);
 		return "al";

@@ -1,5 +1,5 @@
 /*
- * A custom element that displays a help tooltip when hovered.
+ * Custom element that displays a help tooltip when hovered.
  */
 class HelpButton extends HTMLElement {
 
@@ -18,12 +18,12 @@ class HelpButton extends HTMLElement {
 		}
 
 
-		this.addEventListener("mouseenter", this.open, { passive: true });
-		this.addEventListener("mouseleave", this.close, { passive: true });
+		this.addEventListener("mouseenter", this.show, { passive: true });
+		this.addEventListener("mouseleave", this.hide, { passive: true });
 	}
 
 
-	open() {
+	show() {
 		if (this.tooltipElement.classList.contains("out")) {
 			this.tooltipElement.classList.remove("out");
 			this.abortController.abort();
@@ -35,7 +35,7 @@ class HelpButton extends HTMLElement {
 	}
 
 
-	close() {
+	hide() {
 		this.tooltipElement.classList.remove("in");
 		this.abortController = new AbortController(); // Reset AbortController
 

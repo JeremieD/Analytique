@@ -66,7 +66,7 @@ whenDOMReady(() => {
 
 
 /*
- * Hash a message using SHA-512. Encodes as a string of hex digits.
+ * Hashes a message using SHA-512. Encodes as a string of hex digits.
  */
 async function hash(message) {
 	const encoder = new TextEncoder();

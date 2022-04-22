@@ -25,7 +25,7 @@ function encode(content, encoding = "identity") {
 
 
 /*
- * Determine the best compression method.
+ * Determines the best compression method.
  */
 function getBestEncoding(requestedEncodings, contentLength) {
 	let encoding = "identity";

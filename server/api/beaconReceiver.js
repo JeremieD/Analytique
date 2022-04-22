@@ -9,7 +9,7 @@ const origins = Object.keys(require("../config.js").origins);
 function receive(req, res) {
 	let body = "";
 
-	req.on("data", function(data) {
+	req.on("data", (data) => {
 		body += data;
 
 		// Too much POST data
@@ -18,7 +18,7 @@ function receive(req, res) {
 		}
 	});
 
-	req.on("end", function() {
+	req.on("end", () => {
 
 		const beacon = body.split("\t");
 		if (beacon[0] !== "1" || beacon.length !== 10) {
@@ -51,9 +51,9 @@ function receive(req, res) {
 					res.writeHead(200);
 					res.end();
 				})
-				.catch(e => { console.error(e); });
+				.catch(e => console.error(e));
 		})
-		.catch(e => { console.error(e); });
+		.catch(e => console.error(e));
 
 	});
 }

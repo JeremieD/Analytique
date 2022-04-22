@@ -1,3 +1,15 @@
+// Holds references to the DOM objects that display the data.
+const view = {};
+
+// Holds stats data for current and anterior ranges.
+let model = {};
+let secondaryModel = {};
+
+// Holds cached stats data.
+let modelCache = {};
+let modelCacheModTime = {};
+const cacheTTL = 300000; // 5min to live.
+
 // Query the available origins.
 const availableOrigins = httpGet("/api/origins").then(JSON.parse);
 
@@ -7,24 +19,12 @@ let origin;
 // Query the earliest available month with data.
 let earliestRange;
 
-// Holds stats data for current and anterior ranges.
-let model = {};
-let secondaryModel = {};
+// Holds the view-model’s current range.
+let range = new DateRange();
 
 // Current filter value and selected data point.
 let filter = "";
 let selectedListElement;
-
-// Holds cached stats data.
-let modelCache = {};
-let modelCacheModTime = {};
-const cacheTTL = 300000; // 5min to live.
-
-// Holds references to the DOM objects that display the data.
-const view = {};
-
-// Holds the view-model’s current range.
-let range = new DateRange();
 
 // Reference to the queued loading animation.
 let loadingAnimation;
@@ -84,13 +84,13 @@ whenDOMReady(() => {
 
 
 /*
- * Switch view-model to the given origin.
+ * Switches to the given origin.
  */
 function switchToOrigin(newOrigin) {
 	origin = newOrigin;
 	filter = "";
 
-	// Sets the origin switcher display value.
+	// Set the origin switcher display value.
 	view.originSelector.value = origin;
 
 	// Wait for earliestRange before updating the view.
@@ -133,13 +133,13 @@ function update() {
 	const isLastRange = range.laterThan((new DateRange()).minus(1));
 	view.nextRangeButton.disabled = isLastRange;
 	if (view.nextRangeButton.disabled) {
-		view.nextRangeButton.blur();
+		view.nextRangeButton.blur(); // Blur on disable.
 	}
 	earliestRange.then(value => {
 		const isFirstRange = range.earlierThan(value.plus(1));
 		view.previousRangeButton.disabled = isFirstRange;
 		if (view.previousRangeButton.disabled) {
-			view.previousRangeButton.blur();
+			view.previousRangeButton.blur(); // Blur on disable.
 		}
 	});
 
@@ -155,7 +155,7 @@ function update() {
 	Promise.all([main, secondary]).then(() => {
 		drawSecondaryView();
 	})
-	.catch(e => console.error)
+	.catch(e => console.error(e))
 	.finally(() => {
 		// De-queues the loading animation.
 		clearTimeout(loadingAnimation);
@@ -166,7 +166,7 @@ function update() {
 		}
 	});
 
-	// Sets all view objects to their loading state. (with a delay)
+	// Set all view objects to their loading state. (with a delay)
 	// Doing this after requesting view-model updates avoids race conditions
 	// that can lead to an infinite loading animation.
 	loadingAnimation = setTimeout(() => {
@@ -178,7 +178,7 @@ function update() {
 
 
 /*
- * Load the model from cache or fetch from server.
+ * Loads the model from cache or fetch from server.
  */
 function refreshMainModel() {
 	return new Promise(function(resolve, reject) {
@@ -211,7 +211,7 @@ function refreshMainModel() {
 }
 
 /*
- * Load the secondary models from cache or fetch from server.
+ * Loads the secondary models from cache or fetch from server.
  */
 function refreshSecondaryModel() {
 	return new Promise(function(resolve, reject) {
@@ -262,7 +262,7 @@ function refreshSecondaryModel() {
 				}));
 			}
 
-			// When all anterior models are loaded, resolve.
+			// Resolve when all anterior models are loaded.
 			Promise.all(anteriorData).then(() => {
 				resolve();
 			});
@@ -418,7 +418,7 @@ function drawMainView() {
 						selectedListElement = newElement;
 						view.rangeDisplay.classList.add("filtered");
 
-					} else { // ...othersise...
+					} else { // ...otherwise...
 						filter = "";
 						newElement.classList.remove("selected");
 						view.rangeDisplay.classList.remove("filtered");
@@ -487,5 +487,5 @@ function drawSecondaryView() {
 	});
 
 	// Draw session length graph
-	view.avgSessionLengthGraph.draw(sessionLengthData);
+	secondaryView.avgSessionLengthGraph.draw(sessionLengthData);
 }
