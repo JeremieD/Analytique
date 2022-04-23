@@ -212,7 +212,7 @@ function switchToOrigin(newOrigin) {
 	earliestRange = httpGet("/api/earliest?origin=" + origin).then(value => {
 		value = JSON.parse(value);
 
-		let newEarliestRange = value;
+		let newEarliestRange;
 
 		// If range is unavailable in the new origin, select the earliest range.
 		if (value.error === undefined) {
@@ -593,7 +593,7 @@ function drawError() {
  * Start loading animation for all view objects after a delay.
  */
 function setLoading(...subviews) {
-	if (subviews !== undefined) {
+	if (subviews.length > 0) {
 		for (var subview of subviews) {
 			for (let component of Object.keys(subview)) {
 				subview[component].el.classList.add("loading");
