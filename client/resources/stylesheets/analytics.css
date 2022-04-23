@@ -281,7 +281,11 @@ data.big>small {
 	pointer-events: none;
 }
 
-.loading data { min-height: 1.5em; }
+.loading data {
+	min-height: 1.5em;
+	height: 100%;
+}
+
 h1.loading { min-height: 1em; }
 
 :is(data, h1, jd-graph).loading::after, .loading data::after {
