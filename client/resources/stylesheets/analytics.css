@@ -48,7 +48,7 @@ a:hover {
 	transform: translate(-50%, -50%);
 	overflow: visible;
 	stroke: var(--color-lightest);
-	stroke-width: 1px;
+	stroke-width: 1.5;
 	opacity: 0;
 	transition: .2s ease opacity;
 }
@@ -89,8 +89,8 @@ a:hover {
 	transform: translate(-50%, -50%);
 }
 
-#next-range::before { content: "→" }
-#previous-range::before { content: "←" }
+#next-range::before { content: "→"; }
+#previous-range::before { content: "←"; }
 
 * + section {
 	margin-top: 80px;
