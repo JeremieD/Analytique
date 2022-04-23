@@ -2,6 +2,9 @@
 const view = {};
 const secondaryView = {};
 
+// Holds promises to draw views, so that there is only ever one requested view.
+let mainViewDrawn, secondaryViewDrawn;
+
 // Holds stats data for current and anterior ranges.
 let model = {};
 let secondaryModel = {};
@@ -152,7 +155,7 @@ function update() {
 	});
 
 	// Update models then update the views.
-	const main = refreshMainModel().then(() => {
+	const mainViewDrawn = refreshMainModel().then(() => {
 		// As soon as the main model is ready, draw the main view.
 		drawMainView();
 		// Set view objects to their loaded state.
@@ -161,10 +164,10 @@ function update() {
 		}
 	});
 
-	const secondary = refreshSecondaryModel();
+	const secondaryViewDrawn = refreshSecondaryModel();
 
 	// Wait for both the main and secondary models before drawing secondary view.
-	Promise.all([main, secondary]).then(() => {
+	Promise.all([mainViewDrawn, secondaryViewDrawn]).then(() => {
 		drawSecondaryView();
 	})
 	.catch(e => console.error(e))
