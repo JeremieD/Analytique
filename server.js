@@ -24,12 +24,12 @@ const requestListener = function(req, res) {
 					static.serveFile(req, res, "/interface.html");
 				}
 
-			} else if (req.url.startsWith("/resources/")) { // Front-end requests files
+			} else if (req.url.startsWith("/resources/") || req.url.startsWith("/lib/")) { // Front-end requests files
 				static.serveFile(req, res);
 
 			} else if (pathname === "/collect") { // An origin is trying to send a beacon
 				res.setHeader("Access-Control-Allow-Origin", "*");
-				static.serveFile(req, res, "/beaconSender.js");
+				static.serveFile(req, res, "/lib/beaconSender.js");
 
 			} else if (req.url.startsWith("/api/")) { // Request for data
 				if (account.sessionIsValid(req, res)) {

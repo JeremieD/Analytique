@@ -3,7 +3,7 @@ const static = require("../static.js");
 const account = require("../account.js");
 const uri = require("../utilities/uri.js");
 const heuristics = require("../utilities/heuristics.js");
-const dateRange = require("../utilities/dateRange.js");
+require("../../lib/dateRange.js");
 require("../utilities/misc.js");
 
 const config = require("../config.js").origins;
@@ -85,9 +85,10 @@ function processRequest(req, res) {
 					 "application/json", "auto", "private");
 		return;
 	}
-	range = new dateRange.DateRange(path.parameters.range);
-	if (range.value === undefined) {
-		static.serve(req, res, { error: "malformedRange" },
+	try {
+		range = new DateRange(path.parameters.range);
+	} catch (e) {
+		static.serve(req, res, { error: e },
 					 "application/json", "auto", "private");
 		return;
 	}
