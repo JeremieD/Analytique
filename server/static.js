@@ -44,7 +44,7 @@ function serveFile(req, res, urlOverride) {
 	const extension = path.extension; // Just the file extension.
 	// Determine real path on disk.
 	let realPath = "." + pathname;
-	if (!pathname.startsWith("/lib/")) {
+	if (!pathname.startsWith("/common/")) {
 		realPath = "./client" + pathname;
 	}
 

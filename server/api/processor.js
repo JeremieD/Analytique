@@ -3,7 +3,7 @@ const static = require("../static.js");
 const account = require("../account.js");
 const uri = require("../utilities/uri.js");
 const heuristics = require("../utilities/heuristics.js");
-require("../../lib/dateRange.js");
+require("../../common/dateRange.js");
 require("../utilities/misc.js");
 
 const config = require("../config.js").origins;
