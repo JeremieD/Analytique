@@ -122,12 +122,11 @@ async function getStats(origin, range, filter) {
 		return buildStats(origin, range, filter);
 	}
 
-	const to = range.to();
-	const lastMonth = to.year + "-" + to.month.toString().padStart(2, "0");
+	const lastMonth = range.to.shortForm;
 	const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
 	const viewsFileMetadata = fs.stat(viewsFilePath);
 
-	const statsFilePath = statsRoot(origin) + range.type + "/" + range.value + ".json";
+	const statsFilePath = statsRoot(origin) + range.mode + "/" + range.shortForm + ".json";
 	const statsFileMetadata = fs.stat(statsFilePath);
 
 	return Promise.all([statsFileMetadata, viewsFileMetadata]).then(metadata => {
@@ -396,12 +395,11 @@ async function buildStats(origin, range, filter) {
  * Returns data from cache, or calls buildSessions(range) and returns that.
  */
 async function getSessions(origin, range) {
-	const to = range.to();
-	const lastMonth = to.year + "-" + to.month.toString().padStart(2, "0");
+	const lastMonth = range.to.shortForm;
 	const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
 	const viewsFileMetadata = fs.stat(viewsFilePath);
 
-	const sessionsFilePath = sessionsRoot(origin) + range.type + "/" + range.value + ".json";
+	const sessionsFilePath = sessionsRoot(origin) + range.mode + "/" + range.shortForm + ".json";
 	const sessionsFileMetadata = fs.stat(sessionsFilePath);
 
 	return Promise.all([sessionsFileMetadata, viewsFileMetadata]).then(metadata => {
@@ -573,8 +571,8 @@ async function buildSessions(origin, range) {
 		}
 
 		// Save data to cache.
-		const folder = sessionsRoot(origin) + range.type
-		const filePath = folder + "/" + range.value + ".json";
+		const folder = sessionsRoot(origin) + range.mode;
+		const filePath = folder + "/" + range.shortForm + ".json";
 		fs.mkdir(folder, { recursive: true }).then(() => {
 			fs.writeFile(filePath, JSON.stringify(sessions));
 		});
