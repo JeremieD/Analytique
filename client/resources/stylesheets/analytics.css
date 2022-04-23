@@ -92,6 +92,20 @@ a:hover {
 #next-range::before { content: "→"; }
 #previous-range::before { content: "←"; }
 
+#error-section {
+	overflow: hidden;
+	height: 0;
+	margin: 0;
+	opacity: 0;
+	transition: .25s ease all;
+}
+
+#error-section.shown {
+	height: 1.5em;
+	margin: 64px 0 0;
+	opacity: 1;
+}
+
 * + section {
 	margin-top: 80px;
 }

@@ -44,7 +44,7 @@ class DateRange {
 				break;
 
 			default:
-				return undefined;
+				this.value = undefined;
 		}
 	}
 

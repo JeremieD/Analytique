@@ -47,6 +47,11 @@ const excludedTrafficDict = {
 	"bots": "Robots",
 	"spam": "Spam",
 };
+const errorsDict = {
+	"noData": "Aucune donnée disponible.",
+	"noMatchingSessions": "Aucune session ne correspond à la requête.",
+	"noOrigins": "Aucune origine disponible."
+};
 
 
 /**
@@ -122,5 +127,17 @@ function niceScreenBreakpointsName(input) {
 function niceExcludedTrafficName(input) {
 	if (excludedTrafficDict[input] !== "") {
 		return excludedTrafficDict[input];
+	}
+}
+
+
+/**
+ * Converts an error code to a French explanation.
+ */
+function niceErrorName(input) {
+	if (errorsDict[input]) {
+		return errorsDict[input];
+	} else {
+		return input;
 	}
 }

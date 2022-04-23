@@ -1,6 +1,5 @@
 // Holds references to the DOM objects that display the data.
-const view = {};
-const secondaryView = {};
+let view = {};
 
 // Holds promises to draw views, so that there is only ever one requested view.
 let mainViewDrawn, secondaryViewDrawn;
@@ -8,6 +7,8 @@ let mainViewDrawn, secondaryViewDrawn;
 // Holds stats data for current and anterior ranges.
 let model = {};
 let secondaryModel = {};
+
+let error;
 
 // Holds cached stats data.
 let modelCache = {};
@@ -36,59 +37,162 @@ let loadingAnimation;
 
 whenDOMReady(() => {
 	// Build the view object.
-	view.originSelector = document.getElementById("origin-selector");
-	view.filterReset = document.getElementById("filter-reset");
-	view.rangeDisplay = document.getElementById("range-display");
-	view.sessionTotal = document.getElementById("session-total");
-	secondaryView.sessionTotalGraph = document.getElementById("session-total-graph");
-	view.avgSessionLength = document.getElementById("avg-session-length");
-	secondaryView.avgSessionLengthGraph = document.getElementById("avg-session-length-graph");
-	view.pageViews = document.getElementById("page-views");
-	view.acquisitionChannels = document.getElementById("acquisition-channels");
-	view.referrerOrigins = document.getElementById("referrer-origins");
-	view.landings = document.getElementById("landings");
-	view.bilingualismClasses = document.getElementById("bilingualism-classes");
-	view.countries = document.getElementById("countries");
-	view.cities = document.getElementById("cities");
-	view.oses = document.getElementById("oses");
-	view.renderingEngines = document.getElementById("renderingEngines");
-	view.screenBreakpoints = document.getElementById("screen-breakpoints");
-	view.errorPages = document.getElementById("error-pages");
-	view.excludedTraffic = document.getElementById("excluded-traffic");
-	view.previousRangeButton = document.getElementById("previous-range")
-	view.nextRangeButton = document.getElementById("next-range")
+	view = {
+		controls: {
+			origin: document.getElementById("origin-selector"),
+			filterReset: document.getElementById("filter-reset"),
+			previousRange: document.getElementById("previous-range"),
+			nextRange: document.getElementById("next-range"),
+			errorSection: document.getElementById("error-section"),
+			error: document.getElementById("error-display")
+		},
+		main: {
+			range: {
+				el: document.getElementById("range-display")
+			},
+			sessionTotal: {
+				el: document.getElementById("session-total")
+			},
+			avgSessionLength: {
+				el: document.getElementById("avg-session-length")
+			},
+			pageViews: {
+				el: document.getElementById("page-views"),
+				model: "pageViews",
+				transform: _identity,
+				oneHundredPercent: "sessionTotal"
+			},
+			acquisitionChannels: {
+				el: document.getElementById("acquisition-channels"),
+				model: "acquisitionChannels",
+				transform: niceAcquisitionChannelName,
+				oneHundredPercent: "sessionTotal"
+			},
+			referrerOrigins: {
+				el: document.getElementById("referrer-origins"),
+				model: "referrerOrigins",
+				transform: niceOriginName,
+				oneHundredPercent: "sessionTotal"
+			},
+			landings: {
+				el: document.getElementById("landings"),
+				model: "landings",
+				transform: _identity,
+				oneHundredPercent: "sessionTotal"
+			},
+			bilingualismClasses: {
+				el: document.getElementById("bilingualism-classes"),
+				model: "bilingualismClasses",
+				transform: niceBilingualismClassName,
+				oneHundredPercent: "sessionTotal"
+			},
+			countries: {
+				el: document.getElementById("countries"),
+				model: "countries",
+				transform: niceCountryName,
+				oneHundredPercent: "sessionTotal"
+			},
+			cities: {
+				el: document.getElementById("cities"),
+				model: "cities",
+				transform: _identity,
+				oneHundredPercent: "sessionTotal"
+			},
+			oses: {
+				el: document.getElementById("oses"),
+				model: "oses",
+				transform: _identity,
+				oneHundredPercent: "sessionTotal"
+			},
+			renderingEngines: {
+				el: document.getElementById("renderingEngines"),
+				model: "renderingEngines",
+				transform: _identity,
+				oneHundredPercent: "sessionTotal"
+			},
+			screenBreakpoints: {
+				el: document.getElementById("screen-breakpoints"),
+				model: "screenBreakpoints",
+				transform: niceScreenBreakpointsName,
+				oneHundredPercent: "sessionTotal"
+			},
+			errorPages: {
+				el: document.getElementById("error-pages"),
+				model: "errorViews",
+				transform: _identity,
+				oneHundredPercent: "sessionTotal"
+			},
+			excludedTraffic: {
+				el: document.getElementById("excluded-traffic"),
+				model: "excludedTraffic",
+				transform: niceExcludedTrafficName,
+				oneHundredPercent: "viewTotal"
+			}
+		},
+		secondary: {
+			sessionTotal: {
+				el: document.getElementById("session-total-graph"),
+				model: "sessionTotal"
+			},
+			avgSessionLength: {
+				el: document.getElementById("avg-session-length-graph"),
+				model: "avgSessionLength"
+			}
+		},
+	};
+	view.listViews = [
+		view.main.pageViews,
+		view.main.acquisitionChannels,
+		view.main.referrerOrigins,
+		view.main.landings,
+		view.main.bilingualismClasses,
+		view.main.countries,
+		view.main.cities,
+		view.main.oses,
+		view.main.renderingEngines,
+		view.main.screenBreakpoints,
+		view.main.errorPages,
+		view.main.excludedTraffic
+	],
 
 	// Trigger for filter reset.
-	view.filterReset.addEventListener("click", () => {
+	view.controls.filterReset.addEventListener("click", () => {
 		filter = "";
 		update();
 	});
 
 	// Triggers for range buttons.
-	view.previousRangeButton.addEventListener("click", previousRange);
-	view.nextRangeButton.addEventListener("click", nextRange);
+	view.controls.previousRange.addEventListener("click", previousRange);
+	view.controls.nextRange.addEventListener("click", nextRange);
 	window.addEventListener("keydown", e => {
-		if (e.key === "ArrowLeft" && !view.previousRangeButton.disabled) {
+		if (e.key === "ArrowLeft" && !view.controls.previousRange.disabled) {
 			previousRange();
 
-		} else if (e.key === "ArrowRight" && !view.nextRangeButton.disabled) {
+		} else if (e.key === "ArrowRight" && !view.controls.nextRange.disabled) {
 			nextRange();
 		}
 	});
 
 	// Trigger for origin switcher.
-	view.originSelector.addEventListener("change", () => {
-		switchToOrigin(view.originSelector.value);
+	view.controls.origin.addEventListener("change", () => {
+		switchToOrigin(view.controls.origin.value);
 	});
 
 	// Load the first available origin whenever possible.
 	availableOrigins.then(origins => {
+		if (origins.error !== undefined) {
+			error = origins.error;
+			drawError();
+			return;
+		}
+
 		for (let origin of origins) {
 			const option = document.createElement("option");
 			option.value = origin;
 			option.innerText = origin;
-			view.originSelector.append(option);
+			view.controls.origin.append(option);
 		}
+
 		switchToOrigin(origins[0]);
 	});
 });
@@ -102,14 +206,20 @@ function switchToOrigin(newOrigin) {
 	filter = "";
 
 	// Set the origin switcher display value.
-	view.originSelector.value = origin;
+	view.controls.origin.value = origin;
 
 	// Wait for earliestRange before updating the view.
 	earliestRange = httpGet("/api/earliest?origin=" + origin).then(value => {
+		value = JSON.parse(value);
+
+		let newEarliestRange = value;
+
 		// If range is unavailable in the new origin, select the earliest range.
-		const newEarliestRange = new DateRange(value);
-		if (newEarliestRange.laterThan(range)) {
-			range = newEarliestRange;
+		if (value.error === undefined) {
+			newEarliestRange = new DateRange(value);
+			if (newEarliestRange.laterThan(range)) {
+				range = newEarliestRange;
+			}
 		}
 
 		update();
@@ -137,61 +247,49 @@ function nextRange() {
 
 
 /*
- * Checks data availability, then updates the view.
+ * Update models, then view.
  */
 function update() {
+	error = undefined;
+
 	// Check that range is in bound.
 	const isLastRange = range.laterThan((new DateRange()).minus(1));
-	view.nextRangeButton.disabled = isLastRange;
-	if (view.nextRangeButton.disabled) {
-		view.nextRangeButton.blur(); // Blur on disable.
-	}
-	earliestRange.then(value => {
-		const isFirstRange = range.earlierThan(value.plus(1));
-		view.previousRangeButton.disabled = isFirstRange;
-		if (view.previousRangeButton.disabled) {
-			view.previousRangeButton.blur(); // Blur on disable.
+	view.controls.nextRange.disabled = isLastRange;
+	view.controls.previousRange.disabled = true;
+	earliestRange?.then(value => {
+		if (value.error !== undefined) {
+			if (error === undefined) {
+				error = value.error;
+			}
+			return;
 		}
+		let isFirstRange;
+		isFirstRange = range.earlierThan(value.plus(1));
+		view.controls.previousRange.disabled = isFirstRange ?? true;
+
 	});
+	// Blur on disable.
+	if (view.controls.nextRange.disabled) {
+		view.controls.nextRange.blur();
+	}
+	if (view.controls.previousRange.disabled) {
+		view.controls.previousRange.blur();
+	}
 
 	// Update models then update the views.
-	const mainViewDrawn = refreshMainModel().then(() => {
-		// As soon as the main model is ready, draw the main view.
-		drawMainView();
-		// Set view objects to their loaded state.
-		for (let viewComponent of Object.keys(view)) {
-			view[viewComponent].classList.remove("loading");
-		}
-	});
+	const mainViewDrawn = refreshMainModel().then(drawMainView);
 
 	const secondaryViewDrawn = refreshSecondaryModel();
 
 	// Wait for both the main and secondary models before drawing secondary view.
-	Promise.all([mainViewDrawn, secondaryViewDrawn]).then(() => {
-		drawSecondaryView();
-	})
-	.catch(e => console.error(e))
-	.finally(() => {
-		// De-queues the loading animation.
-		clearTimeout(loadingAnimation);
+	Promise.all([mainViewDrawn, secondaryViewDrawn]).then(drawSecondaryView)
+		.catch(e => console.error(e))
+		.finally(() => {
+			// De-queues the loading animation.
+			clearTimeout(loadingAnimation);
+		});
 
-		// Set view objects to their loaded state.
-		for (let viewComponent of Object.keys(secondaryView)) {
-			secondaryView[viewComponent].classList.remove("loading");
-		}
-	});
-
-	// Set all view objects to their loading state. (with a delay)
-	// Doing this after requesting view-model updates avoids race conditions
-	// that can lead to an infinite loading animation.
-	loadingAnimation = setTimeout(() => {
-		for (let viewComponent of Object.keys(view)) {
-			view[viewComponent].classList.add("loading");
-		}
-		for (let viewComponent of Object.keys(secondaryView)) {
-			secondaryView[viewComponent].classList.add("loading");
-		}
-	}, 100);
+	setLoading();
 }
 
 
@@ -234,10 +332,14 @@ function refreshMainModel() {
 function refreshSecondaryModel() {
 	return new Promise(function(resolve, reject) {
 		// Wait for earliestRange.
-		earliestRange.then(value => {
+		earliestRange?.then(value => {
 
 			// Clear model.
 			secondaryModel = {};
+
+			if (value.error !== undefined || value === undefined) {
+				return;
+			}
 
 			let anteriorData = [];
 
@@ -299,7 +401,10 @@ function fetchStats(range, filter) {
 		url += "&filter=" + filter;
 	}
 
-	return httpGet(url).then(JSON.parse);
+	return httpGet(url).then(value => {
+		value = JSON.parse(value);
+		return value;
+	});
 }
 
 
@@ -307,93 +412,52 @@ function fetchStats(range, filter) {
  * Updates the view with data from the main model object.
  */
 function drawMainView() {
-	// Sets the title.
-	view.rangeDisplay.innerText = range.longForm;
-
 	// Update filter display.
 	const filterEnabled = filter !== "";
-	view.filterReset.disabled = !filterEnabled;
+	view.controls.filterReset.disabled = !filterEnabled;
 	if (!filterEnabled) {
-		view.filterReset.blur();
+		view.controls.filterReset.blur();
 		selectedListElement?.classList.remove("selected");
 		selectedListElement = undefined;
 	}
 
+	// Check for errors in model and update display.
+	if (model.error !== undefined && error === undefined) {
+		error = model.error;
+	}
+	drawError();
+	if (error !== undefined) {
+		return;
+	}
+
+	// Sets the title.
+	view.main.range.innerText = range.longForm;
+
 	// Big session total.
-	view.sessionTotal.innerText = model.sessionTotal;
+	view.main.sessionTotal.el.innerText = model.sessionTotal;
 
 	// Big engagement value.
 	const avgSessionLengthFormatted = model.avgSessionLength.round(2);
-	view.avgSessionLength.innerHTML = avgSessionLengthFormatted
+	view.main.avgSessionLength.el.innerHTML = avgSessionLengthFormatted
 		+ "<small> vue" + (avgSessionLengthFormatted === 1 ? "" : "s") + "</small>";
 
-	// Build the list views.
-	const listViews = [
-		view.pageViews,
-		view.acquisitionChannels,
-		view.referrerOrigins,
-		view.landings,
-		view.bilingualismClasses,
-		view.countries,
-		view.cities,
-		view.oses,
-		view.renderingEngines,
-		view.screenBreakpoints,
-		view.errorPages,
-		view.excludedTraffic
-	];
-	const listViewsModels = [
-		"pageViews",
-		"acquisitionChannels",
-		"referrerOrigins",
-		"landings",
-		"bilingualismClasses",
-		"countries",
-		"cities",
-		"oses",
-		"renderingEngines",
-		"screenBreakpoints",
-		"errorViews",
-		"excludedTraffic"
-	];
-	const listViewsTransforms = [
-		_identity,
-		niceAcquisitionChannelName,
-		niceOriginName,
-		_identity,
-		niceBilingualismClassName,
-		niceCountryName,
-		_identity,
-		_identity,
-		_identity,
-		niceScreenBreakpointsName,
-		_identity,
-		niceExcludedTrafficName
-	];
-	const listViewsOneHundredPercents = [ "sessionTotal",
-		"sessionTotal", "sessionTotal", "sessionTotal",
-		"sessionTotal", "sessionTotal", "sessionTotal",
-		"sessionTotal", "sessionTotal", "sessionTotal",
-		"sessionTotal", "viewTotal"
-	];
-
 	// For each list view or “card”...
-	for (let i = 0; i < listViews.length; i++) {
+	for (var listView of view.listViews) {
 
 		// Clear all lists except for the selected item.
-		for (const item of listViews[i].querySelectorAll("li:not(.selected)")) {
+		for (const item of listView.el.querySelectorAll("li:not(.selected)")) {
 			item.remove();
 		}
 
 		// For each data point for that...
-		for (let dataPoint of model[listViewsModels[i]]) {
+		for (let dataPoint of model[listView.model]) {
 			// Allow no more than 6 data points.
-			if (listViews[i].children.length > 5) {
+			if (listView.el.children.length > 5) {
 				break;
 			}
 
 			// Determine the filter key.
-			const filterValue = encodeURIComponent(listViewsModels[i])
+			const filterValue = encodeURIComponent(listView.model)
 						+ ":" + encodeURIComponent(dataPoint.key);
 
 			let newElement;
@@ -406,7 +470,7 @@ function drawMainView() {
 			}
 
 			// Format the key according to a function.
-			const transformedKey = listViewsTransforms[i](dataPoint.key);
+			const transformedKey = listView.transform(dataPoint.key);
 
 			// Style empty and “Autre” data points differently.
 			if (dataPoint.key === "" || transformedKey.includes("Autre")) {
@@ -423,7 +487,7 @@ function drawMainView() {
 
 			const dataPoint3 = document.createElement("data");
 			dataPoint3.classList.add("numerical");
-			const oneHundredPercent = model[listViewsOneHundredPercents[i]];
+			const oneHundredPercent = model[listView.oneHundredPercent];
 			dataPoint3.innerHTML = (dataPoint.value / oneHundredPercent * 100).round() + "%";
 
 			newElement.append(dataPoint1, dataPoint2, dataPoint3);
@@ -435,7 +499,7 @@ function drawMainView() {
 
 			// Handle click on list item by filtering,
 			// except those that are not counted in sessions.
-			if (listViewsOneHundredPercents[i] === "sessionTotal") {
+			if (listView.oneHundredPercent === "sessionTotal") {
 				newElement.addEventListener("click", () => {
 					// If the clicked list item is not currently selected...
 					if (filter !== filterValue) {
@@ -452,7 +516,7 @@ function drawMainView() {
 				});
 			}
 
-			listViews[i].append(newElement);
+			listView.el.append(newElement);
 		}
 	}
 }
@@ -464,52 +528,94 @@ function drawMainView() {
 function drawSecondaryView() {
 	const previousMonths = Object.keys(secondaryModel);
 
-	// Assemble data for session total graph
+	// Data for graphs
 	const sessionTotalData = {
 		points: [],
 		floatingDigits: 0
 	};
-
-	// Add data from previous months.
-	for (let previousMonth of previousMonths) {
-		let previousRange = new DateRange(previousMonth);
-		sessionTotalData.points.push({
-			label: monthsDict[previousRange.month],
-			y: secondaryModel[previousMonth].sessionTotal
-		});
-	}
-
-	// Add data from currently selected month.
-	sessionTotalData.points.push({
-		label: monthsDict[range.month],
-		y: model.sessionTotal
-	});
-
-	// Draw session total graph
-	secondaryView.sessionTotalGraph.draw(sessionTotalData);
-
-
-	// Assemble data for session length graph
 	const sessionLengthData = {
 		points: [],
 		floatingDigits: 2
 	};
 
-	// Add data from previous months.
+	// Assemble data from previous months.
 	for (let previousMonth of previousMonths) {
-		let previousRange = new DateRange(previousMonth);
+		const previousRange = new DateRange(previousMonth);
+		const label = monthsDict[previousRange.month];
+
+		sessionTotalData.points.push({
+			label: label,
+			y: secondaryModel[previousMonth].sessionTotal ?? 0
+		});
+
 		sessionLengthData.points.push({
-			label: monthsDict[previousRange.month],
-			y: secondaryModel[previousMonth].avgSessionLength
+			label: label,
+			y: secondaryModel[previousMonth].avgSessionLength ?? 0
 		});
 	}
 
 	// Add data from currently selected month.
+	const label = monthsDict[range.month];
+	sessionTotalData.points.push({
+		label: label,
+		y: model.sessionTotal ?? 0
+	});
 	sessionLengthData.points.push({
-		label: monthsDict[range.month],
-		y: model.avgSessionLength
+		label:label,
+		y: model.avgSessionLength ?? 0
 	});
 
-	// Draw session length graph
-	secondaryView.avgSessionLengthGraph.draw(sessionLengthData);
+	// Draw graphs
+	view.secondary.sessionTotal.el.draw(sessionTotalData);
+	view.secondary.avgSessionLength.el.draw(sessionLengthData);
+}
+
+
+function drawError() {
+	if (error !== undefined) {
+		view.controls.errorSection.classList.add("shown");
+		view.controls.error.innerText = niceErrorName(error);
+		setLoading(view.main);
+		return;
+	}
+
+	if (view.controls.error.innerText !== "") {
+		view.controls.errorSection.classList.remove("shown");
+	}
+	unsetLoading(view.main, view.secondary);
+}
+
+
+/*
+ * Start loading animation for all view objects after a delay.
+ */
+function setLoading(...subviews) {
+	if (subview !== undefined) {
+		for (var subview of subviews) {
+			for (let component of Object.keys(subview)) {
+				subview[component].el.classList.add("loading");
+			}
+		}
+	} else {
+		loadingAnimation = setTimeout(() => {
+			for (let component of Object.keys(view.main)) {
+				view.main[component].el.classList.add("loading");
+			}
+			for (let component of Object.keys(view.secondary)) {
+				view.secondary[component].el.classList.add("loading");
+			}
+		}, 100);
+	}
+}
+
+
+/*
+ * Stop loading animation for passed view object after a delay.
+ */
+function unsetLoading(...subviews) {
+	for (var subview of subviews) {
+		for (let component of Object.keys(subview)) {
+			subview[component].el.classList.remove("loading");
+		}
+	}
 }

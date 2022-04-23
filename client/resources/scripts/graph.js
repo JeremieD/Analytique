@@ -77,7 +77,7 @@ class Graph extends HTMLElement {
 			polylinePoints += xOffset + "," + (maxYValue - dataPoint.y) + " ";
 
 			const point = document.createElement("point");
-			point.style.bottom = dataPoint.y / maxYValue * 100 + "%";
+			point.style.bottom = dataPoint.y / (maxYValue !== 0 ? maxYValue : 1) * 100 + "%";
 			point.style.left = "calc(100%/11*" + xOffset + ")";
 			if (xOffset === 11) {
 				point.classList.add("selected");
@@ -85,7 +85,9 @@ class Graph extends HTMLElement {
 
 			const label = document.createElement("label");
 			if (xOffset === 11) {
-				label.innerHTML = dataPoint.y.round(data.floatingDigits);
+				if (dataPoint.y !== 0) {
+					label.innerHTML = dataPoint.y.round(data.floatingDigits);
+				}
 			} else {
 				label.innerHTML = dataPoint.label + ": <em>" + dataPoint.y.round(data.floatingDigits) + "</em>";
 			}

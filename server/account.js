@@ -16,13 +16,13 @@ const activeSessions = {};
 function sessionIsValid(req, res) {
 	const id = getSessionID(req);
 
-	if (activeSessions[id] && activeSessions[id].expiration > Date.now()) {
-		return true;
-	}
-
 	if (activeSessions[id]) {
+		if (activeSessions[id].expiration > Date.now()) {
+			return true;
+		}
 		delete activeSessions[id];
 	}
+
 	static.serveFile(req, res, "/login.html");
 	return false;
 }

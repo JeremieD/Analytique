@@ -33,6 +33,10 @@ function processRequest(req, res) {
 			}
 		}
 
+		if (allowedOrigins.length === 0) {
+			allowedOrigins = { error: "noOrigins" };
+		}
+
 		const eTag = static.getETagFrom(JSON.stringify(allowedOrigins) + user);
 
 		static.serve(req, res, allowedOrigins, "application/json", "auto", "private", eTag);
@@ -40,20 +44,56 @@ function processRequest(req, res) {
 	}
 
 	// Check API options.
-	let range, origin, filter;
-	if ("range" in path.parameters) {
-		range = new dateRange.DateRange(path.parameters.range);
-	}
-	if ("filter" in path.parameters) {
-		filter = path.parameters.filter;
-	}
+	let origin, range, filter;
 
 	// Check that requested origin exists and that the user is allowed to see it.
 	origin = path.parameters?.origin;
-	if (origin === undefined || !config.hasOwnProperty(origin) ||
-		!config[origin].allowedUsers.includes(user)) {
-		serveError(res, "The logged in user is not allowed to see the requested origin.", 400);
+	if (origin === undefined || !config.hasOwnProperty(origin) || !config[origin].allowedUsers.includes(user)) {
+		static.serve(req, res, { error: "unknownOrigin" },
+					 "application/json", "auto", "private");
 		return;
+	}
+
+	// Respond with the earliest available range for that origin.
+	if (path.filename === "earliest") {
+		fs.readdir(viewsRoot(origin)).then(files => {
+			files = files.filter(filename => filename[0] !== ".").sort();
+
+			if (files.length === 0) {
+				static.serve(req, res, { error: "noData" },
+							 "application/json", "auto", "private");
+				return;
+			}
+
+			const value = '"' + files[0].split(".")[0] + '"';
+
+			const eTag = static.getETagFrom(value + origin + user);
+
+			static.serve(req, res, value, "application/json", "auto", "private", eTag);
+			return;
+		})
+		.catch(() => {
+			static.serve(req, res, { error: "noData" },
+						 "application/json", "auto", "private");
+			return;
+		});
+		return;
+	}
+
+	if (!("range" in path.parameters) || path.parameters.range === undefined) {
+		static.serve(req, res, { error: "missingRange" },
+					 "application/json", "auto", "private");
+		return;
+	}
+	range = new dateRange.DateRange(path.parameters.range);
+	if (range.value === undefined) {
+		static.serve(req, res, { error: "malformedRange" },
+					 "application/json", "auto", "private");
+		return;
+	}
+
+	if ("filter" in path.parameters) {
+		filter = path.parameters.filter;
 	}
 
 	// Respond with stats for the given origin and range.
@@ -65,16 +105,6 @@ function processRequest(req, res) {
 		.catch(e => console.log(e));
 
 	// Respond with the earliest available data for that origin.
-	} else if (path.filename === "earliest") {
-		fs.readdir(viewsRoot(origin)).then(files => {
-			files = files.filter(filename => filename[0] !== ".").sort();
-			const value = files[0].split(".")[0];
-
-			const eTag = static.getETagFrom(value + origin + user);
-			static.serve(req, res, value, "text/plain", "auto", "private", eTag);
-		})
-		.catch(e => console.log(e));
-
 	} else {
 		static.serveError(res);
 	}
@@ -143,6 +173,10 @@ async function getStats(origin, range, filter) {
  */
 async function buildStats(origin, range, filter) {
 	return getSessions(origin, range).then(sessions => {
+
+		if (sessions.error) {
+			return sessions;
+		}
 
 		let stats = {
 			version: 1,
@@ -318,6 +352,10 @@ async function buildStats(origin, range, filter) {
 			stats.sessionTotal++;
 		}
 
+		if (stats.sessionTotal === 0) {
+			return { error: "noMatchingSessions" };
+		}
+
 		// Average number of page views per session.
 		stats.avgSessionLength = viewTotal / stats.sessionTotal;
 
@@ -365,7 +403,7 @@ async function getSessions(origin, range) {
 	const sessionsFilePath = sessionsRoot(origin) + range.type + "/" + range.value + ".json";
 	const sessionsFileMetadata = fs.stat(sessionsFilePath);
 
-	return Promise.all([sessionsFileMetadata, viewsFileMetadata]) .then(metadata => {
+	return Promise.all([sessionsFileMetadata, viewsFileMetadata]).then(metadata => {
 		sessionsMetadata = metadata[0];
 		viewsMetadata = metadata[1];
 
@@ -412,7 +450,11 @@ async function getSessions(origin, range) {
  * Timestamps are in milliseconds since 1 January 1970 UTC.
  */
 async function buildSessions(origin, range) {
-	return getBeacons(origin, range).then(async (views) => {
+	return getBeacons(origin, range).then(async views => {
+
+		if (views.error) {
+			return views;
+		}
 
 		let sessions = {
 			version: 1,
@@ -573,13 +615,15 @@ async function getBeacons(origin, range) {
 					.map(rawBeacon => rawBeacon.split("\t")
 					.map(rawField => decodeURI(rawField)));
 			})
-			.catch(e => console.log(e));
+			.catch(() => {
+				throw "noData";
+			});
 
 		fileReadPromises.push(promise);
 	}
 
 	return Promise.all(fileReadPromises).then(beacons => beacons.flat(1))
-		.catch(e => console.log(e));
+		.catch(error => { return { error: error }; });
 }
 
 

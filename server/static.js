@@ -131,7 +131,7 @@ function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, 
 	}
 
 	res.setHeader("Vary", "Accept-Encoding");
-	if (encoding === "auto") {
+	if (encoding === "auto" && content.length) {
 		encoding = compress.getBestEncoding(req.headers["accept-encoding"], content.length * 8);
 		content = compress.encode(content, encoding);
 	}
