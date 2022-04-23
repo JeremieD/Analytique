@@ -105,10 +105,11 @@ a:hover {
 .analytics-group + .analytics-group { margin-top: 64px; }
 
 .card {
+	--color-background: var(--color-secondary);
 	position: relative;
 	min-height: 276px;
 	padding: 24px;
-	background-color: var(--color-secondary);
+	background-color: var(--color-background);
 	border-radius: 8px;
 }
 

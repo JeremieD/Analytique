@@ -62,7 +62,7 @@ jd-graph>graph>point::before {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	background-color: var(--color-text);
-	outline: 3px solid var(--color-secondary);
+	outline: 3px solid var(--color-background);
 	border-radius: 50%;
 	transition: .2s ease all;
 }
@@ -107,7 +107,7 @@ jd-graph>graph>point>label {
 	top: -25%;
 	left: 50%;
 	transform: translateX(-50%);
-	background-color: var(--color-secondary);
+	background-color: var(--color-background);
 	border-radius: 8px;
 	text-align: center;
 	color: var(--color-grey);
