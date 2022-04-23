@@ -1,4 +1,5 @@
 const fs = require("fs").promises;
+const static = require("../static.js");
 
 const origins = Object.keys(require("../config.js").origins);
 
@@ -23,14 +24,14 @@ function receive(req, res) {
 		const beacon = body.split("\t");
 		if (beacon[0] !== "1" || beacon.length !== 10) {
 			// Received beacon is invalid.
-			serveError(res, `Received an invalid beacon: “${beacon}”`, 400);
+			static.serveError(res, `Received an invalid beacon: “${beacon}”`, 400);
 			return;
 		}
 
 		const origin = new URL(beacon[4]).hostname;
 		if (!origins.includes(origin)) {
 			// Received beacon is for an unregistered origin.
-			serveError(res, `A beacon was received for unknown origin “${origin}”`, 400);
+			static.serveError(res, `A beacon was received from unknown origin “${origin}”`, 400);
 			return;
 		}
 

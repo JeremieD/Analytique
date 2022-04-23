@@ -25,7 +25,6 @@
 	<!-- Scripts -->
 	<script src="/resources/scripts/utilities.js"></script>
 	<script async src="/resources/scripts/login.js"></script>
-	<script async src="/lib/dateRange.js"></script>
 
 </head>
 
@@ -38,11 +37,11 @@
 
 	<main>
 
-		<form id="form">
+		<form id="form" method="post" action="/login">
 			<h3>Connexion</h3>
-			<input type="text" name="username" id="username" placeholder="Nom d’utilisateur" required autofocus>
+			<input type="text" name="u" id="username" placeholder="Nom d’utilisateur" required autofocus>
 			<div class="password-input">
-				<input type="password" name="password" id="password" placeholder="Mot de passe" required>
+				<input type="password" name="p" id="password" placeholder="Mot de passe" required>
 				<button type="button" id="togglePassword">
 					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" stroke="currentColor" stroke-width="1.5px" fill="none">
 						<path class="c" d="M11.375,8c0,1.31168-1.06332,2.375-2.375,2.375s-2.375-1.06332-2.375-2.375,1.06332-2.375,2.375-2.375,2.375,1.06332,2.375,2.375Zm-2.37467-5.5h0C4.62861,2.5,1.53825,7.23321,1,8.00006c.53765,.76603,3.6282,5.49994,8.00033,5.49994,4.36297,0,7.45997-4.7327,7.99967-5.50006-.53911-.76654-3.6363-5.49994-7.99967-5.49994"/>

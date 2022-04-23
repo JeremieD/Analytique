@@ -27,19 +27,19 @@
 	flex-grow: 0;
 }
 
-.login form {
+#form {
 	display: flex;
 	flex-direction: column;
 }
 
-.login form>div {
+#form>div {
 	display: flex;
 	width: 100%;
 	justify-content: space-between;
 	align-items: center;
 }
 
-:is(input, form button):focus:not(:active):not(:hover):not([tabindex="-1"]) {
+:is(input, #form button):focus:not(:active):not(:hover):not([tabindex="-1"]) {
 	box-shadow: 0 0 0 4px var(--color-accent);
 	background-color: var(--color-secondary);
 	color: var(--color-text);
@@ -98,8 +98,8 @@ input[type="submit"] {
 	cursor: pointer;
 }
 
-.login form>input + * { margin-top: 1em; }
-.login form>:last-child { margin-top: 2em; }
+#form>input + * { margin-top: 1em; }
+#form>:last-child { margin-top: 2em; }
 
 .shake {
 	animation: shake .33s ease both;
