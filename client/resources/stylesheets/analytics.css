@@ -28,22 +28,32 @@ a:hover {
 	gap: 24px;
 }
 
-#range-display::before {
-	content: "";
-	display: block;
+#filter-reset {
 	position: absolute;
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
 	background-color: var(--color-accent);
 	transform: translate(calc(-100% - 8px), 50%);
+	transition: .2s ease all;
+}
+
+#filter-reset:disabled { opacity: 0; }
+
+#filter-reset svg {
+	position: absolute;
+	width: 6px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	overflow: visible;
+	stroke: var(--color-lightest);
+	stroke-width: 1px;
 	opacity: 0;
 	transition: .2s ease opacity;
 }
 
-#range-display.filtered::before {
-	opacity: 1;
-}
+#filter-reset:hover svg { opacity: 1; }
 
 .date-range {
 	display: flex;

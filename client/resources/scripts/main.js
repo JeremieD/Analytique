@@ -34,6 +34,7 @@ let loadingAnimation;
 whenDOMReady(() => {
 	// Build the view object.
 	view.originSelector = document.getElementById("origin-selector");
+	view.filterReset = document.getElementById("filter-reset");
 	view.rangeDisplay = document.getElementById("range-display");
 	view.sessionTotal = document.getElementById("session-total");
 	secondaryView.sessionTotalGraph = document.getElementById("session-total-graph");
@@ -53,6 +54,12 @@ whenDOMReady(() => {
 	view.excludedTraffic = document.getElementById("excluded-traffic");
 	view.previousRangeButton = document.getElementById("previous-range")
 	view.nextRangeButton = document.getElementById("next-range")
+
+	// Trigger for filter reset.
+	view.filterReset.addEventListener("click", () => {
+		filter = "";
+		update();
+	});
 
 	// Triggers for range buttons.
 	view.previousRangeButton.addEventListener("click", previousRange);
@@ -300,6 +307,15 @@ function drawMainView() {
 	// Sets the title.
 	view.rangeDisplay.innerText = range.longForm;
 
+	// Update filter display.
+	const filterEnabled = filter !== "";
+	view.filterReset.disabled = !filterEnabled;
+	if (!filterEnabled) {
+		view.filterReset.blur();
+		selectedListElement?.classList.remove("selected");
+		selectedListElement = undefined;
+	}
+
 	// Big session total.
 	view.sessionTotal.innerText = model.sessionTotal;
 
@@ -415,7 +431,7 @@ function drawMainView() {
 			}
 
 			// Handle click on list item by filtering,
-			// except those that are not valued in sessions.
+			// except those that are not counted in sessions.
 			if (listViewsOneHundredPercents[i] === "sessionTotal") {
 				newElement.addEventListener("click", () => {
 					// If the clicked list item is not currently selected...
@@ -424,12 +440,9 @@ function drawMainView() {
 						selectedListElement?.classList.remove("selected");
 						newElement.classList.add("selected");
 						selectedListElement = newElement;
-						view.rangeDisplay.classList.add("filtered");
 
 					} else { // ...otherwise...
 						filter = "";
-						newElement.classList.remove("selected");
-						view.rangeDisplay.classList.remove("filtered");
 					}
 
 					update();
