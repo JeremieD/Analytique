@@ -35,7 +35,7 @@ function processRequest(req, res) {
 
 		const eTag = static.getETagFrom(JSON.stringify(allowedOrigins) + user);
 
-		static.serve(req, res, JSON.stringify(allowedOrigins), "application/json", "auto", "private", eTag);
+		static.serve(req, res, allowedOrigins, "application/json", "auto", "private", eTag);
 		return;
 	}
 
@@ -59,8 +59,6 @@ function processRequest(req, res) {
 	// Respond with stats for the given origin and range.
 	if (path.filename === "stats") {
 		getStats(origin, range, filter).then(data => {
-			data = JSON.stringify(data);
-
 			const eTag = static.getETagFrom(data + user);
 			static.serve(req, res, data, "application/json", "auto", "private", eTag);
 		})

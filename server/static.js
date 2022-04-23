@@ -122,6 +122,10 @@ function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, 
 		return;
 	}
 
+	if (mimeType === "application/json" && typeof content === "object") {
+		content = JSON.stringify(content);
+	}
+
 	if (cachePolicy !== undefined) {
 		res.setHeader("Cache-Control", cachePolicy);
 	}
