@@ -576,6 +576,9 @@ function drawError() {
 		view.controls.errorSection.classList.add("shown");
 		view.controls.error.innerText = niceErrorName(error);
 		setLoading(view.main);
+		if (error !== "noMatchingSessions") {
+			setLoading(view.secondary);
+		}
 		return;
 	}
 
@@ -590,7 +593,7 @@ function drawError() {
  * Start loading animation for all view objects after a delay.
  */
 function setLoading(...subviews) {
-	if (subview !== undefined) {
+	if (subviews !== undefined) {
 		for (var subview of subviews) {
 			for (let component of Object.keys(subview)) {
 				subview[component].el.classList.add("loading");
