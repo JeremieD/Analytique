@@ -1,0 +1,46 @@
+jd-select {
+	position: relative;
+	text-decoration: underline;
+	line-height: 1;
+	user-select: none;
+	transition: .2s ease color;
+}
+
+jd-select:hover, jd-select.open {
+	color: var(--color-text);
+}
+
+jd-select>svg {
+	display: inline-block;
+	width: 8px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.5;
+	overflow: visible;
+	transform: translateY(-50%);
+	margin: 0 2px 0 4px;
+}
+
+.jd-select-menu {
+	position: absolute;
+	top: 0;
+	left: -22px;
+	display: flex;
+	flex-direction: column;
+	padding: 6px;
+	background-color: var(--color-secondary);
+	border-radius: 8px;
+	color: var(--color-text);
+	z-index: 5;
+}
+
+.jd-select-menu>li {
+	padding: 8px 32px 8px 16px;
+	border-radius: 4px;
+}
+
+.jd-select-menu>li:hover, .jd-select-menu:not(:hover)>li:focus {
+	background-color: var(--color-accent) !important;
+	box-shadow: none !important;
+	border-radius: 4px !important;
+}

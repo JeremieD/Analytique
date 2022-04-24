@@ -315,17 +315,3 @@ h1.loading { min-height: 1em; }
 * + figure {
 	margin-top: 16px;
 }
-
-select {
-	text-decoration: underline;
-	transition: .2s ease color;
-}
-
-select:hover {
-	background-color: inherit;
-}
-
-select:active {
-	color: initial;
-	background: initial;
-}

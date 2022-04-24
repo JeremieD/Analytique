@@ -187,10 +187,7 @@ whenDOMReady(() => {
 		}
 
 		for (let origin of origins) {
-			const option = document.createElement("option");
-			option.value = origin;
-			option.innerText = origin;
-			view.controls.origin.append(option);
+			view.controls.origin.addOption(origin);
 		}
 
 		switchToOrigin(origins[0]);
