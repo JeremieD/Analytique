@@ -217,6 +217,8 @@ function switchToOrigin(newOrigin) {
 			if (newEarliestRange.laterThan(range)) {
 				range = newEarliestRange;
 			}
+		} else {
+			newEarliestRange = value;
 		}
 
 		update();
@@ -258,6 +260,7 @@ function update() {
 			if (error === undefined) {
 				error = value.error;
 			}
+			drawError();
 			return;
 		}
 		let isFirstRange;
@@ -591,17 +594,17 @@ function drawError() {
  */
 function setLoading(...subviews) {
 	if (subviews.length > 0) {
-		for (var subview of subviews) {
-			for (let component of Object.keys(subview)) {
+		for (const subview of subviews) {
+			for (const component of Object.keys(subview)) {
 				subview[component].el.classList.add("loading");
 			}
 		}
 	} else {
 		loadingAnimation = setTimeout(() => {
-			for (let component of Object.keys(view.main)) {
+			for (const component of Object.keys(view.main)) {
 				view.main[component].el.classList.add("loading");
 			}
-			for (let component of Object.keys(view.secondary)) {
+			for (const component of Object.keys(view.secondary)) {
 				view.secondary[component].el.classList.add("loading");
 			}
 		}, 100);
@@ -613,8 +616,8 @@ function setLoading(...subviews) {
  * Stop loading animation for passed view object after a delay.
  */
 function unsetLoading(...subviews) {
-	for (var subview of subviews) {
-		for (let component of Object.keys(subview)) {
+	for (const subview of subviews) {
+		for (const component of Object.keys(subview)) {
 			subview[component].el.classList.remove("loading");
 		}
 	}
