@@ -27,8 +27,8 @@ class JDSelect extends HTMLElement {
 		this.menu = document.createElement("ol");
 		this.menu.classList.add("jd-select-menu");
 
-		this.addEventListener("mousedown", this.handleMouseEvent);
-		this.addEventListener("mouseup", this.handleMouseEvent);
+		this.addEventListener("mousedown", this.handleMouseDown);
+		this.addEventListener("mouseup", this.handleMouseUp);
 		this.addEventListener("keydown", this.handleKeyboardEvent);
 	}
 
@@ -46,22 +46,21 @@ class JDSelect extends HTMLElement {
 		this.menu.append(newElement);
 	}
 
-	handleMouseEvent(e) {
-		if (e.type === "mousedown") {
-			if (this._mouseDownTime === undefined) {
-				this._mouseDownTime = Date.now();
-				this.open();
-			}
+	handleMouseDown(e) {
+		if (this._mouseDownTime === undefined) {
+			this._mouseDownTime = Date.now();
+			this.open();
+		}
+	}
 
-		} else if (e.type === "mouseup") {
-			if (Date.now() - this._mouseDownTime > 125) {
-				if (e.target !== this.menu && e.target.dataset.value !== this.value) {
-					this.value = e.target.dataset.value;
-					this.label.innerText = e.target.dataset.value;
-					this.dispatchEvent(new Event("change"));
-				}
-				this.close();
+	handleMouseUp(e) {
+		if (Date.now() - this._mouseDownTime > 250) {
+			if (e.target !== this.menu && e.target.dataset.value !== this.value) {
+				this.value = e.target.dataset.value;
+				this.label.innerText = e.target.dataset.value;
+				this.dispatchEvent(new Event("change"));
 			}
+			this.close();
 		}
 	}
 
@@ -141,6 +140,7 @@ class JDSelect extends HTMLElement {
 
 		this._abortController = new AbortController()
 
+		this.menu.classList.remove("fade-out");
 		this.menu.style.transform = "translateY(" + (-12 - this.options.indexOf(this.value) * 32) + "px)";
 		this.append(this.menu);
 
@@ -156,8 +156,12 @@ class JDSelect extends HTMLElement {
 		this._abortController.abort();
 		this._mouseDownTime = undefined;
 
-		this.menu.remove();
+		this.menu.addEventListener("animationend", () => {
+			this.menu.remove();
+		}, { once: true });
+
 		this.classList.remove("open");
+		this.menu.classList.add("fade-out");
 	}
 
 }

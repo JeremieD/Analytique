@@ -44,3 +44,11 @@ jd-select>svg {
 	box-shadow: none !important;
 	border-radius: 4px !important;
 }
+
+.fade-out {
+	animation: fade-out .2s .05s ease;
+}
+
+@keyframes fade-out {
+	to { opacity: 0; }
+}
