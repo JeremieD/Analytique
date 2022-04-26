@@ -98,6 +98,28 @@ class DateRange {
 	}
 
 
+	get year() {
+		if (!this.plural) {
+			return this.from.year;
+		}
+		return undefined;
+	}
+
+	get month() {
+		if (!this.plural) {
+			return this.from.month;
+		}
+		return undefined;
+	}
+
+	get day() {
+		if (!this.plural) {
+			return this.from.day;
+		}
+		return undefined;
+	}
+
+
 	get shortForm() {
 		if (this.plural) {
 			return this.from.shortForm + ":" + this.to.shortForm;
@@ -168,10 +190,6 @@ class DateRange {
 class ShortDate {
 	constructor(arg1, arg2, arg3) {
 		this.set = function(arg1, arg2, arg3) {
-
-			if (arg1) {
-
-			}
 
 			// Build object from short form representation.
 			if (typeof arg1 === "string") {
@@ -368,7 +386,7 @@ class ShortDate {
 	get niceForm() {
 		let niceForm;
 
-		if (this === ShortDate.currentMonth()) {
+		if (this.equals(ShortDate.currentMonth())) {
 			niceForm = "Ce mois-ci";
 
 		} else {

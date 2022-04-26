@@ -431,7 +431,7 @@ function drawMainView() {
 	}
 
 	// Sets the title.
-	view.main.range.innerText = range.longForm;
+	view.main.range.el.innerText = range.niceForm;
 
 	// Big session total.
 	view.main.sessionTotal.el.innerText = model.sessionTotal;
@@ -541,7 +541,7 @@ function drawSecondaryView() {
 	// Assemble data from previous months.
 	for (let previousMonth of previousMonths) {
 		const previousRange = new DateRange(previousMonth);
-		const label = monthsDict[previousRange.month];
+		const label = monthsDict[previousRange.month - 1];
 
 		sessionTotalData.points.push({
 			label: label,
@@ -555,7 +555,7 @@ function drawSecondaryView() {
 	}
 
 	// Add data from currently selected month.
-	const label = monthsDict[range.month];
+	const label = monthsDict[range.month - 1];
 	sessionTotalData.points.push({
 		label: label,
 		y: model.sessionTotal ?? 0
