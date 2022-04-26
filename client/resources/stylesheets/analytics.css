@@ -26,6 +26,7 @@ a:hover {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 24px;
+	align-items: start;
 }
 
 #filter-reset {
@@ -55,42 +56,82 @@ a:hover {
 
 #filter-reset:hover svg { opacity: 1; }
 
-.date-range {
+.range-select {
 	display: flex;
-	gap: 16px;
+	gap: 24px;
 	justify-content: flex-end;
+	align-items: center;
+	transform: translateY(.5em);
 }
 
-.date-range>button {
-	position: relative;
+[type="button"] {
 	display: inline-block;
-	width: 64px;
-	height: 64px;
-	border-radius: 50%;
+	position: relative;
+	padding: 0 16px;
+	height: 40px;
+	border-radius: 4px;
 	background-color: var(--color-secondary);
 	transition: .2s ease opacity;
+	user-select: none;
 }
 
-.date-range>button:disabled {
+[type="button"][selected] {
+	background-color: var(--color-accent);
+	color: var(--color-lightest);
+}
+
+[type="button"]:disabled {
 	opacity: .33;
 	cursor: not-allowed;
 }
 
-.date-range>button:focus:not(:active):not(:hover):not([tabindex="-1"]):not(:disabled) {
+button[type="button"]:focus-visible {
+	background-color: var(--color-secondary);
+	border-radius: 4px;
+}
+
+jd-button-toggle-group {
+	display: flex;
+	gap: 4px;
+}
+
+jd-button-toggle-group>[type="button"] {
+	border-radius: 0;
+}
+
+jd-button-toggle-group>[type="button"]:first-child { border-radius: 4px 0 0 4px; }
+jd-button-toggle-group>[type="button"]:last-child { border-radius: 0 4px 4px 0; }
+
+jd-button-toggle-group>[type="button"]:focus-visible {
+	background-color: var(--color-accent);
+}
+
+.arrow-button-group {
+	display: flex;
+	gap: 8px;
+}
+
+.arrow-button-group>[type="button"] {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+}
+
+.arrow-button-group>[type="button"]:focus-visible {
 	background-color: var(--color-secondary);
 	border-radius: 50%;
 }
 
-.date-range>button::before {
+.arrow-button-group>[type="button"]::before {
 	position: absolute;
-	font-size: 32px;
+	font-size: 24px;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
 
-#next-range::before { content: "→"; }
-#previous-range::before { content: "←"; }
+.arrow-button-group>[type="button"]:first-of-type::before { content: "←"; }
+.arrow-button-group>[type="button"]:last-of-type::before { content: "→"; }
 
 #error-section {
 	overflow: hidden;

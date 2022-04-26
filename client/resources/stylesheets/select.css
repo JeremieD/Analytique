@@ -39,7 +39,7 @@ jd-select>svg {
 	border-radius: 4px;
 }
 
-.jd-select-menu>li:hover, .jd-select-menu:not(:hover)>li:focus {
+.jd-select-menu>li:hover:not(:active), .jd-select-menu:not(:hover)>li:focus {
 	background-color: var(--color-accent) !important;
 	box-shadow: none !important;
 	border-radius: 4px !important;

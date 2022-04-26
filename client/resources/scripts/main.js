@@ -41,8 +41,8 @@ whenDOMReady(() => {
 		controls: {
 			origin: document.getElementById("origin-selector"),
 			filterReset: document.getElementById("filter-reset"),
-			previousRange: document.getElementById("previous-range"),
-			nextRange: document.getElementById("next-range"),
+			previousRange: document.getElementById("range-previous"),
+			nextRange: document.getElementById("range-next"),
 			errorSection: document.getElementById("error-section"),
 			error: document.getElementById("error-display")
 		},
