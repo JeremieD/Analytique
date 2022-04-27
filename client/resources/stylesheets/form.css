@@ -77,6 +77,10 @@ input {
 	cursor: not-allowed;
 }
 
+.button jd-icon {
+	vertical-align: middle;
+}
+
 .password-input {
 	position: relative;
 }
