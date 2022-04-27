@@ -4,6 +4,7 @@ jd-select {
 	line-height: 1;
 	user-select: none;
 	transition: .2s ease color;
+	cursor: pointer;
 }
 
 jd-select:hover, jd-select.open {
@@ -26,11 +27,13 @@ jd-select>jd-icon {
 	border-radius: 8px;
 	color: var(--color-text);
 	z-index: 5;
+	cursor: default;
 }
 
 .jd-select-menu>li {
 	padding: 8px 32px 8px 16px;
 	border-radius: 4px;
+	cursor: pointer;
 }
 
 .jd-select-menu>li:hover:not(:active), .jd-select-menu:not(:hover)>li:focus {

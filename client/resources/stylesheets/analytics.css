@@ -37,9 +37,13 @@ a:hover {
 	background-color: var(--color-accent);
 	transform: translate(calc(-100% - 8px), 50%);
 	transition: .2s ease all;
+	cursor: pointer;
 }
 
-#filter-reset:disabled { opacity: 0; }
+#filter-reset:disabled {
+	opacity: 0;
+	cursor: auto;
+}
 
 #filter-reset svg {
 	position: absolute;
