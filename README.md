@@ -26,7 +26,7 @@ After cloning this repo on your machine, you will need to create `config.json` a
 	"origins": {
 		"hostname": {
 			"allowedUsers": [ "jeremie" ],
-			"focusCountries": [ "CA" ],
+			"preciseGeolocation": [ "CA" ],
 			"errorPagePatterns": [ "Erreur" ],
 			"excludeClientIPs": [ "104.221.122.236" ],
 			"excludeCountries": [ "CN" ]
@@ -54,7 +54,7 @@ To start the server, type `node server.js` in your terminal, assuming you are al
 ## Adding Origins
 To add a new origin from which to receive data, add a field to the `origins` section of `config.json`. Only beacons from those origins will be accepted by the server. Furthermore, only users in the `allowedUsers` field will be able to access that origin from the Analytique client.
 
-`focusCountries` is a list of country codes that you want to fetch city data for.
+`preciseGeolocation` is a list of country codes that you want to fetch city data for.
 
 `errorPagePatterns` is a list of strings that is matched against page titles to determine if it is an error page.
 

@@ -543,7 +543,7 @@ async function buildSessions(origin, range) {
 				}
 
 				// Get some cities according to config.
-				if (config[origin].focusCountries.includes(currentSession.country)) {
+				if (config[origin].preciseGeolocation.includes(currentSession.country)) {
 					const city = await heuristics.inferCity(view[11]);
 					if (city !== undefined) {
 						currentSession.city = city;
