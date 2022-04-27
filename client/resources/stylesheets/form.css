@@ -99,6 +99,7 @@ input {
 	transform: translateY(-50%);
 	padding: 4px;
 	border-radius: 4px;
+	line-height: 0;
 }
 
 .password-input>:last-child jd-icon {
