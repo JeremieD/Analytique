@@ -167,6 +167,13 @@ h1 {
 	}
 }
 
+@media (max-width: 1440px) {
+	.analytics>:first-child {
+		grid-template-columns: 1fr;
+		justify-items: start;
+	}
+}
+
 h3 {
 	width: calc(100% - 32px);
 	font-size: 21px;
