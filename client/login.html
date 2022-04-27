@@ -20,11 +20,14 @@
 	<!-- Styling -->
 	<link rel="stylesheet" href="/resources/stylesheets/jd.css">
 	<link rel="stylesheet" href="/resources/stylesheets/analytics.css">
+	<link rel="stylesheet" href="/resources/stylesheets/form.css">
 	<link rel="stylesheet" href="/resources/stylesheets/login.css">
+	<link rel="stylesheet" href="/resources/stylesheets/JDIcon.css">
 
 	<!-- Scripts -->
 	<script src="/resources/scripts/utilities.js"></script>
 	<script async src="/resources/scripts/login.js"></script>
+	<script async src="/resources/scripts/JDIcon.js"></script>
 
 </head>
 
@@ -42,19 +45,11 @@
 			<input type="text" name="u" id="username" placeholder="Nom d’utilisateur" required autofocus>
 			<div class="password-input">
 				<input type="password" name="p" id="password" placeholder="Mot de passe" required>
-				<button type="button" id="togglePassword">
-					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" stroke="currentColor" stroke-width="1.5px" fill="none">
-						<path class="c" d="M11.375,8c0,1.31168-1.06332,2.375-2.375,2.375s-2.375-1.06332-2.375-2.375,1.06332-2.375,2.375-2.375,2.375,1.06332,2.375,2.375Zm-2.37467-5.5h0C4.62861,2.5,1.53825,7.23321,1,8.00006c.53765,.76603,3.6282,5.49994,8.00033,5.49994,4.36297,0,7.45997-4.7327,7.99967-5.50006-.53911-.76654-3.6363-5.49994-7.99967-5.49994"/>
-						<g id="eyeSlash">
-							<path stroke="var(--color-background)" stroke-width="3.5px" stroke-linecap="square" d="M14,1L4,15"/>
-							<path d="M14,1L4,15"/>
-						</g>
-					</svg>
-				</button>
+				<button type="button" id="togglePassword"><jd-icon icon="eye"></jd-icon></button>
 			</div>
 			<div>
 				<p id="feedback"></p>
-				<input type="submit" value="Se connecter">
+				<button class="button primary">Se connecter</button>
 			</div>
 		</form>
 

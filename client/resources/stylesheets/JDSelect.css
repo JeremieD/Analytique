@@ -40,6 +40,7 @@ jd-select>svg {
 }
 
 .jd-select-menu>li:hover:not(:active), .jd-select-menu:not(:hover)>li:focus {
+	color: var(--color-lightest);
 	background-color: var(--color-accent) !important;
 	box-shadow: none !important;
 	border-radius: 4px !important;

@@ -1,4 +1,4 @@
-help-button {
+[tooltip] {
 	display: block;
 	position: absolute;
 	width: 16px;
@@ -8,14 +8,15 @@ help-button {
 	color: var(--color-grey);
 	border-radius: 50% !important;
 	cursor: help;
-	transition: .2s ease color;
+	transition: .2s ease color,
+				.2s ease box-shadow;
 }
 
-help-button:hover {
+[tooltip]:hover {
 	color: var(--color-text);
 }
 
-help-text {
+jd-tooltip {
 	display: block;
 	position: absolute;
 	top: -16px;
@@ -30,7 +31,7 @@ help-text {
 	box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
-help-text::after {
+jd-tooltip::after {
 	display: block;
 	content: "";
 	position: absolute;
@@ -43,8 +44,8 @@ help-text::after {
 	border-top: 8px solid var(--color-tertiary);
 }
 
-help-text.in { animation: .2s ease both help-in; }
-help-text.out { animation: .2s .75s ease both help-out; }
+jd-tooltip.in { animation: .2s ease both help-in; }
+jd-tooltip.out { animation: .2s .75s ease both help-out; }
 
 @keyframes help-in {
 	from { opacity: 0; }

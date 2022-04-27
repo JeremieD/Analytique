@@ -22,20 +22,23 @@
 	<!-- Styling -->
 	<!-- <link rel="stylesheet" href="https://jeremiedupuis.com/resources/stylesheets/main.css"> -->
 	<link rel="stylesheet" href="/resources/stylesheets/jd.css">
+	<link rel="stylesheet" href="/resources/stylesheets/form.css">
 	<link rel="stylesheet" href="/resources/stylesheets/analytics.css">
-	<link rel="stylesheet" href="/resources/stylesheets/graph.css">
-	<link rel="stylesheet" href="/resources/stylesheets/help-button.css">
-	<link rel="stylesheet" href="/resources/stylesheets/select.css">
-
+	<link rel="stylesheet" href="/resources/stylesheets/tooltip.css">
+	<link rel="stylesheet" href="/resources/stylesheets/JDGraph.css">
+	<link rel="stylesheet" href="/resources/stylesheets/JDSelect.css">
+	<link rel="stylesheet" href="/resources/stylesheets/JDButtonToggleGroup.css">
+	<link rel="stylesheet" href="/resources/stylesheets/JDIcon.css">
 	<!-- Scripts -->
 	<script src="/resources/scripts/utilities.js"></script>
 	<script src="/resources/scripts/niceNames.js"></script>
 	<script src="/common/dateRange.js"></script>
-	<script src="/resources/scripts/graph.js"></script>
+	<script src="/resources/scripts/JDGraph.js"></script>
 	<script src="/resources/scripts/main.js" async></script>
-	<script src="/resources/scripts/helpButton.js" async></script>
-	<script src="/resources/scripts/select.js" async></script>
-	<script src="/resources/scripts/buttonToggleGroup.js" async></script>
+	<script src="/resources/scripts/tooltip.js" async></script>
+	<script src="/resources/scripts/JDSelect.js" async></script>
+	<script src="/resources/scripts/JDButtonToggleGroup.js" async></script>
+	<script src="/resources/scripts/JDIcon.js" async></script>
 
 </head>
 
@@ -56,37 +59,20 @@
 
 		<section>
 			<hgroup>
-				<button id="filter-reset" disabled>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8">
-						<line x1="0" y1="0" x2="8" y2="8" />
-						<line x1="0" y1="8" x2="8" y2="0" />
-					</svg>
-				</button>
+				<button id="filter-reset" disabled><jd-icon icon="x"></jd-icon></button>
 				<h1 id="range-display">Ce mois-ci</h1>
 				<p>sur <jd-select id="origin-selector"></jd-select></p>
 			</hgroup>
 			<div class="range-select">
 				<jd-button-toggle-group>
-					<button type="button" value="week">Par semaine</button>
-					<button type="button" value="month" selected>Par mois</button>
-					<button type="button" value="year">Par année</button>
-					<button type="button" value="custom">
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17">
-							<g transform="translate(-1566 -260)">
-								<g transform="translate(1566 265)" fill="none" stroke="#eee" stroke-width="1.5">
-									<path d="M1,0H15a1,1,0,0,1,1,1V9a3,3,0,0,1-3,3H3A3,3,0,0,1,0,9V1A1,1,0,0,1,1,0Z" stroke="none"/>
-									<path d="M1,.75H15a.25.25,0,0,1,.25.25V9A2.25,2.25,0,0,1,13,11.25H3A2.25,2.25,0,0,1,.75,9V1A.25.25,0,0,1,1,.75Z" fill="none"/>
-								</g>
-								<path d="M3,0H13a3,3,0,0,1,3,3V4a0,0,0,0,1,0,0H0A0,0,0,0,1,0,4V3A3,3,0,0,1,3,0Z" transform="translate(1566 262)" fill="#eee"/>
-								<line y1="3" transform="translate(1570 260)" fill="none" stroke="#eee" stroke-width="1.5"/>
-								<line y1="3" transform="translate(1578 260)" fill="none" stroke="#eee" stroke-width="1.5"/>
-							</g>
-						</svg>
-					</button>
+					<button class="button" value="week">Par semaine</button>
+					<button class="button" value="month" selected>Par mois</button>
+					<button class="button" value="year">Par année</button>
+					<button class="button" value="custom"><jd-icon icon="calendar"></jd-icon></button>
 				</jd-button-toggle-group>
 				<div class="arrow-button-group">
-					<button type="button" id="range-previous" disabled></button>
-					<button type="button" id="range-next" disabled></button>
+					<button class="button round" id="range-previous" disabled></button>
+					<button class="button round" id="range-next" disabled></button>
 				</div>
 			</div>
 		</section>
@@ -101,7 +87,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Sessions</h3>
-					<help-button>Total des sessions pour cette période.</help-button>
+					<jd-icon icon="help" tooltip="Total des sessions pour cette période."></jd-icon>
 				</hgroup>
 
 				<data class="big" id="session-total"></data>
@@ -120,7 +106,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Durée moyenne des&nbsp;sessions</h3>
-					<help-button>Nombre de vues moyen par session.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de vues moyen par session."></jd-icon>
 				</hgroup>
 
 				<data class="big" id="avg-session-length"><small></small></data>
@@ -140,7 +126,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Pages populaires</h3>
-					<help-button>Nombre de sessions par pages.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par pages."></jd-icon>
 				</hgroup>
 
 				<ol id="page-views">
@@ -160,7 +146,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Canaux</h3>
-					<help-button>Nombre de sessions par canal d’acquisition.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par canal d’acquisition."></jd-icon>
 				</hgroup>
 
 				<ol id="acquisition-channels">
@@ -174,7 +160,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Origines</h3>
-					<help-button>Nombre de sessions par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis."></jd-icon>
 				</hgroup>
 
 				<ol id="referrer-origins">
@@ -190,7 +176,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Points d’entrée</h3>
-					<help-button>Nombre de sessions par page d’atterissage.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par page d’atterissage."></jd-icon>
 				</hgroup>
 
 				<ol id="landings">
@@ -209,7 +195,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Bilinguisme</h3>
-					<help-button>Nombre de sessions par classe de bilinguisme.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par classe de bilinguisme."></jd-icon>
 				</hgroup>
 
 				<ol id="bilingualism-classes">
@@ -224,7 +210,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Pays</h3>
-					<help-button>Nombre de sessions par pays.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par pays."></jd-icon>
 				</hgroup>
 
 				<ol id="countries">
@@ -240,7 +226,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Villes canadiennes</h3>
-					<help-button>Nombre de sessions par ville, si le pays est le Canada.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par ville, si le pays est le Canada."></jd-icon>
 				</hgroup>
 
 				<ol id="cities">
@@ -256,7 +242,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Systèmes d’exploitation</h3>
-					<help-button>Nombre de sessions par système d’exploitation.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par système d’exploitation."></jd-icon>
 				</hgroup>
 
 				<ol id="oses">
@@ -272,7 +258,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Moteurs de rendu</h3>
-					<help-button>Nombre de sessions par moteur de rendu.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par moteur de rendu."></jd-icon>
 				</hgroup>
 
 				<ol id="renderingEngines">
@@ -285,7 +271,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Tailles d’écran</h3>
-					<help-button>Nombre de sessions par taille d’écran. Ces points d’arrêt correspondent à ceux utiliser dans les feuilles de style du site. Ils indiquent donc quels styles s’appliquaient pour cet utilisateur.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de sessions par taille d’écran. Ces points d’arrêt correspondent à ceux utiliser dans les feuilles de style du site. Ils indiquent donc quels styles s’appliquaient pour cet utilisateur."></jd-icon>
 				</hgroup>
 
 				<ol id="screen-breakpoints">
@@ -303,7 +289,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Pages d’erreur</h3>
-					<help-button>Nombre de <em>vues</em> sur des pages d’erreurs.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de <em>vues</em> sur des pages d’erreurs."></jd-icon>
 				</hgroup>
 
 				<ol id="error-pages">
@@ -317,7 +303,7 @@
 			<div class="card">
 				<hgroup>
 					<h3>Traffic exclu</h3>
-					<help-button>Nombre de <em>vues</em> exclues du traffic selon la cause. Les pourcentages sont sur le nombre de vue total <em>avant</em> filtrage.</help-button>
+					<jd-icon icon="help" tooltip="Nombre de <em>vues</em> exclues du traffic selon la cause. Les pourcentages sont sur le nombre de vue total <em>avant</em> filtrage."></jd-icon>
 				</hgroup>
 
 				<ol id="excluded-traffic">

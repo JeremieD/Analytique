@@ -1,7 +1,7 @@
 /*
  * Custom element that displays an interactive graph.
  */
-class Graph extends HTMLElement {
+class JDGraph extends HTMLElement {
 
 	constructor() {
 		super();
@@ -106,4 +106,4 @@ class Graph extends HTMLElement {
 	}
 }
 
-customElements.define("jd-graph", Graph);
+customElements.define("jd-graph", JDGraph);

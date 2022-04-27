@@ -1,0 +1,18 @@
+jd-button-toggle-group {
+	display: flex;
+	gap: 4px;
+}
+
+jd-button-toggle-group>.button {
+	border-radius: 0;
+}
+
+jd-button-toggle-group>.button:first-child { border-radius: 4px 0 0 4px; }
+jd-button-toggle-group>.button:last-child { border-radius: 0 4px 4px 0; }
+
+jd-button-toggle-group>.button:focus-visible {
+	box-shadow: 0 0 0 6px var(--color-background), 0 0 0 10px var(--color-accent), 0 0 0 12px var(--color-background);
+	background-color: var(--color-accent);
+	border-radius: 4px;
+	z-index: 25;
+}

@@ -39,65 +39,6 @@
 	align-items: center;
 }
 
-:is(input, #form button):focus:not(:active):not(:hover):not([tabindex="-1"]) {
-	box-shadow: 0 0 0 4px var(--color-accent);
-	background-color: var(--color-secondary);
-	color: var(--color-text);
-	transition: .2s ease box-shadow;
-}
-
-input {
-	min-width: 24ch;
-	width: 100%;
-	height: 3em;
-	padding: 0 1em;
-	background-color: var(--color-secondary);
-	border-radius: 5px;
-	pointer-events: auto;
-	font-weight: normal;
-}
-
-.password-input {
-	position: relative;
-}
-
-.password-input>button:last-child {
-	display: block;
-	content: "";
-	position: absolute;
-	right: 12px;
-	top: 50%;
-	transform: translateY(-50%);
-	padding: 4px;
-	border-radius: 4px;
-	color: var(--color-grey);
-	--color-background: var(--color-secondary);
-	transition: .2s ease color;
-}
-
-.password-input>button:last-child:hover { color: inherit; }
-
-.password-input>button:last-child #eyeSlash {
-	stroke-dasharray: 64 64;
-	stroke-dashoffset: 40;
-	transition: .2s ease-out stroke-dashoffset;
-}
-
-.password-input>input[type="password"] + button:last-child #eyeSlash { stroke-dashoffset: 64; }
-
-input[type="submit"] {
-	width: auto;
-	min-width: 0;
-	align-self: end;
-	padding: 0 1.25em;
-	text-align: center;
-	font-weight: bold;
-	background-color: var(--color-accent);
-	color: var(--color-lightest);
-	user-select: none;
-	cursor: pointer;
-}
-
 #form>input + * { margin-top: 1em; }
 #form>:last-child { margin-top: 2em; }
 

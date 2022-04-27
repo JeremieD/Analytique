@@ -71,14 +71,6 @@ section+section {
 	background-color: var(--color-accent)
 }
 
-:focus-visible:not(input, .login button) {
-	box-shadow: 0 0 0 6px var(--color-background), 0 0 0 10px var(--color-accent), 0 0 0 12px var(--color-background);
-	border-radius: 1px;
-	background: var(--color-background);
-	transition: .2s ease box-shadow;
-	z-index: 25;
-}
-
 @media(max-width: 1440px) {
 	:root {
 		--height-header: 128px;
@@ -373,7 +365,7 @@ header ul {
 }
 
 @media(prefers-color-scheme: light) {
-	header :focus:not(:active):not(:hover):not([tabindex="-1"]) {
+	header :focus-visible {
 		box-shadow: 0 0 0 6px #fff, 0 0 0 10px var(--color-accent);
 		background: #fff;
 		color: #000;
