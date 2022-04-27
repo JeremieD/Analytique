@@ -13,7 +13,7 @@ whenDOMReady(() => {
 		el.tooltipElement = document.createElement("jd-tooltip");
 		el.tooltipElement.innerHTML = el.getAttribute("tooltip");
 
-		el.addEventListener("mouseenter", () => {
+		const show = el => {
 			if (el.tooltipElement.classList.contains("out")) {
 				el.tooltipElement.classList.remove("out");
 				el.abortController.abort();
@@ -22,9 +22,9 @@ whenDOMReady(() => {
 				el.tooltipElement.classList.add("in");
 				el.appendChild(el.tooltipElement);
 			}
-		}, { passive: true });
+		};
 
-		el.addEventListener("mouseleave", () => {
+		const hide = el => {
 			el.tooltipElement.classList.remove("in");
 			el.abortController = new AbortController(); // Reset AbortController
 
@@ -35,7 +35,26 @@ whenDOMReady(() => {
 			}, { passive: true, once: true, signal: el.abortController.signal });
 
 			el.tooltipElement.classList.add("out");
+		};
 
+
+		el.addEventListener("mouseenter", () => {
+			show(el);
 		}, { passive: true });
+
+		el.addEventListener("mouseleave", () => {
+			hide(el);
+		}, { passive: true });
+
+
+		el.addEventListener("focus", e => {
+			if (e.target.matches(":focus-visible")) {
+				show(el);
+			}
+		});
+
+		el.addEventListener("blur", () => {
+			hide(el);
+		});
 	}
 });
