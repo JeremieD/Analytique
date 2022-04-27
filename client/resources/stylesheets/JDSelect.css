@@ -10,13 +10,7 @@ jd-select:hover, jd-select.open {
 	color: var(--color-text);
 }
 
-jd-select>svg {
-	display: inline-block;
-	width: 8px;
-	fill: none;
-	stroke: currentColor;
-	stroke-width: 1.5;
-	overflow: visible;
+jd-select>jd-icon {
 	transform: translateY(-50%);
 	margin: 0 2px 0 4px;
 }

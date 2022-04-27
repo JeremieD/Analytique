@@ -11,13 +11,8 @@ class JDSelect extends HTMLElement {
 
 		this.tabIndex = 0;
 
-		const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-		icon.setAttribute("viewBox", "0 0 8 4");
-		icon.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-		const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-		const polylinePoints = "0,0 4,4 8,0";
-		polyline.setAttribute("points", polylinePoints);
-		icon.append(polyline);
+		const icon = document.createElement("jd-icon");
+		icon.setAttribute("icon", "chevron");
 
 		this.append(this.label, icon);
 
