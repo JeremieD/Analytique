@@ -1,5 +1,8 @@
 jd-icon {
-	display: block;
+	display: inline-block;
+}
+
+jd-icon.placeholder {
 	min-width: 16px;
 	min-height: 16px;
 }
