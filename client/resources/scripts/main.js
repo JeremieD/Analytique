@@ -526,7 +526,7 @@ function drawMainView() {
  * Updates the view with data from the secondary model object.
  */
 function drawSecondaryView() {
-	const previousMonths = Object.keys(secondaryModel);
+	const previousMonths = Object.keys(secondaryModel).reverse();
 
 	// Data for graphs
 	const sessionTotalData = {
