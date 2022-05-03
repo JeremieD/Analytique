@@ -22,7 +22,7 @@ class JDGraph extends HTMLElement {
 
 		// Find maximum Y coordinate.
 		let maxYValue = 0;
-		for (let point of data.points) {
+		for (const point of data.points) {
 			if (point.y > maxYValue) {
 				maxYValue = point.y;
 			}
@@ -70,9 +70,9 @@ class JDGraph extends HTMLElement {
 		const points = [];
 
 		for (let i = 0; i < data.points.length; i++) {
-			let dataPoint = data.points[i];
+			const dataPoint = data.points[i];
 
-			let xOffset = i + 12 - data.points.length;
+			const xOffset = i + 12 - data.points.length;
 
 			polylinePoints += xOffset + "," + (maxYValue - dataPoint.y) + " ";
 

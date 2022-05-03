@@ -17,7 +17,7 @@ class JDSelect extends HTMLElement {
 		this.append(this.label, icon);
 
 		this._mouseDownTime;
-		this._abortController;
+		this._abort;
 
 		this.menu = document.createElement("ol");
 		this.menu.classList.add("jd-select-menu");
@@ -42,14 +42,14 @@ class JDSelect extends HTMLElement {
 	}
 
 	handleMouseDown(e) {
-		if (this._mouseDownTime === undefined) {
+		if (!this.classList.contains("open")) {
 			this._mouseDownTime = Date.now();
 			this.open();
 		}
 	}
 
 	handleMouseUp(e) {
-		if (Date.now() - this._mouseDownTime > 250) {
+		if (this._mouseDownTime === undefined || Date.now() - this._mouseDownTime > 250) {
 			if (e.target !== this.menu && e.target.dataset.value !== this.value) {
 				this.value = e.target.dataset.value;
 				this.label.innerText = e.target.dataset.value;
@@ -61,6 +61,8 @@ class JDSelect extends HTMLElement {
 
 	handleKeyboardEvent(e) {
 		if (e.code === "Space" || e.code === "Enter") {
+			e.preventDefault();
+
 			if (e.target === this) {
 				this.open();
 				this.menu.children[this.options.indexOf(this.value)].focus();
@@ -74,10 +76,10 @@ class JDSelect extends HTMLElement {
 				this.close();
 				this.focus();
 			}
-			e.preventDefault();
 
 		} else if (e.code === "ArrowDown") {
 			e.preventDefault();
+
 			if (e.target === this) {
 				if (this.classList.contains("open")) {
 					this.menu.children[0].focus();
@@ -91,14 +93,17 @@ class JDSelect extends HTMLElement {
 				}
 				return;
 			}
+
 			let nextIndex = this.options.indexOf(e.target.dataset.value) + 1;
 			if (nextIndex >= this.options.length) {
 				nextIndex = 0;
 			}
+
 			this.menu.children[nextIndex].focus();
 
 		} else if (e.code === "ArrowUp") {
 			e.preventDefault();
+
 			if (e.target === this) {
 				if (this.classList.contains("open")) {
 					this.menu.children[this.options.length - 1].focus();
@@ -112,10 +117,12 @@ class JDSelect extends HTMLElement {
 				}
 				return;
 			}
+
 			let previousIndex = this.options.indexOf(e.target.dataset.value) - 1;
 			if (previousIndex < 0) {
 				previousIndex = this.options.length - 1;
 			}
+
 			this.menu.children[previousIndex].focus();
 
 		} else if (e.code === "Tab") {
@@ -132,28 +139,29 @@ class JDSelect extends HTMLElement {
 
 	open() {
 		this.classList.add("open");
-
-		this._abortController = new AbortController()
-
 		this.menu.classList.remove("fade-out");
-		this.menu.style.transform = "translateY(" + (-12 - this.options.indexOf(this.value) * 32) + "px)";
+
+		this._abort = new AbortController()
+
+		const yOffset = -12 - this.options.indexOf(this.value) * 32;
+		this.menu.style.transform = "translateY(" + yOffset + "px)";
 		this.append(this.menu);
 
 		this.backdropClickTimeout = setTimeout(() => {
 			document.addEventListener("click", () => {
 				this.close();
-			}, { once: true, signal: this._abortController.signal });
+			}, { once: true, passive: true, signal: this._abort.signal });
 		}, 125);
 	}
 
 	close() {
 		clearTimeout(this.backdropClickTimeout);
-		this._abortController.abort();
+		this._abort.abort();
 		this._mouseDownTime = undefined;
 
 		this.menu.addEventListener("animationend", () => {
 			this.menu.remove();
-		}, { once: true });
+		}, { once: true, passive: true });
 
 		this.classList.remove("open");
 		this.menu.classList.add("fade-out");

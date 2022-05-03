@@ -36,11 +36,15 @@ jd-select>jd-icon {
 	cursor: pointer;
 }
 
-.jd-select-menu>li:hover:not(:active), .jd-select-menu:not(:hover)>li:focus {
+.jd-select-menu>li:focus-visible {
+	box-shadow: none;
+	background-color: transparent;
+}
+
+.jd-select-menu>li:hover:not(:active), .jd-select-menu:not(:hover)>li:focus-visible {
 	color: var(--color-lightest);
-	background-color: var(--color-accent) !important;
-	box-shadow: none !important;
-	border-radius: 4px !important;
+	background-color: var(--color-accent);
+	border-radius: 4px;
 }
 
 .fade-out {

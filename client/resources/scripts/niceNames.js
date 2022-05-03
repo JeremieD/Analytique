@@ -69,9 +69,7 @@ function _identity(input) {
  * Converts the acquisition channel code to a French string.
  */
 function niceAcquisitionChannelName(input) {
-	if (acquisitionChannelsDict[input] !== "") {
-		return acquisitionChannelsDict[input];
-	}
+	return acquisitionChannelsDict[input];
 }
 
 
@@ -84,8 +82,8 @@ function niceOriginName(input) {
 		return input;
 	}
 
-	return input.replace("www.", "")
-				.replace("https://", "");
+	return input.replace("https://", "")
+				.replace("www.", "");
 }
 
 
@@ -93,21 +91,18 @@ function niceOriginName(input) {
  * Converts the bilingualism class code to a short explanation string.
  */
 function niceBilingualismClassName(input) {
-	if (bilingualismClassesDict[input]) {
-		return bilingualismClassesDict[input];
-	}
+	return bilingualismClassesDict[input];
 }
 
 
 /**
- * Converts an ISO 3166 2-letter country codes to its French short-form.
+ * Converts an ISO 3166 2-letter country code to its French short-form.
  */
 function niceCountryName(input) {
 	if (countriesDict[input]) {
 		return countriesDict[input];
-	} else {
-		return input;
 	}
+	return input;
 }
 
 
@@ -115,9 +110,7 @@ function niceCountryName(input) {
  * Converts the breakpoint name to a French string.
  */
 function niceScreenBreakpointsName(input) {
-	if (screenBreakpointsDict[input] !== "") {
-		return screenBreakpointsDict[input];
-	}
+	return screenBreakpointsDict[input];
 }
 
 
@@ -125,9 +118,7 @@ function niceScreenBreakpointsName(input) {
  * Converts the breakpoint name to a French string.
  */
 function niceExcludedTrafficName(input) {
-	if (excludedTrafficDict[input] !== "") {
-		return excludedTrafficDict[input];
-	}
+	return excludedTrafficDict[input];
 }
 
 
@@ -137,7 +128,6 @@ function niceExcludedTrafficName(input) {
 function niceErrorName(input) {
 	if (errorsDict[input]) {
 		return errorsDict[input];
-	} else {
-		return input;
 	}
+	return input;
 }

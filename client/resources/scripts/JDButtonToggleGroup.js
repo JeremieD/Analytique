@@ -11,11 +11,11 @@ class JDButtonToggleGroup extends HTMLElement {
 		for (const button of this.children) {
 			this.values.push(button.value);
 
-			const isSelected = button.value === this.value;
-			button.tabIndex = isSelected ? 0 : -1;
+			const selected = button.value === this.value;
+			button.tabIndex = selected ? 0 : -1;
 
 			const self = this;
-			button.addEventListener("click", function(e) {
+			button.addEventListener("click", function() {
 				self.select(this.value);
 			});
 		}
@@ -25,9 +25,10 @@ class JDButtonToggleGroup extends HTMLElement {
 
 	select(value, focus = false) {
 		for (const button of this.children) {
-			const isSelected = button.value === value;
-			button.tabIndex = isSelected ? 0 : -1;
-			if (isSelected) {
+			const selected = button.value === value;
+			button.tabIndex = selected ? 0 : -1;
+
+			if (selected) {
 				button.setAttribute("selected", "");
 				if (focus) {
 					button.focus();

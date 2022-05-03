@@ -5,7 +5,6 @@ class JDIcon extends HTMLElement {
 
 	constructor() {
 		super();
-
 	}
 
 	connectedCallback() {
@@ -24,7 +23,7 @@ class JDIcon extends HTMLElement {
 
 		this.classList.add("placeholder");
 
-		let iconPath = "/resources/graphics/icons/" + iconName + ".svg";
+		const iconPath = "/resources/graphics/icons/" + iconName + ".svg";
 		JDIcon.cache[iconName] = httpGet(iconPath).then(svg => {
 			this.innerHTML = svg;
 			this.classList.remove("placeholder");

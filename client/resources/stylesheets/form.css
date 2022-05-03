@@ -1,8 +1,12 @@
 :focus-visible {
-	box-shadow: 0 0 0 6px var(--color-background), 0 0 0 10px var(--color-accent), 0 0 0 12px var(--color-background);
+	box-shadow: 0 0 0 6px var(--color-background),
+				0 0 0 10px var(--color-accent),
+				0 0 0 12px var(--color-background);
 	border-radius: 1px;
 	background: var(--color-background);
-	transition: .2s ease box-shadow;
+	transition: .2s ease box-shadow,
+				.2s ease opacity,
+				.1s ease background-color;
 	z-index: 25;
 }
 
@@ -11,7 +15,6 @@
 	background-color: var(--color-secondary);
 	border-radius: 4px;
 	color: var(--color-text);
-	transition: .2s ease box-shadow;
 }
 
 input {
@@ -20,9 +23,7 @@ input {
 	height: 3em;
 	padding: 0 1em;
 	background-color: var(--color-secondary);
-	border-radius: 5px;
-	pointer-events: auto;
-	font-weight: normal;
+	border-radius: 4px;
 }
 
 .button {
@@ -32,8 +33,6 @@ input {
 	height: 40px;
 	border-radius: 4px;
 	background-color: var(--color-secondary);
-	transition: .2s ease opacity,
-				.1s ease background-color;
 	user-select: none;
 	cursor: pointer;
 }
@@ -71,6 +70,9 @@ input {
 .button[selected] {
 	background-color: var(--color-accent);
 	color: var(--color-lightest);
+	transition: .2s ease box-shadow,
+				.1s ease background-color,
+				.2s ease border-radius;
 }
 
 :disabled {
@@ -117,4 +119,6 @@ input {
 	transition: .2s ease-out stroke-dashoffset;
 }
 
-.password-input>input[type="password"] + :last-child #eyeSlash { stroke-dashoffset: 64; }
+.password-input>input[type="password"] + :last-child #eyeSlash {
+	stroke-dashoffset: 64;
+}

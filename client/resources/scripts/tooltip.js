@@ -2,7 +2,7 @@
  * Display a tooltip when hovering an element with the “tooltip” attribute.
  */
 whenDOMReady(() => {
-	let elementsWithTooltips = document.querySelectorAll("[tooltip]");
+	const elementsWithTooltips = document.querySelectorAll("[tooltip]");
 
 	for (const el of elementsWithTooltips) {
 		if (!el.hasAttribute("tabindex")) {

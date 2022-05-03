@@ -19,7 +19,6 @@ whenDOMReady(() => {
 
 		request.onreadystatechange = () => {
 			if (request.readyState === XMLHttpRequest.DONE) {
-
 				if (request.status === 200) {
 
 					// If the server responded with a session ID...
@@ -61,6 +60,6 @@ whenDOMReady(() => {
 			passwordField.type = "password";
 		}
 
-	}, { passive: true });
+	}, { passive: true, passive: true });
 
 });
