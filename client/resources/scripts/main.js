@@ -531,7 +531,8 @@ function drawSecondaryView() {
 	// Data for graphs
 	const sessionTotalData = {
 		points: [],
-		floatingDigits: 0
+		floatingDigits: 0,
+		yAxisMultiple: 60
 	};
 	const sessionLengthData = {
 		points: [],

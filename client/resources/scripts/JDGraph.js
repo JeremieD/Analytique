@@ -10,7 +10,8 @@ class JDGraph extends HTMLElement {
 	/*
 	 * The data object passed to draw the graph looks like this:
 	 * floatingDigits	Integer number of decimal places to round values to.
-	 * points			An array of objects describing the points of the graph.
+	 * yAxisMultiple	The scale of the Y axis will be a multiple of this integer. Preferably also a multiple of 3.
+	 * points			Array of objects describing the points of the graph.
 	 *   x				X coordinate.
 	 *   y				Y coordinate.
 	 *   label			Label to display for that point.
@@ -26,6 +27,9 @@ class JDGraph extends HTMLElement {
 			if (point.y > maxYValue) {
 				maxYValue = point.y;
 			}
+		}
+		if (data.yAxisMultiple !== undefined) {
+			maxYValue = data.yAxisMultiple * Math.ceil(maxYValue / data.yAxisMultiple);
 		}
 
 
