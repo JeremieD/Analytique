@@ -22,11 +22,13 @@ jd-select>jd-icon {
 	left: -22px;
 	display: flex;
 	flex-direction: column;
+	max-height: 75vh;
+	overflow-y: scroll;
 	padding: 6px;
 	background-color: var(--color-secondary);
 	border-radius: 8px;
 	color: var(--color-text);
-	z-index: 5;
+	z-index: 55;
 	cursor: default;
 }
 
