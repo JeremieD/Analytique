@@ -1,5 +1,5 @@
 /*
- *
+ * Custom dropdown element.
  */
 class JDSelect extends HTMLElement {
 

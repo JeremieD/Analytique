@@ -1,5 +1,5 @@
 /*
- *
+ * Radio-like button group element.
  */
 class JDButtonToggleGroup extends HTMLElement {
 
@@ -11,18 +11,19 @@ class JDButtonToggleGroup extends HTMLElement {
 		for (const button of this.children) {
 			this.values.push(button.value);
 
-			const selected = button.value === this.value;
-			button.tabIndex = selected ? 0 : -1;
-
+			// Select on click.
 			const self = this;
 			button.addEventListener("click", function() {
 				self.select(this.value);
 			});
 		}
 
+		this.select(this.value);
+
 		this.addEventListener("keydown", this.handleKeyboardEvent);
 	}
 
+	// Selects the given value.
 	select(value, focus = false) {
 		for (const button of this.children) {
 			const selected = button.value === value;
@@ -43,6 +44,7 @@ class JDButtonToggleGroup extends HTMLElement {
 	}
 
 	handleKeyboardEvent(e) {
+		// Selects next value.
 		if (e.code === "ArrowRight") {
 			let nextIndex = this.values.indexOf(e.target.value) + 1;
 			if (nextIndex >= this.values.length) {
@@ -50,6 +52,7 @@ class JDButtonToggleGroup extends HTMLElement {
 			}
 			this.select(this.values[nextIndex], true);
 
+		// Selects previous value.
 		} else if (e.code === "ArrowLeft") {
 			let previousIndex = this.values.indexOf(e.target.value) - 1;
 			if (previousIndex < 0) {

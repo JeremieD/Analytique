@@ -1,5 +1,5 @@
 /*
- *
+ * Icon element that consists of inlined SVG.
  */
 class JDIcon extends HTMLElement {
 
