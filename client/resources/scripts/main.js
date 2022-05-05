@@ -41,6 +41,7 @@ whenDOMReady(() => {
 		controls: {
 			origin: document.getElementById("origin-selector"),
 			filterReset: document.getElementById("filter-reset"),
+			rangeMode: document.getElementById("range-mode"),
 			previousRange: document.getElementById("range-previous"),
 			nextRange: document.getElementById("range-next"),
 			errorSection: document.getElementById("error-section"),
@@ -158,6 +159,22 @@ whenDOMReady(() => {
 	// Trigger for filter reset.
 	view.controls.filterReset.addEventListener("click", () => {
 		filter = "";
+		update();
+	});
+
+	view.controls.rangeMode.addEventListener("change", () => {
+		switch (view.controls.rangeMode.value) {
+			case "year":
+				range = new JDDateRange(JDDate.thisYear());
+				break;
+			case "month":
+				range = new JDDateRange(JDDate.thisMonth());
+				break;
+			case "week":
+				range = new JDDateRange(JDDate.thisWeek());
+				break;
+		}
+
 		update();
 	});
 
