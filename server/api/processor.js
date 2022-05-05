@@ -535,6 +535,9 @@ async function buildSessions(origin, range) {
 				currentSession.languages = currentSession.languages.unique();
 
 				currentSession.country = await heuristics.inferCountry(view[11]);
+				if (currentSession.country.error) {
+					return { error: "ipGeoUnavailable" };
+				}
 
 				// Filter out some countries.
 				if (config[origin].excludeCountries.includes(currentSession.country)) {

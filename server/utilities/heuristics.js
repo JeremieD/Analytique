@@ -63,6 +63,10 @@ async function inferCountry(ipAddress) {
 				}
 				resolve(rawData.trim());
 			});
+
+
+		}).on("error", e => {
+			resolve({ error: e });
 		});
 	});
 }

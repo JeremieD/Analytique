@@ -50,7 +50,8 @@ const excludedTrafficDict = {
 const errorsDict = {
 	"noData": "Aucune donnée disponible.",
 	"noMatchingSessions": "Aucune session ne correspond à la requête.",
-	"noOrigins": "Aucune origine disponible."
+	"noOrigins": "Aucune origine disponible.",
+	"ipGeoUnavailable": "Le serveur n’arrive pas à se connecter à ipinfo.io."
 };
 
 
