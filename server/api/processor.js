@@ -3,7 +3,7 @@ const static = require("../static.js");
 const account = require("../account.js");
 const uri = require("../utilities/uri.js");
 const heuristics = require("../utilities/heuristics.js");
-require("../../common/dateRange.js");
+require("../../common/JDDate.js");
 require("../utilities/misc.js");
 
 const config = require("../config.js").origins;
@@ -86,7 +86,7 @@ function processRequest(req, res) {
 		return;
 	}
 	try {
-		range = new DateRange(path.parameters.range);
+		range = new JDDateRange(path.parameters.range);
 	} catch (e) {
 		static.serve(req, res, { error: e },
 					 "application/json", "auto", "private");

@@ -25,7 +25,7 @@ let origin;
 let earliestRange;
 
 // Holds the view-model’s current range.
-let range = new DateRange();
+let range = new JDDateRange();
 
 // Current filter value and selected data point.
 let filter = "";
@@ -213,7 +213,7 @@ function switchToOrigin(newOrigin) {
 
 		// If range is unavailable in the new origin, select the earliest range.
 		if (value.error === undefined) {
-			newEarliestRange = new DateRange(value);
+			newEarliestRange = new JDDateRange(value);
 			if (newEarliestRange.laterThan(range)) {
 				range = newEarliestRange;
 			}
@@ -252,7 +252,7 @@ function update() {
 	error = undefined;
 
 	// Check that range is in bound.
-	const isLastRange = range.laterThan((new DateRange()).minus(1));
+	const isLastRange = range.laterThan((new JDDateRange()).minus(1));
 	view.controls.nextRange.disabled = isLastRange;
 	view.controls.previousRange.disabled = true;
 	earliestRange?.then(value => {
@@ -541,7 +541,7 @@ function drawSecondaryView() {
 
 	// Assemble data from previous months.
 	for (let previousMonth of previousMonths) {
-		const previousRange = new DateRange(previousMonth);
+		const previousRange = new JDDateRange(previousMonth);
 		const label = monthsDict[previousRange.month - 1];
 
 		sessionTotalData.points.push({
