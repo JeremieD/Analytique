@@ -600,6 +600,7 @@ class JDDateRange {
 
 				if (year === from.year && month < from.month) {
 					continue;
+
 				} else if (year === to.year && month > to.month) {
 					break;
 				}

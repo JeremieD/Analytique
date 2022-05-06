@@ -154,7 +154,7 @@ whenDOMReady(() => {
 		view.main.screenBreakpoints,
 		view.main.errorPages,
 		view.main.excludedTraffic
-	],
+	];
 
 	// Trigger for filter reset.
 	view.controls.filterReset.addEventListener("click", () => {
@@ -448,7 +448,7 @@ function drawMainView() {
 	}
 
 	// Sets the title.
-	view.main.range.el.innerText = range.niceForm;
+	view.main.range.el.innerHTML = range.niceForm;
 
 	// Big session total.
 	view.main.sessionTotal.el.innerText = model.sessionTotal;
@@ -549,7 +549,7 @@ function drawSecondaryView() {
 	const sessionTotalData = {
 		points: [],
 		floatingDigits: 0,
-		yAxisMultiple: 60
+		yAxisMultiple: 30
 	};
 	const sessionLengthData = {
 		points: [],
