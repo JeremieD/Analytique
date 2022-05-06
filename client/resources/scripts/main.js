@@ -230,7 +230,7 @@ function switchToOrigin(newOrigin) {
 
 		// If range is unavailable in the new origin, select the earliest range.
 		if (value.error === undefined) {
-			newEarliestRange = new JDDateRange(value);
+			newEarliestRange = new JDDate(value);
 			if (newEarliestRange.laterThan(range)) {
 				range = newEarliestRange;
 			}
@@ -269,7 +269,7 @@ function update() {
 	error = undefined;
 
 	// Check that range is in bound.
-	const isLastRange = range.laterThan((new JDDateRange()).minus(1));
+	const isLastRange = range.laterThan(JDDate.today());
 	view.controls.nextRange.disabled = isLastRange;
 	view.controls.previousRange.disabled = true;
 	earliestRange?.then(value => {
@@ -280,11 +280,10 @@ function update() {
 			drawError();
 			return;
 		}
-		let isFirstRange;
-		isFirstRange = range.earlierThan(value.plus(1));
+		const isFirstRange = range.earlierThan(value.plus(1));
 		view.controls.previousRange.disabled = isFirstRange ?? true;
-
 	});
+
 	// Blur on disable.
 	if (view.controls.nextRange.disabled) {
 		view.controls.nextRange.blur();
@@ -362,11 +361,11 @@ function refreshSecondaryModel() {
 
 			// Construct list of past ranges.
 			let anteriorRanges = [];
-			const lowerBound = value.minus(1);
+			const lowerBound = value;
 			let anteriorRange = range.minus(1);
 			while (anteriorRange.laterThan(lowerBound) && anteriorRanges.length < 11) {
 				anteriorRanges.push(anteriorRange.shortForm)
-				anteriorRange = anteriorRange.minus(1);
+				anteriorRange.previous();
 			}
 
 			// For each anterior range...

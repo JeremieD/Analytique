@@ -58,6 +58,13 @@ class JDDate {
 					this.week = parseInt(arg2.substr(1));
 					this.mode = "week";
 				}
+
+			// Build object from Date object.
+			} else if (arg1 instanceof Date) {
+				this.mode = "day";
+				this.year = arg1.getFullYear();
+				this.month = arg1.getMonth() + 1;
+				this.day = arg1.getDate();
 			}
 
 			// Check bounds.
@@ -83,30 +90,30 @@ class JDDate {
 
 	// Returns whether this date is strictly before the passed date.
 	earlierThan(b) {
-		if (this.year === b.year) {
-			if (this.mode === "week") {
-				return this.week < b.week;
+		const a = this.firstDay;
+		b = b.lastDay;
 
-			} else if (this.month === b.month) {
-				return this.day < b.day;
+		if (a.year === b.year) {
+			if (a.month === b.month) {
+				return a.day < b.day;
 			}
-			return this.month < b.month;
+			return a.month < b.month;
 		}
-		return this.year < b.year;
+		return a.year < b.year;
 	}
 
 	// Returns whether this date is strictly after the passed date.
 	laterThan(b) {
-		if (this.year === b.year) {
-			if (this.mode === "week") {
-				return this.week > b.week;
+		const a = this.lastDay;
+		b = b.firstDay;
 
-			} else if (this.month === b.month) {
-				return this.day > b.day;
+		if (a.year === b.year) {
+			if (a.month === b.month) {
+				return a.day > b.day;
 			}
-			return this.month > b.month;
+			return a.month > b.month;
 		}
-		return this.year > b.year;
+		return a.year > b.year;
 	}
 
 	// Returns a new JDDate with n mode-units added to the date.
@@ -338,8 +345,8 @@ class JDDate {
 					niceForm = "Cette semaine";
 					break;
 				}
-				niceForm = "W" + String(this.week).padStart(2, "0");
-				niceForm += " " + this.year;
+				niceForm = this.year;
+				niceForm += " W" + String(this.week).padStart(2, "0");
 				break;
 
 			case "year":
@@ -352,6 +359,12 @@ class JDDate {
 		}
 
 		return niceForm;
+	}
+
+
+	// See JDDateRange for details.
+	monthRange() {
+		return (new JDDateRange(this)).monthRange();
 	}
 
 
@@ -393,6 +406,7 @@ class JDDate {
 class JDDateRange {
 	constructor(arg1 = JDDate.thisMonth(), arg2) {
 
+		// Internal constructor can also be used to change the value after declaration.
 		this.set = function(arg1, arg2) {
 
 			// Build object from short form representation.
@@ -512,11 +526,12 @@ class JDDateRange {
 					break;
 
 				case "weeks":
-					niceForm = "W" + String(this.from.week).padStart(2, "0");
+					niceForm = this.from.niceForm;
+					niceForm += " à ";
 					if (this.from.year !== this.to.year) {
-						niceForm += " " + this.from.year;
+						niceForm += this.to.year + " ";
 					}
-					niceForm += " à " + this.to.niceForm;
+					niceForm += "W" + this.to.week;
 					break;
 
 				case "days":
@@ -549,14 +564,14 @@ class JDDateRange {
 		if (this.plural || b.plural) {
 			return undefined;
 		}
-		return this.from.earlierThan(b.from);
+		return this.from.earlierThan(b.from ?? b);
 	}
 
 	laterThan(b) {
 		if (this.plural || b.plural) {
 			return undefined;
 		}
-		return this.from.laterThan(b.from);
+		return this.from.laterThan(b.from ?? b);
 	}
 
 	plus(n) {
@@ -667,5 +682,6 @@ const daysSuffixDict = [ "<sup>er</sup>" ];
 
 
 try {
+	global.JDDate = JDDate;
 	global.JDDateRange = JDDateRange;
 } catch (e) {}

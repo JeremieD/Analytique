@@ -65,12 +65,19 @@ function processRequest(req, res) {
 				return;
 			}
 
-			const value = '"' + files[0].split(".")[0] + '"';
+			const earliestMonth = new JDDate(files[0].split(".")[0]);
 
-			const eTag = static.getETagFrom(value + origin + user);
+			getBeacons(origin, earliestMonth).then(views => {
+				const viewTime = parseInt(views[0][1]) - parseInt(views[0][2] * 60 * 1000);
 
-			static.serve(req, res, value, "application/json", "auto", "private", eTag);
-			return;
+				const value = new JDDate(new Date(viewTime));
+
+				const eTag = static.getETagFrom(value.shortForm + origin + user);
+
+				static.serve(req, res, `"${value.shortForm}"`,
+							 "application/json", "auto", "private", eTag);
+				return;
+			});
 		})
 		.catch(() => {
 			static.serve(req, res, { error: "noData" },
@@ -377,8 +384,8 @@ async function buildStats(origin, range, filter) {
 
 		// Save stats to cache, except for filtered data.
 		if (filter === undefined) {
-			const dirPath = statsRoot(origin) + range.type;
-			const filePath = dirPath + "/" + range.value + ".json";
+			const dirPath = statsRoot(origin) + range.mode;
+			const filePath = dirPath + "/" + range.shortForm + ".json";
 			fs.mkdir(dirPath, { recursive: true }).then(() => {
 				fs.writeFile(filePath, JSON.stringify(stats));
 			});
@@ -574,11 +581,13 @@ async function buildSessions(origin, range) {
 		}
 
 		// Save data to cache.
-		const folder = sessionsRoot(origin) + range.mode;
-		const filePath = folder + "/" + range.shortForm + ".json";
-		fs.mkdir(folder, { recursive: true }).then(() => {
-			fs.writeFile(filePath, JSON.stringify(sessions));
-		});
+		if (sessions.sessions.length > 0) {
+			const folder = sessionsRoot(origin) + range.mode;
+			const filePath = folder + "/" + range.shortForm + ".json";
+			fs.mkdir(folder, { recursive: true }).then(() => {
+				fs.writeFile(filePath, JSON.stringify(sessions));
+			});
+		}
 
 		return sessions;
 	})
@@ -608,24 +617,49 @@ async function buildSessions(origin, range) {
 async function getBeacons(origin, range) {
 	const fileReadPromises = [];
 
+	const firstMillisecond = range.firstMillisecond;
+	const lastMillisecond = range.lastMillisecond;
+
 	// Issue a promise for each month-file.
 	for (const month of range.monthRange()) {
 		const promise = fs.readFile(viewsRoot(origin) + month + ".tsv", "utf8")
-			.then(rawBeacon => {
+			.then(rawBeacons => {
 				// Format the view.
-				return rawBeacon.trim().split("\n")
-					.map(rawBeacon => rawBeacon.split("\t")
-					.map(rawField => decodeURI(rawField)));
-			})
-			.catch(() => {
-				throw "noData";
+				const beacons = [];
+				for (const rawBeacon of rawBeacons.trim().split("\n")) {
+					const beacon = rawBeacon.split("\t")
+											.map(field => decodeURI(field));
+					const beaconTime = parseInt(beacon[1]) - parseInt(beacon[2] * 60 * 1000);
+					if (beaconTime < firstMillisecond) {
+						continue;
+					}
+					if (beaconTime > lastMillisecond) {
+						break;
+					}
+					beacons.push(beacon);
+				}
+
+				return beacons;
+
+			}).catch(() => {
+				return { error: "noData" };
 			});
 
 		fileReadPromises.push(promise);
 	}
 
-	return Promise.all(fileReadPromises).then(beacons => beacons.flat(1))
-		.catch(error => { return { error: error }; });
+	return Promise.all(fileReadPromises).then(beacons => {
+		let flatBeacons = [];
+
+		for (const month of beacons) {
+			if (!month.error) {
+				flatBeacons.push(...month);
+			}
+		}
+
+		return flatBeacons;
+
+	}).catch(error => { return { error: error }; });
 }
 
 
