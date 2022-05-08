@@ -302,7 +302,7 @@ class JDDate {
 	 * day		2022-04-20
 	 */
 	get shortForm() {
-		let shortForm = this.year;
+		let shortForm = String(this.year);
 
 		if (this.month) {
 			shortForm += "-" + String(this.month).padStart(2, "0");
