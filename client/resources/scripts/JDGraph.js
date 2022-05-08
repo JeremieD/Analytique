@@ -76,6 +76,9 @@ class JDGraph extends HTMLElement {
 		for (let i = 0; i < data.points.length; i++) {
 			const dataPoint = data.points[i];
 
+			// Ignore points with no Y value.
+			if (dataPoint.y === undefined) continue;
+
 			const xOffset = i + 12 - data.points.length;
 
 			polylinePoints += xOffset + "," + (maxYValue - dataPoint.y) + " ";
