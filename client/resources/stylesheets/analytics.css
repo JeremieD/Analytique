@@ -82,7 +82,7 @@ a:hover {
 .arrow-button-group>.button:first-of-type::before { content: "←"; }
 .arrow-button-group>.button:last-of-type::before { content: "→"; }
 
-#error-section {
+#error-collapse {
 	overflow: hidden;
 	height: 0;
 	margin: 0;
@@ -90,7 +90,7 @@ a:hover {
 	transition: .25s ease all;
 }
 
-#error-section.shown {
+#error-collapse.shown {
 	height: 1.5em;
 	margin: 64px 0 0;
 	opacity: 1;
@@ -217,6 +217,10 @@ h3 {
 	background-color: var(--color-accent);
 	opacity: 0;
 	transition: .2s ease opacity;
+}
+
+.card>ol>li.subdued {
+	opacity: .25;
 }
 
 .card>ol>li.selected::before {

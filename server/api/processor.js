@@ -68,7 +68,8 @@ function processRequest(req, res) {
 			const earliestMonth = new JDDate(files[0].split(".")[0]);
 
 			getBeacons(origin, earliestMonth).then(views => {
-				const viewTime = parseInt(views[0][1]) - parseInt(views[0][2] * 60 * 1000);
+				const firstView = views[0];
+				const viewTime = parseInt(firstView[1]) - parseInt(firstView[2] * 60 * 1000);
 
 				const value = new JDDate(new Date(viewTime));
 
@@ -87,32 +88,65 @@ function processRequest(req, res) {
 		return;
 	}
 
-	if (!("range" in path.parameters) || path.parameters.range === undefined) {
-		static.serve(req, res, { error: "missingRange" },
-					 "application/json", "auto", "private");
-		return;
-	}
-	try {
-		range = new JDDateRange(path.parameters.range);
-	} catch (e) {
-		static.serve(req, res, { error: e },
-					 "application/json", "auto", "private");
-		return;
-	}
+	// Respond with the latest available range for that origin.
+	if (path.filename === "latest") {
+		fs.readdir(viewsRoot(origin)).then(files => {
+			files = files.filter(filename => filename[0] !== ".").sort();
 
-	if ("filter" in path.parameters) {
-		filter = path.parameters.filter;
+			if (files.length === 0) {
+				static.serve(req, res, { error: "noData" },
+							 "application/json", "auto", "private");
+				return;
+			}
+
+			const latestMonth = new JDDate(files.at(-1).split(".")[0]);
+
+			getBeacons(origin, latestMonth).then(views => {
+				const lastView = views.at(-1);
+				const viewTime = parseInt(lastView[1]) - parseInt(lastView[2] * 60 * 1000);
+
+				const value = new JDDate(new Date(viewTime));
+
+				const eTag = static.getETagFrom(value.shortForm + origin + user);
+
+				static.serve(req, res, `"${value.shortForm}"`,
+							 "application/json", "auto", "private", eTag);
+				return;
+			});
+		})
+		.catch(() => {
+			static.serve(req, res, { error: "noData" },
+						 "application/json", "auto", "private");
+			return;
+		});
+		return;
 	}
 
 	// Respond with stats for the given origin and range.
 	if (path.filename === "stats") {
+		if (!("range" in path.parameters) || path.parameters.range === undefined) {
+			static.serve(req, res, { error: "missingRange" },
+						 "application/json", "auto", "private");
+			return;
+		}
+		try {
+			range = new JDDateRange(path.parameters.range);
+		} catch (e) {
+			static.serve(req, res, { error: e },
+						 "application/json", "auto", "private");
+			return;
+		}
+
+		if ("filter" in path.parameters) {
+			filter = path.parameters.filter;
+		}
+
 		getStats(origin, range, filter).then(data => {
 			const eTag = static.getETagFrom(data + user);
 			static.serve(req, res, data, "application/json", "auto", "private", eTag);
 		})
 		.catch(e => console.log(e));
 
-	// Respond with the earliest available data for that origin.
 	} else {
 		static.serveError(res);
 	}
@@ -181,11 +215,9 @@ async function getStats(origin, range, filter) {
 async function buildStats(origin, range, filter) {
 	return getSessions(origin, range).then(sessions => {
 
-		if (sessions.error) {
-			return sessions;
-		}
+		if (sessions.error !== undefined) return sessions;
 
-		let stats = {
+		const stats = {
 			version: 1,
 			viewTotal: sessions.viewTotal,
 			sessionTotal: 0,
@@ -214,7 +246,7 @@ async function buildStats(origin, range, filter) {
 			const bilingualismClass = heuristics.inferBilingualismClass(session.languages);
 
 			let landing;
-			let views = {
+			const views = {
 				pageViews: [],
 				errorViews: []
 			}
@@ -409,7 +441,8 @@ async function getSessions(origin, range) {
 	const sessionsFilePath = sessionsRoot(origin) + range.mode + "/" + range.shortForm + ".json";
 	const sessionsFileMetadata = fs.stat(sessionsFilePath);
 
-	return Promise.all([sessionsFileMetadata, viewsFileMetadata]).then(metadata => {
+	return Promise.all([sessionsFileMetadata, viewsFileMetadata])
+	.then(metadata => {
 		sessionsMetadata = metadata[0];
 		viewsMetadata = metadata[1];
 
@@ -419,7 +452,7 @@ async function getSessions(origin, range) {
 
 		} else {
 			return fs.readFile(sessionsFilePath, "utf8")
-				.then(contents => JSON.parse(contents));
+			.then(contents => JSON.parse(contents));
 		}
 	})
 	.catch(() => buildSessions(origin, range));
@@ -457,12 +490,9 @@ async function getSessions(origin, range) {
  */
 async function buildSessions(origin, range) {
 	return getBeacons(origin, range).then(async views => {
+		if (views.error !== undefined) return views;
 
-		if (views.error) {
-			return views;
-		}
-
-		let sessions = {
+		const sessions = {
 			version: 1,
 			viewTotal: 0,
 			excludedTraffic: {
@@ -490,12 +520,12 @@ async function buildSessions(origin, range) {
 			const isErrorView = view[3].includesAny(config[origin].errorPagePatterns);
 
 			// If view is part of the same session, it must...
-			if (previousView !== undefined
-				&& view[11] === previousView[11] // have the same IP address.
-				&& view[10] === previousView[10] // have the same user-agent string.
-				&& view[2] === previousView[2] // be in the same timezone.
-				&& (view[5] === previousView[4] // follow previous view.
-				|| view[5] === "")) { // or have no referrer.
+			if (previousView !== undefined &&
+				view[11] === previousView[11] && // have the same IP address.
+				view[10] === previousView[10] && // have the same user-agent string.
+				view[2] === previousView[2] && // be in the same timezone.
+			   (view[5] === previousView[4] || // and (follow previous view.
+				view[5] === "")) { // or have no referrer).
 
 				// Skip identical page views (most likely page refreshes).
 				if (view[3] === previousView[3] && view[4] === previousView[4]) {
@@ -623,43 +653,50 @@ async function getBeacons(origin, range) {
 	// Issue a promise for each month-file.
 	for (const month of range.monthRange()) {
 		const promise = fs.readFile(viewsRoot(origin) + month + ".tsv", "utf8")
-			.then(rawBeacons => {
-				// Format the view.
-				const beacons = [];
-				for (const rawBeacon of rawBeacons.trim().split("\n")) {
-					const beacon = rawBeacon.split("\t")
-											.map(field => decodeURI(field));
-					const beaconTime = parseInt(beacon[1]) - parseInt(beacon[2] * 60 * 1000);
-					if (beaconTime < firstMillisecond) {
-						continue;
-					}
-					if (beaconTime > lastMillisecond) {
-						break;
-					}
-					beacons.push(beacon);
+		.then(rawBeacons => {
+			// Format the view.
+			const beacons = [];
+			for (const rawBeacon of rawBeacons.trim().split("\n")) {
+				const beacon = rawBeacon.split("\t")
+										.map(field => decodeURI(field));
+				const beaconTime = parseInt(beacon[1]) - parseInt(beacon[2] * 60 * 1000);
+				if (beaconTime < firstMillisecond) {
+					continue;
 				}
+				if (beaconTime > lastMillisecond) {
+					break;
+				}
+				beacons.push(beacon);
+			}
 
-				return beacons;
+			return beacons;
 
-			}).catch(() => {
-				return { error: "noData" };
-			});
+		}).catch(() => {
+			return { error: "noData" };
+		});
 
 		fileReadPromises.push(promise);
 	}
 
 	return Promise.all(fileReadPromises).then(beacons => {
-		let flatBeacons = [];
+		const flatBeacons = [];
+		const errors = [];
 
 		for (const month of beacons) {
-			if (!month.error) {
+			if (month.error !== undefined) {
+				errors.push(month.error)
+			} else {
 				flatBeacons.push(...month);
 			}
 		}
 
+		if (errors.length === beacons.length) {
+			return { error: errors[0] };
+		}
+
 		return flatBeacons;
 
-	}).catch(error => { return { error: error }; });
+	});
 }
 
 

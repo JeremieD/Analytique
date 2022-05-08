@@ -17,6 +17,10 @@
 	color: var(--color-text);
 }
 
+:is(input, button) {
+	transition: .2s ease opacity;
+}
+
 input {
 	min-width: 24ch;
 	width: 100%;
