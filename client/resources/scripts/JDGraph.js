@@ -9,6 +9,7 @@ class JDGraph extends HTMLElement {
 
 	/*
 	 * The data object passed to draw the graph looks like this:
+	 * xAxisLabel		Label displayed at the bottom of the graph.
 	 * floatingDigits	Integer number of decimal places to round values to.
 	 * yAxisMultiple	The scale of the Y axis will be a multiple of this integer. Preferably also a multiple of 3.
 	 * points			Array of objects describing the points of the graph.
@@ -38,7 +39,7 @@ class JDGraph extends HTMLElement {
 		xAxis.setAttribute("name", "x");
 
 		const xAxisLabel = document.createElement("label");
-		xAxisLabel.innerText = "Dernière année";
+		xAxisLabel.innerText = data.xAxisLabel;
 
 		xAxis.append(xAxisLabel);
 
