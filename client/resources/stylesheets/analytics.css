@@ -267,7 +267,7 @@ data.big>small {
 	line-height: 1.333;
 }
 
-:is(data, h1, jd-graph)::after {
+:is(data, jd-graph)::after {
 	display: block;
 	content: "";
 	position: absolute;
@@ -279,18 +279,24 @@ data.big>small {
 	background-attachment: fixed;
 	background-size: 512px 512px;
 	background-repeat: repeat-y;
+	animation: loadingWave 2.5s .25s ease infinite both;
 	border-radius: 4px;
 	pointer-events: none;
-	animation: loadingWave 2.5s ease infinite both;
 	opacity: 0;
-	transition: .2s ease opacity;
+	transition: .2s .2s ease opacity;
 }
 
-:is(data, h1, jd-graph).loading, .loading * {
+@keyframes loadingWave {
+	from { background-position: -50%; }
+	to { background-position: 150%; }
+}
+
+:is(data, jd-graph).loading, .loading * {
 	color: transparent !important;
 	background: none !important;
 	user-select: none;
 	pointer-events: none;
+	transition: .2s .2s ease all;
 }
 
 .loading data {
@@ -298,15 +304,8 @@ data.big>small {
 	height: 100%;
 }
 
-h1.loading { min-height: 1em; }
-
-:is(data, h1, jd-graph).loading::after, .loading data::after {
+:is(data, jd-graph).loading::after, .loading data::after {
 	opacity: 1;
-}
-
-@keyframes loadingWave {
-	from { background-position: -50%; }
-	to { background-position: 150%; }
 }
 
 * + figure {
