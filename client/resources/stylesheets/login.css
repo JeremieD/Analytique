@@ -30,6 +30,7 @@
 #form {
 	display: flex;
 	flex-direction: column;
+	gap: 16px;
 }
 
 #form>div {
@@ -39,8 +40,7 @@
 	align-items: center;
 }
 
-#form>input + * { margin-top: 1em; }
-#form>:last-child { margin-top: 2em; }
+#form>:last-child { margin-top: 1em; }
 
 .shake {
 	animation: shake .33s ease both;
