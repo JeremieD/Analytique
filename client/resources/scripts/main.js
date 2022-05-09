@@ -149,14 +149,17 @@ whenDOMReady(() => {
 	// Wait for list of available origins.
 	state.availableOrigins.then(origins => {
 		// Initial view update.
-		switchToOrigin(origins[0]);
-		view.hud.origin.value = state.origin;
-		update();
+		if (origins.error === undefined) {
+			switchToOrigin(origins[0]);
+			view.hud.origin.value = state.origin;
 
-		// Load available origins in origin selector.
-		for (const origin of origins) {
-			view.hud.origin.addOption(origin);
+			// Load available origins in origin selector.
+			for (const origin of origins) {
+				view.hud.origin.addOption(origin);
+			}
 		}
+
+		update();
 	});
 
 	// Handlers for HUD elements.
@@ -306,7 +309,7 @@ function update() {
 	// Update HUD
 	view.hud.range.innerHTML = state.range.niceForm;
 
-	state.availableRange.earliest.then(earliest => {
+	state.availableRange.earliest?.then(earliest => {
 		let isFirstRange = true;
 		if (earliest.error === undefined) {
 			isFirstRange = state.range.earlierThan(earliest.plus(1));
@@ -315,7 +318,7 @@ function update() {
 		view.hud.previousRange.disabled = isFirstRange;
 	});
 
-	state.availableRange.latest.then(latest => {
+	state.availableRange.latest?.then(latest => {
 		let isLastRange = true;
 		if (latest.error === undefined) {
 			isLastRange = state.range.laterThan(latest.minus(1));
@@ -403,18 +406,30 @@ function refreshComplementaryModel() {
  */
 function drawMainView() {
 	// Wait for model to be loaded.
-	model.main.then(data => {
+	model.main.then(async data => {
+
+		let errorShown = false;
 
 		// Check for and draw errors.
-		if (data.error !== undefined) {
-			view.hud.errorCollapse.classList.add("shown");
-			view.hud.errorDisplay.innerText = niceErrorName(data.error);
-			return;
+		await Promise.all([state.availableOrigins]).then(errors => {
+			if (errors[0].error !== undefined) {
+				view.hud.errorCollapse.classList.add("shown");
+				view.hud.errorDisplay.innerText = niceErrorName(errors[0].error);
+				view.hud.origin.parentElement.classList.add("transparent");
+				errorShown = true;
 
-		} else {
-			view.hud.errorCollapse.classList.remove("shown");
-			view.hud.errorDisplay.innerText = "";
-		}
+			} else if (data.error !== undefined) {
+				view.hud.errorCollapse.classList.add("shown");
+				view.hud.errorDisplay.innerText = niceErrorName(data.error);
+				errorShown = true;
+
+			} else {
+				view.hud.errorCollapse.classList.remove("shown");
+				view.hud.errorDisplay.innerText = "";
+			}
+		});
+
+		if (errorShown) return;
 
 		// Session total.
 		view.main.sessionTotal.el.innerText = data.sessionTotal;
