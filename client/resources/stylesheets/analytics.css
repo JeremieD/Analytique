@@ -219,7 +219,7 @@ h3 {
 	transition: .2s ease opacity;
 }
 
-.card>ol>li.subdued {
+.card>ol:not(.loading)>li.subdued {
 	opacity: .25;
 }
 
@@ -231,7 +231,7 @@ h3 {
 	opacity: .5;
 }
 
-.card>ol>li.last:not(.selected) {
+.card>ol>li.last {
 	order: 1;
 	color: var(--color-grey);
 }
@@ -295,7 +295,7 @@ data.big>small {
 	to { background-position: 150%; }
 }
 
-:is(data, jd-graph).loading, .loading * {
+:is(data, jd-graph).loading, .loading :not(.selected) * {
 	color: transparent !important;
 	background: none !important;
 	user-select: none;
@@ -308,7 +308,7 @@ data.big>small {
 	height: 100%;
 }
 
-:is(data, jd-graph).loading::after, .loading data::after {
+:is(data, jd-graph).loading::after, .loading :not(.selected) data::after {
 	opacity: 1;
 }
 
