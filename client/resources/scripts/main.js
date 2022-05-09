@@ -409,8 +409,11 @@ function drawMainView() {
 
 			listView.el.classList.remove("loading");
 
-			// Draw selected (filtered) list view by keeping all elements.
-			if (listView.model === state.filter.key) {
+			// Whether this list view is selected for filtering.
+			const isFilterKey = listView.model === state.filter.key;
+
+			// If range and filter key have not changed, keep selected list view intact.
+			if (isFilterKey) {
 				for (const listItem of listView.el.children) {
 					const isSelected = listItem.dataset.filterValue === state.filter.value;
 					if (isSelected) {
@@ -420,6 +423,17 @@ function drawMainView() {
 						listItem.classList.add("subdued");
 						listItem.classList.remove("selected");
 					}
+					// Update just the numbers. Keys that don’t apply are set to 0.
+					let value = 0;
+					const oneHundredPercent = data[listView.oneHundredPercent] || 100;
+					for (const point of data[listView.model]) {
+						if (point.key === listItem.dataset.filterValue) {
+							value = point.value;
+							break;
+						}
+					}
+					listItem.children[1].innerHTML = value;
+					listItem.children[2].innerHTML = (value / oneHundredPercent * 100).round() + "%";
 				}
 				continue;
 			}
