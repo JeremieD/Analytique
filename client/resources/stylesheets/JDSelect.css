@@ -28,6 +28,7 @@ jd-select>jd-icon {
 	padding: 6px;
 	background-color: var(--color-secondary);
 	border-radius: 8px;
+	box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.1);
 	color: var(--color-text);
 	z-index: 55;
 	cursor: default;
