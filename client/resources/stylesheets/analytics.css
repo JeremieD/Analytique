@@ -223,6 +223,10 @@ h3 {
 	opacity: .25;
 }
 
+.card>ol.loading>li:not(.selected) {
+	pointer-events: none;
+}
+
 .card>ol>li.selected::before {
 	opacity: 1;
 }
