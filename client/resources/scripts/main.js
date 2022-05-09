@@ -541,7 +541,7 @@ function drawMainView() {
  * Updates the view with data from the complementary model.
  */
 function drawComplementaryView() {
-	const complementaryRanges = []; // Keys (short form ranges)
+	const complementaryRanges = []; // Keys (short-form ranges)
 	const complementaryModels = []; // Values (promises)
 
 	for (const range of Object.keys(model.complementary).sort()) {
@@ -578,13 +578,13 @@ function drawComplementaryView() {
 			yAxisMultiple: 3
 		};
 
-		// Count number of ranges that have errors.
-		let errorCount = 0;
+		// Count ranges with no data.
+		let noDataCount = 0;
 
 		// Assemble data from previous ranges.
 		for (let i = 0; i < data.length; i++) {
-			if (data[i].error !== undefined) {
-				errorCount++;
+			if (data[i].error === "noData") {
+				noDataCount++;
 			}
 
 			const rangeObject = new JDDateRange(complementaryRanges[i]);
@@ -602,20 +602,28 @@ function drawComplementaryView() {
 					break;
 			}
 
+			// Draw point as 0 if there is no *matching sessions*,
+			// but don’t draw point if there is no *data*.
+			let sessionTotalValue = 0;
+			let avgSessionLengthValue = 0;
+			if (data[i].error !== "noMatchingSessions") {
+				sessionTotalValue = data[i].sessionTotal;
+				avgSessionLengthValue = data[i].avgSessionLength;
+			}
+
 			sessionTotalData.points.push({
 				label: label,
-				y: data[i].sessionTotal
+				y: sessionTotalValue
 			});
 
 			sessionLengthData.points.push({
 				label: label,
-				y: data[i].avgSessionLength
+				y: avgSessionLengthValue
 			});
 		}
 
-		if (errorCount === data.length) {
-			return;
-		}
+		// If no data is available for the whole range, skip drawing.
+		if (noDataCount === data.length) return;
 
 		// Draw graphs
 		view.complementary.sessionTotal.el.draw(sessionTotalData);
