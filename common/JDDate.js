@@ -85,7 +85,7 @@ class JDDate {
 
 	// Returns whether the two operands are the equal.
 	equals(b) {
-		return this.shortForm === b.shortForm
+		return this.shortForm === b.shortForm;
 	}
 
 	// Returns whether this date is strictly before the passed date.
@@ -555,8 +555,8 @@ class JDDateRange {
 
 
 	equals(b) {
-		fromEquals = this.from.shortForm === b.from.shortForm;
-		toEquals = this.plural ? this.to.shortForm === b.to.shortform : true;
+		const fromEquals = this.from.shortForm === b.from.shortForm;
+		const toEquals = this.plural ? this.to.shortForm === b.to.shortform : true;
 		return fromEquals && toEquals;
 	}
 
