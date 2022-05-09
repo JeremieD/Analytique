@@ -128,11 +128,9 @@ jd-graph>graph>point>label>em, jd-graph>graph>point.selected>label {
 
 jd-graph>graph>point.selected>label {
 	text-align: left;
-	transform: none;
 	top: 50%;
 	left: 75%;
 	transform: translateY(-50%);
-	background: none;
 	opacity: 1;
 }
 
