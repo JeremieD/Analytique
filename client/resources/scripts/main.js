@@ -306,6 +306,7 @@ function update() {
 	view.hud.filterReset.disabled = !filterEnabled;
 	if (!filterEnabled) {
 		view.hud.filterReset.blur();
+		document.querySelector(".card>ol>li.selected")?.classList.remove("selected");
 	}
 
 	// Set loading state.
