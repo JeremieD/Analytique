@@ -87,7 +87,7 @@ a:hover {
 	height: 0;
 	margin: 0;
 	opacity: 0;
-	transition: .25s ease all;
+	transition: .25s .25s ease all;
 }
 
 #error-collapse.shown {
