@@ -287,7 +287,7 @@ data.big>small {
 	border-radius: 4px;
 	pointer-events: none;
 	opacity: 0;
-	transition: .2s .2s ease opacity;
+	transition: .2s ease opacity;
 }
 
 @keyframes loadingWave {
@@ -300,7 +300,7 @@ data.big>small {
 	background: none !important;
 	user-select: none;
 	pointer-events: none;
-	transition: .2s .2s ease all;
+	transition: .2s .1s ease all;
 }
 
 .loading data {
@@ -310,6 +310,7 @@ data.big>small {
 
 :is(data, jd-graph).loading::after, .loading :not(.selected) data::after {
 	opacity: 1;
+	transition: .2s .2s ease opacity;
 }
 
 * + figure {
