@@ -9,7 +9,12 @@ const state = {
 	filter: {
 		key: "",
 		value: ""
-	}
+	},
+};
+let previousState = {
+	origin: "",
+	range: new JDDateRange(),
+	filter: {}
 };
 
 // Promises to model data.
@@ -277,9 +282,26 @@ function clearFilter() {
  * Updates model and view according to current state.
  */
 function update() {
-	// IDEA: To debounce updates, check if state is different from previousState.
-	// If it is different, set previousState equal to state and continue.
-	// If they are the same, do nothing.
+	const originChanged = state.origin !== previousState.origin;
+	const rangeChanged = !state.range.equals(previousState.range);
+	const filterKeyChanged = previousState.filter.key !== "" && state.filter.key !== previousState.filter.key;
+	const filterValueChanged = state.filter.value !== previousState.filter.value;
+
+	const stateChanged = originChanged || rangeChanged ||
+						 filterKeyChanged || filterValueChanged;
+
+	// If state has not changed, skip update.
+	if (!stateChanged) return;
+
+	// Write previousState before update.
+	previousState = {
+		origin: state.origin,
+		range: new JDDateRange(state.range.shortForm),
+		filter: {
+			key: state.filter.key,
+			value: state.filter.value
+		}
+	};
 
 	// Update HUD
 	view.hud.range.innerHTML = state.range.niceForm;
