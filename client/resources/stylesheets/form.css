@@ -38,6 +38,7 @@ input {
 	border-radius: 4px;
 	background-color: var(--color-secondary);
 	user-select: none;
+		-webkit-user-select: none;
 	cursor: pointer;
 }
 
@@ -63,6 +64,7 @@ input {
 	background-color: var(--color-accent);
 	color: var(--color-lightest);
 	user-select: none;
+		-webkit-user-select: none;
 	cursor: pointer;
 }
 

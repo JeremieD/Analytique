@@ -305,10 +305,15 @@ data.big>small {
 	to { background-position: 150%; }
 }
 
-:is(data, jd-graph).loading, .loading :not(.selected) * {
+:is(data, jd-graph).loading, .loading *, .loading *::before {
 	color: transparent !important;
-	background: none !important;
+	background-color: transparent !important;
+	border-color: transparent !important;
+	outline-color: transparent !important;
+	fill: transparent !important;
+	stroke: transparent !important;
 	user-select: none;
+		-webkit-user-select: none;
 	pointer-events: none;
 	transition: .2s .1s ease all;
 }

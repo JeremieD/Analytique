@@ -60,6 +60,6 @@ whenDOMReady(() => {
 			passwordField.type = "password";
 		}
 
-	}, { passive: true, passive: true });
+	});
 
 });

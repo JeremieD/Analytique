@@ -3,6 +3,7 @@ jd-select {
 	text-decoration: underline;
 	line-height: 1;
 	user-select: none;
+		-webkit-user-select: none;
 	transition: .2s ease color;
 	cursor: pointer;
 }
