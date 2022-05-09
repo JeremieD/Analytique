@@ -12,12 +12,14 @@ const bilingualismClassesDict = {
 	"al": "Autres langues seulement"
 };
 const countriesDict = {
+	"AR": "Argentine",
 	"AU": "Australie",
 	"BE": "Belgique",
 	"BG": "Bulgarie",
 	"BR": "Brésil",
 	"BY": "Bélarus",
 	"CA": "Canada",
+	"CL": "Chili",
 	"CN": "Chine",
 	"CO": "Colombie",
 	"DE": "Allemagne",
@@ -25,7 +27,9 @@ const countriesDict = {
 	"ES": "Espagne",
 	"FR": "France",
 	"GB": "Royaume-Uni",
+	"IL": "Israël",
 	"IT": "Italie",
+	"KG": "Kirghizistan",
 	"MG": "Madagascar",
 	"MX": "Mexique",
 	"NL": "Pays-Bas",
