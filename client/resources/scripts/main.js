@@ -52,73 +52,73 @@ whenDOMReady(() => {
 			el: document.getElementById("page-views"),
 			model: "pageViews",
 			transform: _identity,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		acquisitionChannels: {
 			el: document.getElementById("acquisition-channels"),
 			model: "acquisitionChannels",
 			transform: niceAcquisitionChannelName,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		referrerOrigins: {
 			el: document.getElementById("referrer-origins"),
 			model: "referrerOrigins",
 			transform: niceOriginName,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		landings: {
 			el: document.getElementById("landings"),
 			model: "landings",
 			transform: _identity,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		bilingualismClasses: {
 			el: document.getElementById("bilingualism-classes"),
 			model: "bilingualismClasses",
 			transform: niceBilingualismClassName,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		countries: {
 			el: document.getElementById("countries"),
 			model: "countries",
 			transform: niceCountryName,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		cities: {
 			el: document.getElementById("cities"),
 			model: "cities",
 			transform: _identity,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		oses: {
 			el: document.getElementById("oses"),
 			model: "oses",
 			transform: _identity,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		renderingEngines: {
 			el: document.getElementById("renderingEngines"),
 			model: "renderingEngines",
 			transform: _identity,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		screenBreakpoints: {
 			el: document.getElementById("screen-breakpoints"),
 			model: "screenBreakpoints",
 			transform: niceScreenBreakpointsName,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		errorPages: {
 			el: document.getElementById("error-pages"),
 			model: "errorViews",
 			transform: _identity,
-			oneHundredPercent: "sessionTotal"
+			basis: "sessionTotal"
 		},
 		excludedTraffic: {
 			el: document.getElementById("excluded-traffic"),
 			model: "excludedTraffic",
 			transform: niceExcludedTrafficName,
-			oneHundredPercent: "viewTotal"
+			basis: "viewTotal"
 		}
 	};
 	view.listViews = [
@@ -421,9 +421,9 @@ function drawMainView() {
 		view.main.sessionTotal.el.classList.remove("loading");
 
 		// Engagement.
-		const avgSessionLengthFormatted = data.avgSessionLength.round(2);
-		view.main.avgSessionLength.el.innerHTML = avgSessionLengthFormatted +
-			"<small> vue" + (avgSessionLengthFormatted === 1 ? "" : "s") + "</small>";
+		const niceAvgSessionLength = data.avgSessionLength.round(2);
+		view.main.avgSessionLength.el.innerHTML = niceAvgSessionLength +
+			"<small> vue" + (niceAvgSessionLength === 1 ? "" : "s") + "</small>";
 		view.main.avgSessionLength.el.classList.remove("loading");
 
 		// Draw list views.
@@ -447,7 +447,7 @@ function drawMainView() {
 					}
 					// Update just the numbers. Keys that don’t apply are set to 0.
 					let value = 0;
-					const oneHundredPercent = data[listView.oneHundredPercent] || 100;
+					const basis = data[listView.basis] || 100;
 					for (const point of data[listView.model]) {
 						if (point.key === listItem.dataset.filterValue) {
 							value = point.value;
@@ -455,7 +455,7 @@ function drawMainView() {
 						}
 					}
 					listItem.children[1].innerHTML = value;
-					listItem.children[2].innerHTML = (value / oneHundredPercent * 100).round() + "%";
+					listItem.children[2].innerHTML = (value / basis * 100).round() + "%";
 				}
 				continue;
 			}
@@ -463,7 +463,7 @@ function drawMainView() {
 			// Draw other (not selected) list views.
 			listView.el.innerHTML = "";
 
-			// For each data point in the corresponding model.
+			// For each data point in the corresponding model...
 			for (const dataPoint of data[listView.model]) {
 
 				// Allow no more than 6 data points.
@@ -492,14 +492,14 @@ function drawMainView() {
 
 				const dataPoint3 = document.createElement("data");
 				dataPoint3.classList.add("numerical");
-				const oneHundredPercent = data[listView.oneHundredPercent];
-				dataPoint3.innerHTML = (dataPoint.value / oneHundredPercent * 100).round() + "%";
+				const basis = data[listView.basis];
+				dataPoint3.innerHTML = (dataPoint.value / basis * 100).round() + "%";
 
 				newListItem.append(dataPoint1, dataPoint2, dataPoint3);
 
 				// Handle click on list item by filtering,
 				// except those that are not counted in sessions.
-				if (listView.oneHundredPercent === "sessionTotal") {
+				if (listView.basis === "sessionTotal") {
 					newListItem.addEventListener("click", () => {
 						if (state.filter.key !== listView.model ||
 							state.filter.value !== dataPoint.key) {
