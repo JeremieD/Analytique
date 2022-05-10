@@ -429,11 +429,11 @@ function drawMainView() {
 			}
 		});
 
-		if (errorShown) return;
-
 		// Session total.
-		view.main.sessionTotal.el.innerText = data.sessionTotal;
+		view.main.sessionTotal.el.innerText = data.sessionTotal ?? 0;
 		view.main.sessionTotal.el.classList.remove("loading");
+
+		if (errorShown) return;
 
 		// Engagement.
 		const niceAvgSessionLength = data.avgSessionLength.round(2);
