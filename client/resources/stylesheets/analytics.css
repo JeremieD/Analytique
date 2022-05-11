@@ -114,7 +114,7 @@ a:hover {
 	display: grid;
 	gap: 16px;
 	grid-template-rows: auto 1fr;
-	min-height: 276px;
+	min-height: 280px;
 	padding: 24px;
 	background-color: var(--color-background);
 	border-radius: 8px;
@@ -126,6 +126,7 @@ a:hover {
 
 .card>figure, .card>data.big {
 	align-self: end;
+	line-height: 1;
 }
 
 .card figure>figcaption {
