@@ -277,9 +277,7 @@ data.big, data.loading.big {
 }
 
 data.big>small {
-	font-weight: normal;
-	font-size: 21px;
-	line-height: 1.333;
+	font-size: 18px;
 }
 
 :is(data, jd-graph)::after {

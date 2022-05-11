@@ -438,7 +438,7 @@ function drawMainView() {
 		// Engagement.
 		const niceAvgSessionLength = data.avgSessionLength.round(2);
 		view.main.avgSessionLength.el.innerHTML = niceAvgSessionLength +
-			"<small> vue" + (niceAvgSessionLength === 1 ? "" : "s") + "</small>";
+			"<small> vue" + (niceAvgSessionLength === 1 ? "" : "s") + "/session</small>";
 		view.main.avgSessionLength.el.classList.remove("loading");
 
 		// Draw list views.
