@@ -204,6 +204,9 @@ h3 {
 	grid-template-columns: 1fr repeat(2, minmax(3ch, max-content));
 	gap: 8px;
 	align-items: center;
+}
+
+.card>ol>li[data-filter-key] {
 	cursor: pointer;
 }
 

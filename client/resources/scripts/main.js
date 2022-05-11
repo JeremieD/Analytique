@@ -433,6 +433,7 @@ function drawMainView() {
 		view.main.sessionTotal.el.innerText = data.sessionTotal ?? 0;
 		view.main.sessionTotal.el.classList.remove("loading");
 
+		// Stop drawing if an error was detected.
 		if (errorShown) return;
 
 		// Engagement.
@@ -486,8 +487,6 @@ function drawMainView() {
 
 				// Create new list item.
 				const newListItem = document.createElement("li");
-				newListItem.dataset.filterKey = listView.model;
-				newListItem.dataset.filterValue = dataPoint.key;
 
 				// Format the key according to a function.
 				const transformedKey = listView.transform(dataPoint.key);
@@ -512,9 +511,11 @@ function drawMainView() {
 
 				newListItem.append(dataPoint1, dataPoint2, dataPoint3);
 
-				// Handle click on list item by filtering,
-				// except those that are not counted in sessions.
+				// Handle click on list item that can be filtered.
 				if (listView.basis === "sessionTotal") {
+					newListItem.dataset.filterKey = listView.model;
+					newListItem.dataset.filterValue = dataPoint.key;
+
 					newListItem.addEventListener("click", () => {
 						if (state.filter.key !== listView.model ||
 							state.filter.value !== dataPoint.key) {
