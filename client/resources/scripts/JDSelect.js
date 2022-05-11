@@ -5,16 +5,10 @@ class JDSelect extends HTMLElement {
 
 	constructor() {
 		super();
+
 		this.value;
 		this.options = [];
 		this.label = document.createElement("label");
-
-		this.tabIndex = 0;
-
-		const icon = document.createElement("jd-icon");
-		icon.setAttribute("icon", "chevron");
-
-		this.append(this.label, icon);
 
 		this._mouseDownTime;
 		this._abort;
@@ -25,6 +19,15 @@ class JDSelect extends HTMLElement {
 		this.addEventListener("mousedown", this.handleMouseDown);
 		this.addEventListener("mouseup", this.handleMouseUp);
 		this.addEventListener("keydown", this.handleKeyboardEvent);
+	}
+
+	connectedCallback() {
+		this.tabIndex = 0;
+
+		const icon = document.createElement("jd-icon");
+		icon.setAttribute("icon", "chevron-down");
+
+		this.append(this.label, icon);
 	}
 
 	addOption(value) {
