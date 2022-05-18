@@ -414,8 +414,9 @@ async function buildStats(origin, range, filter) {
 		stats.screenBreakpoints = stats.screenBreakpoints.sortedAssociativeArray();
 		stats.excludedTraffic = stats.excludedTraffic.sortedAssociativeArray();
 
-		// Save stats to cache, except for filtered data.
-		if (filter === undefined) {
+		// Save stats to cache, except for filtered data, and some range modes.
+		if (filter === undefined && (range.mode === "year" ||
+			range.mode === "month" || range.mode === "week")) {
 			const dirPath = statsRoot(origin) + range.mode;
 			const filePath = dirPath + "/" + range.shortForm + ".json";
 			fs.mkdir(dirPath, { recursive: true }).then(() => {
@@ -610,8 +611,8 @@ async function buildSessions(origin, range) {
 			_closeSession();
 		}
 
-		// Save data to cache.
-		if (sessions.sessions.length > 0) {
+		// Save data to cache, except if empty or range mode is plural.
+		if (sessions.sessions.length > 0 && !range.plural) {
 			const folder = sessionsRoot(origin) + range.mode;
 			const filePath = folder + "/" + range.shortForm + ".json";
 			fs.mkdir(folder, { recursive: true }).then(() => {
