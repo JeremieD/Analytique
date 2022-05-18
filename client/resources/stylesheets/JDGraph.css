@@ -108,6 +108,7 @@ jd-graph>graph>point>label {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	background-color: var(--color-background);
+	box-shadow: 0 0 2px 2px var(--color-background);
 	border-radius: 8px;
 	text-align: center;
 	color: var(--color-grey);
