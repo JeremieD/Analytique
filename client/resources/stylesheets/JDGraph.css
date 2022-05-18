@@ -43,8 +43,8 @@ jd-graph>graph {
 jd-graph>graph>point {
 	display: block;
 	position: absolute;
-	width: 24px;
-	height: 24px;
+	width: 16px;
+	height: 16px;
 	transform: translateX(-50%) translateY(50%);
 }
 
@@ -104,7 +104,7 @@ jd-graph>graph>point>label {
 	position: absolute;
 	width: max-content;
 	padding: 4px;
-	top: 25%;
+	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	background-color: var(--color-background);
@@ -118,13 +118,14 @@ jd-graph>graph>point>label {
 }
 
 jd-graph>graph>point:hover>label {
-	top: -25%;
+	transform: translate(-50%, calc(-100% - 8px));
 	opacity: 1;
 }
 
 jd-graph>graph>point>label>em, jd-graph>graph>point.selected>label {
 	color: var(--color-text);
 	font-weight: bold;
+	box-shadow: none;
 }
 
 jd-graph>graph>point.selected>label {
