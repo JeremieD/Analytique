@@ -376,10 +376,26 @@ class JDDate {
 
 	// Returns the current week object.
 	static thisWeek() {
-		const now = new Date();
-		const fourthOfYear = new Date(now.getFullYear(), 0, 4);
-		const week = Math.ceil((now.getTime() - fourthOfYear.getTime()) / 1000 / 60 / 60 / 24 / 7);
-		return new JDDate(now.getFullYear(), "W" + String(week).padStart(2, "0"));
+		return JDDate.today().getWeek();
+	}
+
+	// Returns the ISO week number of the date.
+	// Returns undefined if not in day mode.
+	getWeek() {
+		if (this.mode !== "day") return;
+
+		const date = new Date(this.firstMillisecond);
+		date.setHours(0, 0, 0, 0);
+		date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+
+		const isoYear = date.getFullYear();
+
+		const firstWeek = new Date(isoYear, 0, 4);
+		const correction = 3 + (firstWeek.getDay() + 6) % 7;
+		const dayOfYear = (date.getTime() - firstWeek.getTime()) / 86400000;
+		const isoWeek = 1 + Math.round((dayOfYear - correction) / 7);
+
+		return new JDDate(isoYear + "-W" + String(isoWeek).padStart(2, "0"));
 	}
 
 	// Returns the current month object.
