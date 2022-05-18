@@ -1,0 +1,81 @@
+.popover, jd-tooltip {
+	position: absolute;
+	left: 50%;
+	top: 100%;
+	transform: translate(-50%, 1rem);
+	padding: 24px;
+	background-color: var(--color-secondary);
+	border-radius: 8px;
+	box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.33);
+	opacity: 0;
+	pointer-events: none;
+	transition: .2s ease opacity;
+}
+
+:where(.popover, jd-tooltip)::before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: 16px;
+	height: 16px;
+	transform: translate(-50%, -50%) rotate(45deg);
+	border-radius: 4px 0;
+	background-color: var(--color-secondary);
+}
+
+.popover.open {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+[tooltip] {
+	display: block;
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 26px;
+	right: 24px;
+	color: var(--color-grey);
+	border-radius: 50% !important;
+	cursor: help;
+	transition: .2s ease color,
+				.2s ease box-shadow;
+}
+
+[tooltip]:hover {
+	color: var(--color-text);
+}
+
+jd-tooltip {
+	top: auto;
+	bottom: 100%;
+	left: auto;
+	right: -100%;
+	width: 320px;
+	transform: translate(16px,-24px);
+	font-size: 14px;
+	color: var(--color-text);
+	background-color: var(--color-tertiary);
+}
+
+jd-tooltip::before {
+	top: 100%;
+	left: auto;
+	right: 24px;
+	background-color: var(--color-tertiary);
+}
+
+jd-tooltip.in { animation: .2s ease both help-in; }
+jd-tooltip.out { animation: .2s .25s ease both help-out; }
+
+@keyframes help-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes help-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
