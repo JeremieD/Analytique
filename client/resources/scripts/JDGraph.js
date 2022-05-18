@@ -10,6 +10,7 @@ class JDGraph extends HTMLElement {
 	/*
 	 * The data object passed to draw the graph looks like this:
 	 * xAxisLabel		Label displayed at the bottom of the graph.
+	 * maxPointCount	Maximum number of points. Used for the scale of the X axis.
 	 * floatingDigits	Integer number of decimal places to round values to.
 	 * yAxisMultiple	The scale of the Y axis will be a multiple of this integer. Preferably also a multiple of 3.
 	 * points			Array of objects describing the points of the graph.
@@ -65,7 +66,7 @@ class JDGraph extends HTMLElement {
 		cursor.style.left = "100%";
 
 		const line = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-		line.setAttribute("viewBox", "0 0 11 " + maxYValue);
+		line.setAttribute("viewBox", `0 0 ${maxPointCount - 1} ${maxYValue}`);
 		line.setAttribute("preserveAspectRatio", "none");
 		line.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
@@ -80,19 +81,19 @@ class JDGraph extends HTMLElement {
 			// Ignore points with no Y value.
 			if (dataPoint.y === undefined) continue;
 
-			const xOffset = i + 12 - data.points.length;
+			const xOffset = i + (data.maxPointCount ?? 0) - data.points.length;
 
 			polylinePoints += xOffset + "," + (maxYValue - dataPoint.y) + " ";
 
 			const point = document.createElement("point");
 			point.style.bottom = dataPoint.y / (maxYValue !== 0 ? maxYValue : 1) * 100 + "%";
-			point.style.left = "calc(100%/11*" + xOffset + ")";
-			if (xOffset === 11) {
+			point.style.left = `calc(100%/${maxPointCount - 1}*${xOffset})`;
+			if (xOffset === maxPointCount - 1) {
 				point.classList.add("selected");
 			}
 
 			const label = document.createElement("label");
-			if (xOffset === 11) {
+			if (xOffset === maxPointCount - 1) {
 				if (dataPoint.y !== 0) {
 					label.innerHTML = dataPoint.y.round(data.floatingDigits);
 				}

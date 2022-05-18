@@ -103,10 +103,10 @@ jd-graph>graph>point>label {
 	display: block;
 	position: absolute;
 	width: max-content;
-	padding: 0 4px;
-	top: -25%;
+	padding: 4px;
+	top: 25%;
 	left: 50%;
-	transform: translateX(-50%);
+	transform: translate(-50%, -50%);
 	background-color: var(--color-background);
 	border-radius: 8px;
 	text-align: center;
@@ -117,7 +117,7 @@ jd-graph>graph>point>label {
 }
 
 jd-graph>graph>point:hover>label {
-	top: -50%;
+	top: -25%;
 	opacity: 1;
 }
 

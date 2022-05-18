@@ -377,9 +377,11 @@ function refreshComplementaryModel() {
 			}
 			break;
 		default:
-			// If range is 16 days or less, display each day.
-			if (state.range.length <= 16) {
-				// TODO
+			// If range is 28 days (4 weeks) or less, display each day.
+			if (state.range.length <= 28) {
+				for (let i = 0; i < 28; i++) {
+					ranges.push(state.range.minus(i).shortForm);
+				}
 
 			// If range is 112 days (4 months) or less, display each week.
 			} else if (state.range.length <= 112) {
@@ -554,13 +556,27 @@ function drawComplementaryView() {
 	switch (state.range.mode) {
 		case "year":
 			xAxisLabel = "10 dernières années";
+			maxPointCount = 10;
 			break;
 		case "month":
 			xAxisLabel = "12 derniers mois";
+			maxPointCount = 12;
 			break;
 		case "week":
 			xAxisLabel = "12 dernières semaines";
+			maxPointCount = 12;
 			break;
+		default:
+			if (state.range.length <= 28) {
+				xAxisLabel = "28 derniers jours";
+				maxPointCount = 28;
+			} else if (state.range.length <= 112) {
+				xAxisLabel = "16 dernières semaines";
+				maxPointCount = 16;
+			} else {
+				xAxisLabel = complementaryRanges.length + " derniers mois";
+				maxPointCount = undefined;
+			}
 	}
 
 	// Wait for models to be loaded.
@@ -569,12 +585,14 @@ function drawComplementaryView() {
 		const sessionTotalData = {
 			points: [],
 			xAxisLabel: xAxisLabel,
+			maxPointCount: maxPointCount,
 			floatingDigits: 0,
-			yAxisMultiple: 30
+			yAxisMultiple: 15
 		};
 		const sessionLengthData = {
 			points: [],
 			xAxisLabel: xAxisLabel,
+			maxPointCount: maxPointCount,
 			floatingDigits: 2,
 			yAxisMultiple: 3
 		};
@@ -601,6 +619,8 @@ function drawComplementaryView() {
 				case "week":
 					label = "W" + String(rangeObject.week).padStart(2, "0");
 					break;
+				default:
+					label = rangeObject.shortForm;
 			}
 
 			// Draw point as 0 if there is no *matching sessions*,
