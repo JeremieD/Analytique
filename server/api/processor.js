@@ -54,8 +54,8 @@ function processRequest(req, res) {
 		return;
 	}
 
-	// Respond with the earliest available range for that origin.
-	if (path.filename === "earliest") {
+	// Respond with the available range for that origin.
+	if (path.filename === "available") {
 		fs.readdir(viewsRoot(origin)).then(files => {
 			files = files.filter(filename => filename[0] !== ".").sort();
 
@@ -66,55 +66,32 @@ function processRequest(req, res) {
 			}
 
 			const earliestMonth = new JDDate(files[0].split(".")[0]);
-
-			getBeacons(origin, earliestMonth).then(views => {
+			const lowerBound = getBeacons(origin, earliestMonth).then(views => {
 				const firstView = views[0];
 				const viewTime = parseInt(firstView[1]) - parseInt(firstView[2] * 60 * 1000);
 
-				const value = new JDDate(new Date(viewTime));
-
-				const eTag = static.getETagFrom(value.shortForm + origin + user);
-
-				static.serve(req, res, `"${value.shortForm}"`,
-							 "application/json", "auto", "private", eTag);
-				return;
+				return new JDDate(new Date(viewTime));
 			});
-		})
-		.catch(() => {
-			static.serve(req, res, { error: "noData" },
-						 "application/json", "auto", "private");
-			return;
-		});
-		return;
-	}
-
-	// Respond with the latest available range for that origin.
-	if (path.filename === "latest") {
-		fs.readdir(viewsRoot(origin)).then(files => {
-			files = files.filter(filename => filename[0] !== ".").sort();
-
-			if (files.length === 0) {
-				static.serve(req, res, { error: "noData" },
-							 "application/json", "auto", "private");
-				return;
-			}
 
 			const latestMonth = new JDDate(files.at(-1).split(".")[0]);
-
-			getBeacons(origin, latestMonth).then(views => {
+			const upperBound = getBeacons(origin, latestMonth).then(views => {
 				const lastView = views.at(-1);
 				const viewTime = parseInt(lastView[1]) - parseInt(lastView[2] * 60 * 1000);
 
-				const value = new JDDate(new Date(viewTime));
+				return new JDDate(new Date(viewTime));
+			});
 
-				const eTag = static.getETagFrom(value.shortForm + origin + user);
+			Promise.all([lowerBound, upperBound]).then(bounds => {
+				const range = new JDDateRange(bounds[0], bounds[1]);
+				const rangeShortForm = range.shortForm;
+				const eTag = static.getETagFrom(rangeShortForm + origin + user);
 
-				static.serve(req, res, `"${value.shortForm}"`,
+				static.serve(req, res, `"${rangeShortForm}"`,
 							 "application/json", "auto", "private", eTag);
 				return;
 			});
-		})
-		.catch(() => {
+
+		}).catch(() => {
 			static.serve(req, res, { error: "noData" },
 						 "application/json", "auto", "private");
 			return;
@@ -661,12 +638,8 @@ async function getBeacons(origin, range) {
 				const beacon = rawBeacon.split("\t")
 										.map(field => decodeURI(field));
 				const beaconTime = parseInt(beacon[1]) - parseInt(beacon[2] * 60 * 1000);
-				if (beaconTime < firstMillisecond) {
-					continue;
-				}
-				if (beaconTime > lastMillisecond) {
-					break;
-				}
+				if (beaconTime < firstMillisecond) continue;
+				if (beaconTime > lastMillisecond) break;
 				beacons.push(beacon);
 			}
 

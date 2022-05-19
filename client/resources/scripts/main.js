@@ -1,10 +1,7 @@
 const state = {
 	availableOrigins: httpGet("/api/origins").then(JSON.parse),
 	origin: "",
-	availableRange: {
-		earliest: undefined,
-		latest: undefined
-	},
+	availableRange: undefined,
 	range: new JDDateRange(),
 	filter: {
 		key: "",
@@ -207,36 +204,25 @@ function switchToOrigin(origin) {
 	// Reset filter.
 	clearFilter();
 
-	// Fetch earliest available range.
-	state.availableRange.earliest = httpGet(`/api/earliest?origin=${origin}`)
-	.then(bound => {
-		bound = JSON.parse(bound);
-		if (bound.error !== undefined) return bound;
+	// Fetch available data range.
+	state.availableRange = httpGet(`/api/available?origin=${origin}`).then(bounds => {
+		bounds = JSON.parse(bounds);
+		if (bounds.error !== undefined) return bounds;
 
-		bound = new JDDate(bound);
+		bounds = new JDDateRange(bounds);
+
 
 		// Check range bounds and move range accordingly.
-		if (state.range.earlierThan(bound)) {
-			state.range = bound;
+		if (state.range.earlierThan(bounds.from)) {
+			state.range = new JDDateRange(bounds.from.shortForm);
+			update();
+		}
+		if (state.range.laterThan(bounds.to)) {
+			state.range = new JDDateRange(bounds.to.shortForm);
+			update();
 		}
 
-		return bound;
-	});
-
-	// Fetch latest available range.
-	state.availableRange.latest = httpGet(`/api/latest?origin=${origin}`)
-	.then(bound => {
-		bound = JSON.parse(bound);
-		if (bound.error !== undefined) return bound;
-
-		bound = new JDDate(bound);
-
-		// Check range bounds and move range accordingly.
-		// if (state.range.laterThan(bound)) {
-		// 	state.range = bound;
-		// }
-
-		return bound;
+		return bounds;
 	});
 }
 
@@ -309,20 +295,18 @@ function update() {
 	// Update HUD
 	view.hud.range.innerHTML = state.range.niceForm;
 
-	state.availableRange.earliest?.then(earliest => {
+	state.availableRange?.then(bounds => {
 		let isFirstRange = true;
-		if (earliest.error === undefined) {
-			isFirstRange = state.range.earlierThan(earliest.plus(1));
+		let isLastRange = true;
+
+		if (bounds.error === undefined) {
+			isFirstRange = state.range.earlierThan(bounds.from.plus(1));
+			isLastRange = state.range.laterThan(bounds.to.minus(1));
 		}
+
 		if (isFirstRange) view.hud.previousRange.blur();
 		view.hud.previousRange.disabled = isFirstRange;
-	});
 
-	state.availableRange.latest?.then(latest => {
-		let isLastRange = true;
-		if (latest.error === undefined) {
-			isLastRange = state.range.laterThan(latest.minus(1));
-		}
 		if (isLastRange) view.hud.nextRange.blur();
 		view.hud.nextRange.disabled = isLastRange;
 	});
