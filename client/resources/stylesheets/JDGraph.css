@@ -118,7 +118,7 @@ jd-graph>graph>point>label {
 }
 
 jd-graph>graph>point:hover>label {
-	transform: translate(-50%, calc(-100% - 8px));
+	transform: translate(-50%, calc(-100% - 6px));
 	opacity: 1;
 }
 
@@ -134,8 +134,4 @@ jd-graph>graph>point.selected>label {
 	left: 75%;
 	transform: translateY(-50%);
 	opacity: 1;
-}
-
-jd-graph>graph>point:hover + point.selected>label {
-	opacity: 0;
 }

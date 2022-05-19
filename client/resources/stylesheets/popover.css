@@ -10,6 +10,7 @@
 	opacity: 0;
 	pointer-events: none;
 	transition: .2s ease opacity;
+	cursor: default;
 }
 
 :where(.popover, jd-tooltip)::before {

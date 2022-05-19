@@ -32,6 +32,9 @@ whenDOMReady(() => {
 		origin: document.getElementById("origin-selector"),
 		range: document.getElementById("range-display"),
 		rangeMode: document.getElementById("range-mode"),
+		customRange: document.getElementById("custom-range"),
+		calendarContainer: document.getElementById("calendar-container"),
+		calendar: document.getElementById("calendar"),
 		previousRange: document.getElementById("range-previous"),
 		nextRange: document.getElementById("range-next"),
 		filterReset: document.getElementById("filter-reset"),
@@ -168,6 +171,24 @@ whenDOMReady(() => {
 		switchRangeMode(view.hud.rangeMode.value);
 		update();
 	});
+	view.hud.customRange.addEventListener("click", e => {
+		view.hud.calendarContainer.classList.add("open");
+		// Scroll to current value on open.
+		if (e.target !== view.hud.calendarContainer &&
+			!view.hud.calendarContainer.contains(e.target)) {
+			view.hud.calendar.month = new JDDate(state.range.to.year, state.range.to.month);
+			view.hud.calendar.draw()
+		}
+		e.stopPropagation();
+	});
+	document.addEventListener("click", () => {
+		view.hud.calendarContainer.classList.remove("open");
+	});
+	view.hud.calendar.addEventListener("change", e => {
+		state.range = new JDDateRange(view.hud.calendar.value.shortForm);
+		update();
+		e.stopPropagation();
+	});
 	view.hud.previousRange.addEventListener("click", () => {
 		previousRange();
 		update();
@@ -211,14 +232,20 @@ function switchToOrigin(origin) {
 
 		bounds = new JDDateRange(bounds);
 
+		view.hud.calendar.availableRange = bounds;
+		view.hud.calendar.draw();
 
 		// Check range bounds and move range accordingly.
 		if (state.range.earlierThan(bounds.from)) {
-			state.range = new JDDateRange(bounds.from.shortForm);
+			state.range = new JDDateRange(new JDDate(bounds.from.shortForm).convertTo(state.range.mode));
+			view.hud.calendar.value = new JDDateRange(bounds.from);
+			view.hud.calendar.draw();
 			update();
 		}
 		if (state.range.laterThan(bounds.to)) {
-			state.range = new JDDateRange(bounds.to.shortForm);
+			state.range = new JDDateRange(new JDDate(bounds.to.shortForm).convertTo(state.range.mode));
+			view.hud.calendar.value = new JDDateRange(bounds.to);
+			view.hud.calendar.draw();
 			update();
 		}
 
@@ -232,25 +259,38 @@ function switchRangeMode(mode) {
 
 	switch (mode) {
 		case "year":
-			state.range = new JDDateRange(JDDate.thisYear());
-		break;
 		case "month":
-			state.range = new JDDateRange(JDDate.thisMonth());
-			break;
 		case "week":
-			state.range = new JDDateRange(JDDate.thisWeek());
+			state.range.convertTo(mode);
 			break;
+		default:
+			if (state.range.mode !== "day" && state.range.mode !== "days") {
+				state.range.convertTo("day");
+			} else {
+				state.range = new JDDateRange(view.hud.calendar.value.shortForm);
+			}
+			view.hud.calendar.value = new JDDateRange(state.range.shortForm);
 	}
 }
 
 // Advances range in state.
 function nextRange() {
 	state.range.next();
+	if (state.range.mode === "day") {
+		view.hud.calendar.value = new JDDateRange(state.range.shortForm);
+		view.hud.calendar.month = new JDDate(view.hud.calendar.value.year, view.hud.calendar.value.month);
+		view.hud.calendar.draw();
+	}
 }
 
 // Rewinds range in state.
 function previousRange() {
 	state.range.previous();
+	if (state.range.mode === "day") {
+		view.hud.calendar.value = new JDDateRange(state.range.shortForm);
+		view.hud.calendar.month = new JDDate(view.hud.calendar.value.year, view.hud.calendar.value.month);
+		view.hud.calendar.draw();
+	}
 }
 
 // Set filter state.
@@ -300,8 +340,8 @@ function update() {
 		let isLastRange = true;
 
 		if (bounds.error === undefined) {
-			isFirstRange = state.range.earlierThan(bounds.from.plus(1));
-			isLastRange = state.range.laterThan(bounds.to.minus(1));
+			isFirstRange = state.range.firstDay.minus(1).earlierThan(bounds.from);
+			isLastRange = state.range.lastDay.plus(1).laterThan(bounds.to);
 		}
 
 		if (isFirstRange) view.hud.previousRange.blur();
@@ -604,7 +644,8 @@ function drawComplementaryView() {
 					label = "W" + String(rangeObject.week).padStart(2, "0");
 					break;
 				default:
-					label = rangeObject.shortForm;
+					label = String(rangeObject.month).padStart(2, "0") +
+					  "-" + String(rangeObject.day).padStart(2, "0");
 			}
 
 			// Draw point as 0 if there is no *matching sessions*,

@@ -29,6 +29,7 @@
 	<link rel="stylesheet" href="/resources/stylesheets/popover.css">
 	<link rel="stylesheet" href="/resources/stylesheets/JDSelect.css">
 	<link rel="stylesheet" href="/resources/stylesheets/JDButtonToggleGroup.css">
+	<link rel="stylesheet" href="/resources/stylesheets/JDCalendar.css">
 	<!-- Scripts -->
 	<script src="/resources/scripts/utilities.js"></script>
 	<script src="/resources/scripts/niceNames.js"></script>
@@ -37,8 +38,9 @@
 	<script src="/resources/scripts/JDGraph.js"></script>
 	<script src="/resources/scripts/main.js" async></script>
 	<script src="/resources/scripts/tooltip.js" async></script>
-	<script src="/resources/scripts/JDSelect.js" async></script>
+	<script src="/resources/scripts/JDSelect.js"></script>
 	<script src="/resources/scripts/JDButtonToggleGroup.js" async></script>
+	<script src="/resources/scripts/JDCalendar.js" async></script>
 	<script src="/resources/scripts/session.js" async></script>
 
 </head>
@@ -69,7 +71,12 @@
 					<button class="button" value="year">Par année</button>
 					<button class="button" value="month" selected>Par mois</button>
 					<button class="button" value="week">Par semaine</button>
-					<button class="button" value="custom"><jd-icon icon="calendar"></jd-icon></button>
+					<button class="button" value="custom" id="custom-range">
+						<jd-icon icon="calendar"></jd-icon>
+						<div class="popover" id="calendar-container">
+							<jd-calendar data-mode="day" id="calendar"></jd-calendar>
+						</div>
+					</button>
 				</jd-button-toggle-group>
 				<div class="arrow-button-group">
 					<button class="button round" id="range-previous" disabled></button>

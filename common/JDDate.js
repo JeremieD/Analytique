@@ -11,14 +11,16 @@ class JDDate {
 
 		// Internal constructor can also be used to change the value after declaration.
 		this.set = function(arg1, arg2, arg3) {
+			this.year = undefined;
+			this.month = undefined;
+			this.week = undefined;
+			this.day = undefined;
 
 			// Build object from short form representation.
 			if (typeof arg1 === "string") {
 				let matches = arg1.match(/^(\d{4})(?:(?:-(\d{2}))?(?:-(\d{2}))?|(?:-W(\d{2})))$/);
 
-				if (!matches || matches.length < 2) {
-					throw "malformedDate";
-				}
+				if (!matches || matches.length < 2) throw "malformedDate";
 
 				if (matches[1] !== undefined) {
 					this.year = parseInt(matches[1]);
@@ -69,21 +71,117 @@ class JDDate {
 
 			// Check bounds.
 			if (this.month < 1 || this.month > 12) {
-				throw "malformedDate";
+				throw "monthOutOfBounds";
 			}
 			if (this.day < 1 || this.day > nbOfDaysInMonth(this.year, this.month)) {
-				throw "malformedDate";
+				throw "dayOutOfBounds";
 			}
 			if (this.week < 1 || this.week > nbOfWeeksInYear(this.year)) {
-				throw "malformedDate";
+				throw "weekOutOfBounds";
 			}
+
+			return this;
 		};
 
 		this.set(arg1, arg2, arg3);
 	}
 
 
-	// Returns whether the two operands are the equal.
+	// Returns the day of the week from 0 to 6, where 0 is Monday.
+	get dayOfWeek() {
+		if (this.mode !== "day") throw "wrongMode";
+		return ((new Date(this.year, this.month - 1, this.day)).getDay() + 6) % 7;
+	}
+
+	// Returns the day of the year from 1 to 366.
+	get ordinalDate() {
+		if (this.mode !== "day") throw "wrongMode";
+
+		const offsetPerMonth = [  0,  31,  59,  90,
+								120, 151, 181, 212,
+								243, 273, 304, 334];
+		const leapYearOffset = isLeapYear(this.year) && this.month > 2 ? 1 : 0;
+		return offsetPerMonth[this.month - 1] + leapYearOffset + this.day;
+	}
+
+	/*
+	 * Changes the date to the given mode.
+	 * If range is "current" (this year, month, week or day), tries to keep it that way.
+	 * From specific to generic, simply trims the most significant units.
+	 * From generic to specific, prefers either the start or end of the range.
+	 * Can be unpredictable when dealing with week numbers.
+	 */
+	convertTo(targetMode, preferEnd = false) {
+		if (this.mode === targetMode) return this;
+
+		const preferredMonth = preferEnd ? 12 : 1;
+		const preferredWeek = preferEnd ? nbOfWeeksInYear(this.year) : 1;
+		const preferredDay = preferEnd ? nbOfDaysInMonth(this.year, this.month) : 1;
+
+		switch (targetMode) {
+			case "year":
+				if (this.isCurrent) return this.set(JDDate.thisYear().shortForm);
+
+				if (this.mode === "week") { // Week → Year
+					const fourthOfTheWeek = (new JDDate(this.shortForm)).convertTo("day").plus(3);
+					return this.set(fourthOfTheWeek.convertTo("year").shortForm);
+				}
+
+				return this.set(this.year);
+
+			case "month":
+				if (this.isCurrent) return this.set(JDDate.thisMonth().shortForm);
+
+				if (this.mode === "week") { // Week → Month
+					const fourthOfTheWeek = (new JDDate(this.shortForm)).convertTo("day").plus(3);
+					return this.set(fourthOfTheWeek.convertTo("month").shortForm);
+				}
+
+				const month = this.month ?? preferredMonth;
+				return this.set(this.year, month);
+
+			case "week":
+				if (this.mode !== "day" && this.isCurrent) {
+					return this.set(JDDate.thisWeek().shortForm);
+				}
+
+				if (this.mode === "month") { // Month → Week
+					return this.set((new JDDate(this.year, this.month, 4)).convertTo("week").shortForm);
+				}
+
+				if (this.mode === "day") { // Day → Week
+					const nearestThu = this.plus(3 - this.dayOfWeek);
+					const nearestThuOrdinal = nearestThu.ordinalDate;
+
+					const isoYear = nearestThu.year;
+
+					const firstOfYear = new JDDate(isoYear, 1, 4);
+					const nearestThuToFirstOfYear = firstOfYear.plus(3 - firstOfYear.dayOfWeek);
+					const nearestThuToFirstOfYearOrdinal = nearestThuToFirstOfYear.ordinalDate;
+
+					const weekOfYear = Math.floor((nearestThuOrdinal - nearestThuToFirstOfYearOrdinal) / 7) + 1;
+
+					return this.set(isoYear + "-W" + String(weekOfYear).padStart(2, "0"));
+				}
+
+				return this.set(this.year + "-W" + String(preferredWeek).padStart(2, "0"));
+
+			case "day":
+				if (this.isCurrent) return this.set(JDDate.today().shortForm);
+
+				if (this.mode === "week") { // Week → Day
+					const firstOfYear = new JDDate(this.year, 1, 4);
+					const nearestThuToFirstOfYear = firstOfYear.plus(3 - firstOfYear.dayOfWeek);
+					const firstMondayOfYear = nearestThuToFirstOfYear.minus(nearestThuToFirstOfYear.dayOfWeek);
+					return this.set(firstMondayOfYear.plus(7 * (this.week - 1)).shortForm);
+				}
+
+				return this.set(this.year, this.month ?? preferredMonth, preferredDay);
+		}
+	}
+
+
+	// Returns whether the two operands are equal.
 	equals(b) {
 		return this.shortForm === b.shortForm;
 	}
@@ -91,7 +189,7 @@ class JDDate {
 	// Returns whether this date is strictly before the passed date.
 	earlierThan(b) {
 		const a = this.firstDay;
-		b = b.lastDay;
+		b = b.firstDay;
 
 		if (a.year === b.year) {
 			if (a.month === b.month) {
@@ -105,7 +203,7 @@ class JDDate {
 	// Returns whether this date is strictly after the passed date.
 	laterThan(b) {
 		const a = this.lastDay;
-		b = b.firstDay;
+		b = b.lastDay;
 
 		if (a.year === b.year) {
 			if (a.month === b.month) {
@@ -165,6 +263,7 @@ class JDDate {
 						} else {
 							newWeek++;
 						}
+
 					}
 
 				} else {
@@ -188,12 +287,12 @@ class JDDate {
 							if (newMonth === 12) {
 								newYear++;
 								newMonth = 1;
-								newDay = 1;
 
 							} else {
 								newMonth++;
-								newDay = 1;
 							}
+
+							newDay = 1;
 
 						} else {
 							newDay++;
@@ -208,8 +307,9 @@ class JDDate {
 
 							} else {
 								newMonth--;
-								newDay = nbOfDaysInMonth(newYear, newMonth);
 							}
+
+							newDay = nbOfDaysInMonth(newYear, newMonth);
 
 						} else {
 							newDay--;
@@ -219,7 +319,6 @@ class JDDate {
 
 				return new JDDate(newYear, newMonth, newDay);
 		}
-
 	}
 
 	// Returns a new JDDate with n mode-units subtracted from the date.
@@ -229,12 +328,12 @@ class JDDate {
 
 	// Adds n mode-units to this date.
 	next(n = 1) {
-		this.set(this.plus(n).shortForm);
+		return this.set(this.plus(n).shortForm);
 	}
 
 	// Subtracts n mode-units from this date.
 	previous(n = 1) {
-		this.set(this.minus(n).shortForm);
+		return this.set(this.minus(n).shortForm);
 	}
 
 
@@ -292,6 +391,40 @@ class JDDate {
 		return (new Date(this.lastDay.shortForm)).getTime() + 1000*60*60*24;
 	}
 
+	// Returns the length of the date in days.
+	get length() {
+		switch (this.mode) {
+			case "year":
+				return isLeapYear(this.year) ? 366 : 365;
+				break;
+			case "month":
+				return nbOfDaysInMonth(this.year, this.month);
+				break;
+			case "week":
+				return 7;
+			case "day":
+				return 1;
+		}
+	}
+
+	// See JDDateRange for details.
+	monthRange() {
+		return (new JDDateRange(this)).monthRange();
+	}
+
+	get isCurrent() {
+		switch (this.mode) {
+			case "year":
+				return this.equals(JDDate.thisYear());
+			case "month":
+				return this.equals(JDDate.thisMonth());
+			case "week":
+				return this.equals(JDDate.thisWeek());
+			case "day":
+				return this.equals(JDDate.today());
+		}
+	}
+
 
 	/*
 	 * Returns the unique text representation of the date.
@@ -316,7 +449,7 @@ class JDDate {
 		return shortForm;
 	}
 
-	// Returns a nice human readable string of the date.
+	// Returns a nice human-readable string of the date.
 	get niceForm() {
 		let niceForm;
 
@@ -362,49 +495,24 @@ class JDDate {
 	}
 
 
-	// See JDDateRange for details.
-	monthRange() {
-		return (new JDDateRange(this)).monthRange();
-	}
-
-
-	// Returns the current day object.
+	// Returns the current day.
 	static today() {
 		const now = new Date();
 		return new JDDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
 	}
 
-	// Returns the current week object.
+	// Returns the current week.
 	static thisWeek() {
-		return JDDate.today().getWeek();
+		return JDDate.today().convertTo("week");
 	}
 
-	// Returns the ISO week number of the date.
-	// Returns undefined if not in day mode.
-	getWeek() {
-		if (this.mode !== "day") return;
-
-		const date = new Date(this.firstMillisecond);
-		date.setHours(0, 0, 0, 0);
-		date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-
-		const isoYear = date.getFullYear();
-
-		const firstWeek = new Date(isoYear, 0, 4);
-		const correction = 3 + (firstWeek.getDay() + 6) % 7;
-		const dayOfYear = (date.getTime() - firstWeek.getTime()) / 86400000;
-		const isoWeek = 1 + Math.round((dayOfYear - correction) / 7);
-
-		return new JDDate(isoYear + "-W" + String(isoWeek).padStart(2, "0"));
-	}
-
-	// Returns the current month object.
+	// Returns the current month.
 	static thisMonth() {
 		const now = new Date();
 		return new JDDate(now.getFullYear(), now.getMonth() + 1);
 	}
 
-	// Returns the current year object.
+	// Returns the current year.
 	static thisYear() {
 		const now = new Date();
 		return new JDDate(now.getFullYear());
@@ -414,7 +522,7 @@ class JDDate {
 
 /*
  * Custom date range object using JDDate bounds.
- * mode		Indicates the "precision" (year(s), month(s), week(s), day(s)) of the date.
+ * mode		Indicates the “precision” (year(s), month(s), week(s), day(s)) of the date.
  * from		JDDate start date of the range.
  * to		JDDate end date of the range.
  * → See JDDate for documentation on bridged methods.
@@ -455,20 +563,13 @@ class JDDateRange {
 					this.to = arg2;
 				}
 			}
+
+			return this;
 		};
 
 		this.set(arg1, arg2);
 	}
 
-
-	get mode() {
-		return this.from.mode + (this.plural ? "s" : "");
-	}
-
-	// Returns whether this range corresponds to a single JDDate value.
-	get plural() {
-		return !this.to.equals(this.from);
-	}
 
 	get year() {
 		if (!this.plural) {
@@ -499,6 +600,78 @@ class JDDateRange {
 	}
 
 
+	// Same as JDDate modes but has an “s” at the end when “plural”.
+	get mode() {
+		return this.from.mode + (this.plural ? "s" : "");
+	}
+
+	// Returns whether this range corresponds to a single JDDate value.
+	get plural() {
+		return !this.to.equals(this.from);
+	}
+
+	convertTo(mode) {
+		if (this.plural || mode.endsWith("s")) throw "unimplemented";
+		return this.set(this.from.convertTo(mode));
+	}
+
+
+	equals(b) {
+		const fromEquals = this.from.shortForm === (b.from?.shortForm ?? b.shortForm);
+		const toEquals = this.plural ? this.to.shortForm === b.to.shortform : true;
+		return fromEquals && toEquals;
+	}
+
+	earlierThan(b) {
+		if (this.plural || b.plural) {
+			return undefined;
+		}
+		return this.from.earlierThan(b.from ?? b);
+	}
+
+	laterThan(b) {
+		if (this.plural || b.plural) {
+			return undefined;
+		}
+		return this.from.laterThan(b.from ?? b);
+	}
+
+	// Returns whether the passed JDDate is contained in this JDDateRange.
+	contains(b) {
+		return !b.earlierThan(this.from) && !b.laterThan(this.to);
+	}
+
+	plus(n) {
+		if (this.plural) {
+			return undefined;
+		}
+		return new JDDateRange(this.from.plus(n));
+	}
+
+	minus(n) {
+		if (this.plural) {
+			return undefined;
+		}
+		return new JDDateRange(this.from.minus(n));
+	}
+
+	next(n = 1) {
+		if (this.plural) {
+			return undefined;
+		}
+		this.set(this.from.next(n));
+		return this;
+	}
+
+	previous(n = 1) {
+		if (this.plural) {
+			return undefined;
+		}
+		this.set(this.from.previous(n));
+		return this;
+	}
+
+
 	get firstDay() {
 		return this.from.firstDay;
 	}
@@ -513,6 +686,39 @@ class JDDateRange {
 
 	get lastMillisecond() {
 		return this.to.lastMillisecond;
+	}
+
+	get length() {
+		if (this.plural) throw "unimplemented";
+		return this.from.length;
+	}
+
+	// Returns the array of months that include this date range.
+	monthRange() {
+		const range = [];
+
+		const from = this.firstDay;
+		const to = this.lastDay;
+
+		for (let year = from.year; year <= to.year; year++) {
+			for (let month = 1; month <= 12; month++) {
+
+				if (year === from.year && month < from.month) {
+					continue;
+
+				} else if (year === to.year && month > to.month) {
+					break;
+				}
+
+				range.push(year + "-" + String(month).padStart(2, "0"));
+			}
+		}
+		return range;
+	}
+
+	get isCurrent() {
+		if (this.plural) return false;
+		return this.from.isCurrent;
 	}
 
 
@@ -567,79 +773,6 @@ class JDDateRange {
 		}
 
 		return niceForm;
-	}
-
-
-	equals(b) {
-		const fromEquals = this.from.shortForm === b.from.shortForm;
-		const toEquals = this.plural ? this.to.shortForm === b.to.shortform : true;
-		return fromEquals && toEquals;
-	}
-
-	earlierThan(b) {
-		if (this.plural || b.plural) {
-			return undefined;
-		}
-		return this.from.earlierThan(b.from ?? b);
-	}
-
-	laterThan(b) {
-		if (this.plural || b.plural) {
-			return undefined;
-		}
-		return this.from.laterThan(b.from ?? b);
-	}
-
-	plus(n) {
-		if (this.plural) {
-			return undefined;
-		}
-		return new JDDateRange(this.from.plus(n));
-	}
-
-	minus(n) {
-		if (this.plural) {
-			return undefined;
-		}
-		return new JDDateRange(this.from.minus(n));
-	}
-
-	next(n = 1) {
-		if (this.plural) {
-			return undefined;
-		}
-		this.set(this.from.next(n));
-	}
-
-	previous(n = 1) {
-		if (this.plural) {
-			return undefined;
-		}
-		this.set(this.from.previous(n));
-	}
-
-
-	// Returns the array of months that include this date range.
-	monthRange() {
-		const range = [];
-
-		const from = this.firstDay;
-		const to = this.lastDay;
-
-		for (let year = from.year; year <= to.year; year++) {
-			for (let month = 1; month <= 12; month++) {
-
-				if (year === from.year && month < from.month) {
-					continue;
-
-				} else if (year === to.year && month > to.month) {
-					break;
-				}
-
-				range.push(year + "-" + String(month).padStart(2, "0"));
-			}
-		}
-		return range;
 	}
 }
 
