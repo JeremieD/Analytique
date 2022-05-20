@@ -119,7 +119,7 @@ function processRequest(req, res) {
 		}
 
 		getStats(origin, range, filter).then(data => {
-			const eTag = static.getETagFrom(data + user);
+			const eTag = static.getETagFrom(JSON.stringify(data) + path.query + user);
 			static.serve(req, res, data, "application/json", "auto", "private", eTag);
 		})
 		.catch(e => console.log(e));
