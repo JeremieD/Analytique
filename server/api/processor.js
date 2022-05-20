@@ -48,7 +48,8 @@ function processRequest(req, res) {
 
 	// Check that requested origin exists and that the user is allowed to see it.
 	origin = path.parameters?.origin;
-	if (origin === undefined || !config.hasOwnProperty(origin) || !config[origin].allowedUsers.includes(user)) {
+	if (origin === undefined || !config.hasOwnProperty(origin) ||
+		!config[origin].allowedUsers.includes(user)) {
 		static.serve(req, res, { error: "unknownOrigin" },
 					 "application/json", "auto", "private");
 		return;
@@ -68,7 +69,7 @@ function processRequest(req, res) {
 			const earliestMonth = new JDDate(files[0].split(".")[0]);
 			const lowerBound = getBeacons(origin, earliestMonth).then(views => {
 				const firstView = views[0];
-				const viewTime = parseInt(firstView[1]) - parseInt(firstView[2] * 60 * 1000);
+				const viewTime = parseInt(firstView[1]) - parseInt(firstView[2]) * 60 * 1000;
 
 				return new JDDate(new Date(viewTime));
 			});
@@ -76,7 +77,7 @@ function processRequest(req, res) {
 			const latestMonth = new JDDate(files.at(-1).split(".")[0]);
 			const upperBound = getBeacons(origin, latestMonth).then(views => {
 				const lastView = views.at(-1);
-				const viewTime = parseInt(lastView[1]) - parseInt(lastView[2] * 60 * 1000);
+				const viewTime = parseInt(lastView[1]) - parseInt(lastView[2]) * 60 * 1000;
 
 				return new JDDate(new Date(viewTime));
 			});
@@ -106,6 +107,7 @@ function processRequest(req, res) {
 						 "application/json", "auto", "private");
 			return;
 		}
+
 		try {
 			range = new JDDateRange(path.parameters.range);
 		} catch (e) {
