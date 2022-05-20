@@ -1,6 +1,6 @@
 /*
  * Custom element that allows selecting a JDDateRange using a calendar.
- * This object depends on JDDate.js
+ * This object depends on JDDate.js.
  */
 class JDCalendar extends HTMLElement {
 
@@ -45,61 +45,72 @@ class JDCalendar extends HTMLElement {
 		this.draw();
 	}
 
-	async draw() {
+	draw() {
+		// Draw month title.
 		this.label.innerHTML = monthsDict[this.month.month - 1] +
 			" <small>" + this.month.year + "</small>";
 
+		// Clear grid.
 		this.grid.innerHTML = "";
 
-		const newDayButton = (date, disabled = false, selected = false, secondary = false) => {
+		// Inlineable function to spawn a new day button.
+		const newDayButton = (date, enabled = true,
+							  selected = false, secondary = false) => {
 			const dayButton = document.createElement("button");
+
 			if (selected) dayButton.classList.add("selected");
 			if (secondary) dayButton.classList.add("secondary");
-			dayButton.disabled = disabled;
+			dayButton.disabled = !enabled;
+
 			dayButton.tabIndex = -1;
 			dayButton.innerText = date.day;
 			dayButton.dataset.targetValue = date.shortForm;
+
 			dayButton.addEventListener("click", () => {
 				this.value = new JDDateRange(dayButton.dataset.targetValue);
 				this.month = new JDDate(this.value.to.year, this.value.to.month);
 				this.dispatchEvent(new Event("change"));
 				this.draw();
 			});
+
 			return dayButton;
 		};
 
+
 		// Draw days for previous month.
 		const previousMonth = (new JDDate(this.month.year, this.month.month)).previous();
-		const firstOffset = (new Date(this.month.year, this.month.month - 1, 1).getDay() + 6) % 7;
+		const firstOffset = (new JDDate(this.month.year, this.month.month, 1)).dayOfWeek;
 		let date;
 		if (firstOffset !== 0) {
 			date = new JDDate(previousMonth.year, previousMonth.month,
-							  nbOfDaysInMonth(previousMonth.year, previousMonth.month) - firstOffset + 1);
+			  nbOfDaysInMonth(previousMonth.year, previousMonth.month) - firstOffset + 1);
 		}
 		for (let i = 0; i < firstOffset; i++) {
 			const enabled = this.availableRange?.contains(date) ?? true;
 			const selected = this.value.contains(date);
-			this.grid.append(newDayButton(date, !enabled, selected, true));
+			this.grid.append(newDayButton(date, enabled, selected, true));
 			date.next();
 		}
+
 
 		// Draw days for current month.
 		date = new JDDate(this.month.year, this.month.month, 1);
 		for (let i = 0; i < nbOfDaysInMonth(this.month.year, this.month.month); i++) {
 			const enabled = this.availableRange?.contains(date) ?? true;
 			const selected = this.value.contains(date);
-			this.grid.append(newDayButton(date, !enabled, selected, false));
+			this.grid.append(newDayButton(date, enabled, selected, false));
 			date.next();
 		}
+
 
 		// Draw days for next month.
 		const nextMonth = (new JDDate(this.month.year, this.month.month)).next();
 		date = new JDDate(nextMonth.year, nextMonth.month, 1);
-		const lastOffset = (new Date(this.month.year, this.month.month - 1, nbOfDaysInMonth(this.month.year, this.month.month)).getDay() + 6) % 7;
+		const lastOffset = (new JDDate(this.month.year, this.month.month, nbOfDaysInMonth(this.month.year, this.month.month))).dayOfWeek;
 		for (let i = 1; i < 7 - lastOffset; i++) {
 			const enabled = this.availableRange?.contains(date) ?? true;
 			const selected = this.value.contains(date);
-			this.grid.append(newDayButton(date, !enabled, selected, true));
+			this.grid.append(newDayButton(date, enabled, selected, true));
 			date.next();
 		}
 	}
