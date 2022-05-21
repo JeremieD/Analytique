@@ -30,6 +30,7 @@ const countriesDict = {
 	"IL": "Israël",
 	"IT": "Italie",
 	"KG": "Kirghizistan",
+	"KZ": "Kazakhstan",
 	"MG": "Madagascar",
 	"MX": "Mexique",
 	"NL": "Pays-Bas",

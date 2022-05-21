@@ -144,7 +144,7 @@ class JDSelect extends HTMLElement {
 		this.classList.add("open");
 		this.menu.classList.remove("fade-out");
 
-		this._abort = new AbortController()
+		this._abort = new AbortController();
 
 		const yOffset = -12 - this.options.indexOf(this.value) * 32;
 		this.menu.style.transform = "translateY(" + yOffset + "px)";

@@ -3,7 +3,7 @@ Lightweight analytics system, originally for [jeremiedupuis.com](https://jeremie
 
 
 ## Getting Started
-To run your own Analytique server, you will need [Node.js](https://nodejs.org), optionnaly with [PM2](https://pm2.keymetrics.io).
+To run your own Analytique server, you will need [Node.js](https://nodejs.org), optionally with [PM2](https://pm2.keymetrics.io).
 
 ### Configuration
 After cloning this repo on your machine, you will need to create `config.json` at the root. That file will eventually look like this:
