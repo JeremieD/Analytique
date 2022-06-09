@@ -306,7 +306,7 @@ function niceAcquisitionChannelName(input) {
  */
 function niceOriginName(input) {
 	// Don’t touch variants of the current origin.
-	if (input.includes(origin)) { return input;
+	if (input.includes(origin)) return input;
 
 	return input.replace("https://", "")
 				.replace("www.", "");
