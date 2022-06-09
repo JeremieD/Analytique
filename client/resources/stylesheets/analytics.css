@@ -253,11 +253,12 @@ h3 {
 }
 
 data {
+	position: relative;
 	display: block;
+	width: 100%;
 	overflow: clip;
 	text-overflow: ellipsis;
-	position: relative;
-	width: 100%;
+	white-space: nowrap;
 }
 
 data.numerical {

@@ -525,6 +525,7 @@ function drawMainView() {
 				// Create data elements and append to the list element.
 				const dataPoint1 = document.createElement("data");
 				dataPoint1.innerHTML = transformedKey;
+				dataPoint1.title = transformedKey;
 
 				const dataPoint2 = document.createElement("data");
 				dataPoint2.classList.add("numerical", "secondary");
