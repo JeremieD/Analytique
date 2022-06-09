@@ -2,6 +2,7 @@ jd-calendar {
 	display: inline-flex;
 	flex-direction: column;
 	gap: 16px;
+	color: var(--color-text);
 }
 
 jd-calendar>div:first-child {
