@@ -15,22 +15,22 @@ whenDOMReady(() => {
 
 		const show = el => {
 			if (el.tooltipElement.classList.contains("out")) {
+				el.abortController?.abort();
 				el.tooltipElement.classList.remove("out");
-				el.abortController.abort();
+			}
 
-			} else {
-				el.tooltipElement.classList.add("in");
+			if (!el.tooltipElement.classList.contains("in")) {
 				el.appendChild(el.tooltipElement);
+				el.tooltipElement.classList.add("in");
 			}
 		};
 
 		const hide = el => {
-			el.tooltipElement.classList.remove("in");
 			el.abortController = new AbortController(); // Reset AbortController
 
-			el.tooltipElement.addEventListener("animationend", () => {
+			el.tooltipElement.addEventListener("transitionend", () => {
 				el.tooltipElement.remove();
-				el.tooltipElement.classList.remove("out");
+				el.tooltipElement.classList.remove("in");
 
 			}, { passive: true, once: true, signal: el.abortController.signal });
 

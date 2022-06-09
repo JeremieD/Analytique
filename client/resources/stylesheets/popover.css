@@ -8,10 +8,11 @@
 	border-radius: 8px;
 	box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.33);
 	opacity: 0;
-	pointer-events: none;
 	transition: .2s ease opacity;
 	cursor: default;
 }
+
+.popover { pointer-events: none; }
 
 :where(.popover, jd-tooltip)::before {
 	content: "";
@@ -55,10 +56,18 @@ jd-tooltip {
 	left: auto;
 	right: -100%;
 	width: 320px;
-	transform: translate(16px,-24px);
+	transform: translate(16px, -24px);
 	font-size: 14px;
 	color: var(--color-text);
 	background-color: var(--color-tertiary);
+	opacity: 1;
+}
+
+jd-tooltip.in { animation: .2s fade-in; }
+
+jd-tooltip.out {
+	opacity: 0;
+	transition: .2s .375s ease opacity;
 }
 
 jd-tooltip::before {
@@ -66,17 +75,4 @@ jd-tooltip::before {
 	left: auto;
 	right: 24px;
 	background-color: var(--color-tertiary);
-}
-
-jd-tooltip.in { animation: .2s ease both help-in; }
-jd-tooltip.out { animation: .2s .25s ease both help-out; }
-
-@keyframes help-in {
-	from { opacity: 0; }
-	to { opacity: 1; }
-}
-
-@keyframes help-out {
-	from { opacity: 1; }
-	to { opacity: 0; }
 }
