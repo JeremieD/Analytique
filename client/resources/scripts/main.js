@@ -273,9 +273,9 @@ function switchRangeMode(mode) {
 	}
 }
 
-// Advances range in state.
-function nextRange() {
-	state.range.next();
+// Change state to specified range.
+function setRange(range) {
+	state.range.set(range.shortForm);
 	if (state.range.mode === "day") {
 		view.hud.calendar.value = new JDDateRange(state.range.shortForm);
 		view.hud.calendar.month = new JDDate(view.hud.calendar.value.year, view.hud.calendar.value.month);
@@ -283,14 +283,14 @@ function nextRange() {
 	}
 }
 
+// Advances range in state.
+function nextRange() {
+	setRange(state.range.plus(1));
+}
+
 // Rewinds range in state.
 function previousRange() {
-	state.range.previous();
-	if (state.range.mode === "day") {
-		view.hud.calendar.value = new JDDateRange(state.range.shortForm);
-		view.hud.calendar.month = new JDDate(view.hud.calendar.value.year, view.hud.calendar.value.month);
-		view.hud.calendar.draw();
-	}
+	setRange(state.range.minus(1));
 }
 
 // Set filter state.
@@ -658,14 +658,21 @@ function drawComplementaryView() {
 				avgSessionLengthValue = data[i].avgSessionLength;
 			}
 
+			const onClickHandler = () => {
+				setRange(rangeObject);
+				update();
+			};
+
 			sessionTotalData.points.push({
 				label: label,
-				y: sessionTotalValue
+				y: sessionTotalValue,
+				onClick: onClickHandler
 			});
 
 			sessionLengthData.points.push({
 				label: label,
-				y: avgSessionLengthValue
+				y: avgSessionLengthValue,
+				onClick: onClickHandler
 			});
 		}
 

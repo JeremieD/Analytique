@@ -17,6 +17,7 @@ class JDGraph extends HTMLElement {
 	 *   x				X coordinate.
 	 *   y				Y coordinate.
 	 *   label			Label to display for that point.
+	 *   onClick		Function to call when point is clicked.
 	 */
 	draw(data) {
 		// Clear the graph.
@@ -90,6 +91,9 @@ class JDGraph extends HTMLElement {
 			point.style.left = `calc(100%/${maxPointCount - 1}*${xOffset})`;
 			if (xOffset === maxPointCount - 1) {
 				point.classList.add("selected");
+			}
+			if (dataPoint.onClick !== undefined) {
+				point.addEventListener("click", dataPoint.onClick);
 			}
 
 			const label = document.createElement("label");
