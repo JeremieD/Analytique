@@ -278,7 +278,8 @@ const errorsDict = {
 	"noData": "Aucune donnée disponible.",
 	"noMatchingSessions": "Aucune session ne correspond à la requête.",
 	"noOrigins": "Aucune origine disponible.",
-	"ipGeoUnavailable": "Le serveur n’arrive pas à se connecter à ipinfo.io."
+	"ipGeoUnavailable": "Le serveur n’arrive pas à se connecter à ipinfo.io.",
+	"malformedBeacon": "Il y a une erreur dans les données de vues."
 };
 
 

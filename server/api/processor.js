@@ -647,6 +647,9 @@ async function getBeacons(origin, range) {
 			for (const rawBeacon of rawBeacons.trim().split("\n")) {
 				const beacon = rawBeacon.split("\t")
 										.map(field => decodeURI(field));
+				if (beacon.length !== 12) {
+					return { error: "malformedBeacon" };
+				}
 				const beaconTime = parseInt(beacon[1]) - parseInt(beacon[2] * 60 * 1000);
 				if (beaconTime < firstMillisecond) continue;
 				if (beaconTime > lastMillisecond) break;
