@@ -167,10 +167,10 @@ async function getStats(origin, range, filter) {
 
 
 /**
- * Builds and returns stats from a call to getSessions(range).
+ * Compiles and returns stats from sessions.
  * Also stores the result in cache.
  *
- * A stats file or "container" is as follows:
+ * A stats file is as follows:
  * version				The version of Analytique.
  * viewTotal			The total number of views in this range before filter.
  * sessionTotal			The total number of sessions in this range.
@@ -440,7 +440,7 @@ async function getSessions(origin, range) {
 
 
 /**
- * Builds and returns sessions from a call to getBeacons(range).
+ * Aggregates and returns sessions from views.
  * Also stores the result in cache.
  *
  * A sessions file or "container" is as follows:
@@ -472,6 +472,7 @@ async function buildSessions(origin, range) {
 	return getBeacons(origin, range).then(async views => {
 		if (views.error !== undefined) return views;
 
+		const aggregates = []; // Intermediate object. List of lists of views.
 		const sessions = {
 			version: 1,
 			viewTotal: 0,
@@ -482,99 +483,110 @@ async function buildSessions(origin, range) {
 			},
 			sessions: []
 		};
-		let currentSession = {};
-		let previousView;
 
-		// Inlinable in-loop function that clears the current session.
-		const _closeSession = () => {
-			sessions.sessions.push(currentSession);
-			currentSession = {};
-			previousView = undefined;
-		}
-
+		// First, aggregate views into sessions.
 		for (const view of views) {
+			let sessionFound = false;
 
 			sessions.viewTotal++;
 
-			// True if the view is on an error page.
-			const isErrorView = view[3].includesAny(config[origin].errorPagePatterns);
+			for (let i = aggregates.length - 1; i >= 0; i--) {
+				if (aggregates.length === 0) break;
 
-			// If view is part of the same session, it must...
-			if (previousView !== undefined &&
-				view[11] === previousView[11] && // have the same IP address.
-				view[10] === previousView[10] && // have the same user-agent string.
-				view[2] === previousView[2] && // be in the same timezone.
-			   (view[5] === previousView[4] || // and (follow previous view.
-				view[5] === "")) { // or have no referrer).
+				const lastView = aggregates[i][aggregates[i].length - 1];
 
-				// Skip identical page views (most likely page refreshes).
-				if (view[3] === previousView[3] && view[4] === previousView[4]) {
-					continue;
+				// Continue if lastView was more than an hour before this view.
+				if (view[1] - lastView[1] > 1000*60*60) continue;
+
+				// Continue if lastView doesn't have the same IP address.
+				if (view[11] !== lastView[11]) continue;
+
+				// Continue if lastView doesn't have the same user-agent string.
+				if (view[10] !== lastView[10]) continue;
+
+				// Continue if this view doesn't follow lastView.
+				if (view[5] !== lastView[4]) continue;
+
+				// The view matches this session.
+				sessionFound = true;
+
+				// Skip identical page views (most likely page refreshes?).
+				if (view[3] === lastView[3] && view[4] === lastView[4]) break;
+
+				aggregates[i].push(view);
+				break;
+			}
+
+			// Create a new view aggregate if no match was found.
+			if (!sessionFound) {
+				aggregates.push([view]);
+			}
+		}
+
+		// Then, extract common info into the sessions object.
+		for (const aggregate of aggregates) {
+			const currentSession = {
+				views: []
+			};
+
+			// Filter out some IP addresses.
+			if (config[origin].excludeClientIPs.includes(aggregate[0][11])) {
+				sessions.excludedTraffic.tests += aggregate.length;
+				continue;
+			}
+
+			// Filter out bots.
+			if (heuristics.inferIfBot(aggregate[0][10])) {
+				sessions.excludedTraffic.bots += aggregate.length;
+				continue;
+			}
+
+			// Compile basic session info from the first view.
+
+			currentSession.earliestTime = aggregate[0][1];
+
+			currentSession.referrerOrigin = aggregate[0][5];
+			currentSession.acquisitionChannel = heuristics.inferAcquisitionChannel(aggregate[0][5]);
+
+			currentSession.languages = [];
+			if (aggregate[0][6] !== "") {
+				currentSession.languages.push(aggregate[0][6]);
+			}
+			if (aggregate[0][7] !== "") {
+				currentSession.languages.push(...aggregate[0][7].split(","));
+			}
+			currentSession.languages = currentSession.languages.unique();
+
+			currentSession.country = await heuristics.inferCountry(aggregate[0][11]);
+			if (currentSession.country.error) {
+				return { error: "ipGeoUnavailable" };
+			}
+
+			// Filter out some countries.
+			if (config[origin].excludeCountries.includes(currentSession.country)) {
+				sessions.excludedTraffic.spam += aggregate.length;
+				continue;
+			}
+
+			// Get some cities according to config.
+			if (config[origin].preciseGeolocation.includes(currentSession.country)) {
+				const city = await heuristics.inferCity(aggregate[0][11]);
+				if (city !== undefined) {
+					currentSession.city = city;
 				}
+			}
 
-				currentSession.views.push({
-					title: view[3],
-					url: view[4].replace(/https?:\/\//, "").substr(origin.length),
-					error: isErrorView
-				});
+			currentSession.os = heuristics.inferOS(aggregate[0][10]);
+			currentSession.renderingEngine = heuristics.inferRenderingEngine(aggregate[0][10]);
+			currentSession.screenBreakpoint = heuristics.inferScreenBreakpoint(aggregate[0][8]);
 
-			} else { // Otherwise, begin a new session.
+			currentSession.userAgent = aggregate[0][10];
+			currentSession.ipAddress = aggregate[0][11];
 
-				// Close previous session.
-				if (previousView !== undefined) {
-					_closeSession();
-				}
-
-				// Filter out some IP addresses.
-				if (config[origin].excludeClientIPs.includes(view[11])) {
-					sessions.excludedTraffic.tests++;
-					continue;
-				}
-
-				// Filter out bots.
-				if (heuristics.inferIfBot(view[10])) {
-					sessions.excludedTraffic.bots++;
-					continue;
-				}
-
-				currentSession.earliestTime = view[1];
-
-				currentSession.referrerOrigin = view[5];
-				currentSession.acquisitionChannel = heuristics.inferAcquisitionChannel(view[5]);
-
-				currentSession.languages = [];
-				if (view[6] !== "") {
-					currentSession.languages.push(view[6]);
-				}
-				if (view[7] !== "") {
-					currentSession.languages.push(...view[7].split(","));
-				}
-				currentSession.languages = currentSession.languages.unique();
-
-				currentSession.country = await heuristics.inferCountry(view[11]);
-				if (currentSession.country.error) {
-					return { error: "ipGeoUnavailable" };
-				}
-
-				// Filter out some countries.
-				if (config[origin].excludeCountries.includes(currentSession.country)) {
-					sessions.excludedTraffic.spam++;
-					continue;
-				}
-
-				// Get some cities according to config.
-				if (config[origin].preciseGeolocation.includes(currentSession.country)) {
-					const city = await heuristics.inferCity(view[11]);
-					if (city !== undefined) {
-						currentSession.city = city;
-					}
-				}
-
-				currentSession.os = heuristics.inferOS(view[10]);
-				currentSession.renderingEngine = heuristics.inferRenderingEngine(view[10]);
-				currentSession.screenBreakpoint = heuristics.inferScreenBreakpoint(view[8]);
-
-				currentSession.views = [];
+			// Push the rest of the views with minimal data.
+			for (const view of aggregate) {
+				// True if the view is on an error page.
+				const isErrorView = view[3].includesAny(config[origin].errorPagePatterns);
 
 				currentSession.views.push({
 					title: view[3],
@@ -583,11 +595,7 @@ async function buildSessions(origin, range) {
 				});
 			}
 
-			previousView = view;
-		}
-
-		if (currentSession.views?.length > 0) {
-			_closeSession();
+			sessions.sessions.push(currentSession);
 		}
 
 		// Save data to cache, except if empty or range mode is plural.
