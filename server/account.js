@@ -15,17 +15,17 @@ const activeSessions = {};
  * If the session is refused, the login page is served.
  */
 function sessionIsValid(req, res) {
-	const id = getSessionID(req);
+  const id = getSessionID(req);
 
-	if (activeSessions[id]) {
-		if (activeSessions[id].expiration > Date.now()) {
-			return true;
-		}
-		delete activeSessions[id];
-	}
+  if (activeSessions[id]) {
+    if (activeSessions[id].expiration > Date.now()) {
+      return true;
+    }
+    delete activeSessions[id];
+  }
 
-	static.serveFile(req, res, "/login.html");
-	return false;
+  static.serveFile(req, res, "/login.html");
+  return false;
 }
 
 
@@ -33,51 +33,50 @@ function sessionIsValid(req, res) {
  * Answers a POST request for login.
  */
 function login(req, res) {
-	let rawData = "";
+  let rawData = "";
 
-	req.on("data", data => {
-		rawData += data;
-		// Too much POST data
-		if (rawData.length > 1e5) {
-			req.connection.destroy();
-		}
-	});
+  req.on("data", data => {
+    rawData += data;
+    // Too much POST data
+    if (rawData.length > 1e5) {
+      req.connection.destroy();
+    }
+  });
 
-	req.on("end", () => {
-		res.setHeader("Content-Type", "text/plain");
-		res.writeHead(200);
+  req.on("end", () => {
+    res.setHeader("Content-Type", "text/plain");
+    res.writeHead(200);
 
-		let login;
-		if (req.headers["content-type"] === "application/json") {
-			login = JSON.parse(rawData);
+    let login;
+    if (req.headers["content-type"] === "application/json") {
+      login = JSON.parse(rawData);
 
-		} else {
-			res.end("unsupportedContentType");
-			return;
-		}
+    } else {
+      res.end("unsupportedContentType");
+      return;
+    }
 
-		// If a matching user/password pair is found...
-		hash(login.p).then(hashedP => {
-			if (users[login.u] === hashedP) {
-				// Get a new session ID and add it to the active sessions list.
-				const newID = "_" + Math.random().toString(36).substr(2, 9);
+    // If a matching user/password pair is found...
+    hash(login.p).then(hashedP => {
+      if (users[login.u] === hashedP) {
+        // Get a new session ID and add it to the active sessions list.
+        const newID = "_" + Math.random().toString(36).substr(2, 9);
 
-				const newSession = {
-					username: login.u,
-					expiration: Date.now() + 3600000*24*30
-				};
+        const newSession = {
+          username: login.u,
+          expiration: Date.now() + 3600000*24*30
+        };
 
-				activeSessions[newID] = newSession;
+        activeSessions[newID] = newSession;
 
-				res.end(newID);
+        res.end(newID);
 
-			} else {
-				// Otherwise, return "authenticationFailed".
-				res.end("authenticationFailed");
-			}
-		});
-
-	});
+      } else {
+        // Otherwise, return "authenticationFailed".
+        res.end("authenticationFailed");
+      }
+    });
+  });
 }
 
 
@@ -85,7 +84,7 @@ function login(req, res) {
  * Returns the session ID of the current request.
  */
 function getSessionID(req) {
-	return cookies.parse(req)?.session;
+  return cookies.parse(req)?.session;
 }
 
 
@@ -93,7 +92,7 @@ function getSessionID(req) {
  * Returns the user of the current request.
  */
 function getUser(req) {
-	return activeSessions[getSessionID(req)]?.username;
+  return activeSessions[getSessionID(req)]?.username;
 }
 
 
@@ -101,12 +100,12 @@ function getUser(req) {
  * Hashes a message using SHA-512. Encodes as a string of hex digits.
  */
 async function hash(message) {
-	const encoder = new TextEncoder();
-	const data = encoder.encode(message);
-	return subtle.digest("SHA-512", data).then(value => {
-		const hashArray = Array.from(new Uint8Array(value));
-		return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-	});
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  return subtle.digest("SHA-512", data).then(value => {
+    const hashArray = Array.from(new Uint8Array(value));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  });
 }
 
 

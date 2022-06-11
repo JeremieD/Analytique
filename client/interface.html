@@ -2,319 +2,320 @@
 <html dir="ltr" lang="fr">
 
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<title>JD Analytique</title>
+  <title>JD Analytique</title>
 
-	<link rel="apple-touch-icon" sizes="180x180" href="https://jeremiedupuis.com/resources/graphics/favicon/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-16x16.png">
-	<link rel="manifest" href="https://jeremiedupuis.com/resources/graphics/favicon/site.webmanifest">
-	<link rel="mask-icon" href="https://jeremiedupuis.com/resources/graphics/favicon/safari-pinned-tab.svg" color="#8833ff">
-	<link rel="shortcut icon" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon.ico">
-	<meta name="msapplication-TileColor" content="#603cba">
-	<meta name="msapplication-config" content="https://jeremiedupuis.com/resources/graphics/favicon/browserconfig.xml">
-	<meta name="theme-color" content="#eee">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://jeremiedupuis.com/resources/graphics/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-16x16.png">
+  <link rel="manifest" href="https://jeremiedupuis.com/resources/graphics/favicon/site.webmanifest">
+  <link rel="mask-icon" href="https://jeremiedupuis.com/resources/graphics/favicon/safari-pinned-tab.svg" color="#8833ff">
+  <link rel="shortcut icon" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon.ico">
+  <meta name="msapplication-TileColor" content="#603cba">
+  <meta name="msapplication-config" content="https://jeremiedupuis.com/resources/graphics/favicon/browserconfig.xml">
+  <meta name="theme-color" content="#eee">
 
-	<link rel="preload" href="https://jeremiedupuis.com/resources/graphics/logo.svg" as="image" type="image/svg+xml">
+  <link rel="preload" href="https://jeremiedupuis.com/resources/graphics/logo.svg" as="image" type="image/svg+xml">
 
-	<!-- Styling -->
-	<!-- <link rel="stylesheet" href="https://jeremiedupuis.com/resources/stylesheets/main.css"> -->
-	<link rel="stylesheet" href="/resources/stylesheets/jd.css">
-	<link rel="stylesheet" href="/resources/stylesheets/form.css">
-	<link rel="stylesheet" href="/resources/stylesheets/analytics.css">
-	<link rel="stylesheet" href="/resources/stylesheets/JDIcon.css">
-	<link rel="stylesheet" href="/resources/stylesheets/JDGraph.css">
-	<link rel="stylesheet" href="/resources/stylesheets/popover.css">
-	<link rel="stylesheet" href="/resources/stylesheets/JDSelect.css">
-	<link rel="stylesheet" href="/resources/stylesheets/JDButtonToggleGroup.css">
-	<link rel="stylesheet" href="/resources/stylesheets/JDCalendar.css">
-	<!-- Scripts -->
-	<script src="/resources/scripts/utilities.js"></script>
-	<script src="/resources/scripts/niceNames.js"></script>
-	<script src="/common/JDDate.js"></script>
-	<script src="/resources/scripts/JDIcon.js"></script>
-	<script src="/resources/scripts/JDGraph.js"></script>
-	<script src="/resources/scripts/main.js" async></script>
-	<script src="/resources/scripts/tooltip.js" async></script>
-	<script src="/resources/scripts/JDSelect.js"></script>
-	<script src="/resources/scripts/JDButtonToggleGroup.js" async></script>
-	<script src="/resources/scripts/JDCalendar.js" async></script>
-	<script src="/resources/scripts/session.js" async></script>
+  <!-- Styling -->
+  <!-- <link rel="stylesheet" href="https://jeremiedupuis.com/resources/stylesheets/main.css"> -->
+  <link rel="stylesheet" href="/resources/stylesheets/jd.css">
+  <link rel="stylesheet" href="/resources/stylesheets/form.css">
+  <link rel="stylesheet" href="/resources/stylesheets/analytics.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDIcon.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDGraph.css">
+  <link rel="stylesheet" href="/resources/stylesheets/popover.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDSelect.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDButtonToggleGroup.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDCalendar.css">
+
+  <!-- Scripts -->
+  <script src="/resources/scripts/utilities.js"></script>
+  <script src="/resources/scripts/niceNames.js"></script>
+  <script src="/common/JDDate.js"></script>
+  <script src="/resources/scripts/JDIcon.js"></script>
+  <script src="/resources/scripts/JDGraph.js"></script>
+  <script src="/resources/scripts/main.js" async></script>
+  <script src="/resources/scripts/tooltip.js" async></script>
+  <script src="/resources/scripts/JDSelect.js"></script>
+  <script src="/resources/scripts/JDButtonToggleGroup.js" async></script>
+  <script src="/resources/scripts/JDCalendar.js" async></script>
+  <script src="/resources/scripts/session.js" async></script>
 
 </head>
 
 <body>
-	<a href="/" id="symbol" aria-labelledby="logo" tabindex="-1"></a>
+  <a href="/" id="symbol" aria-labelledby="logo" tabindex="-1"></a>
 
-	<header>
-		<a href="/" id="logo">Analytique</a>
-		<nav>
-			<ul>
-				<li><a>Paramètres</a></li>
-				<li><a id="log-out" href="/">Se déconnecter</a></li>
-			</ul>
-		</nav>
-	</header>
+  <header>
+    <a href="/" id="logo">Analytique</a>
+    <nav>
+      <ul>
+        <li><a>Paramètres</a></li>
+        <li><a id="log-out" href="/">Se déconnecter</a></li>
+      </ul>
+    </nav>
+  </header>
 
-	<main class="analytics">
+  <main class="analytics">
 
-		<section>
-			<hgroup>
-				<button id="filter-reset" disabled><jd-icon icon="x"></jd-icon></button>
-				<h1 id="range-display">Ce mois-ci</h1>
-				<p>sur <jd-select id="origin-selector"></jd-select></p>
-			</hgroup>
-			<div class="range-select">
-				<jd-button-toggle-group id="range-mode">
-					<button class="button" value="year">Par année</button>
-					<button class="button" value="month" selected>Par mois</button>
-					<button class="button" value="week">Par semaine</button>
-					<button class="button" value="custom" id="custom-range">
-						<jd-icon icon="calendar"></jd-icon>
-						<div class="popover" id="calendar-container">
-							<jd-calendar data-mode="day" id="calendar"></jd-calendar>
-						</div>
-					</button>
-				</jd-button-toggle-group>
-				<div class="arrow-button-group">
-					<button class="button round" id="range-previous" disabled></button>
-					<button class="button round" id="range-next" disabled></button>
-				</div>
-			</div>
-		</section>
+    <section>
+      <hgroup>
+        <button id="filter-reset" disabled><jd-icon icon="x"></jd-icon></button>
+        <h1 id="range-display">Ce mois-ci</h1>
+        <p>sur <jd-select id="origin-selector"></jd-select></p>
+      </hgroup>
+      <div class="range-select">
+        <jd-button-toggle-group id="range-mode">
+          <button class="button" value="year">Par année</button>
+          <button class="button" value="month" selected>Par mois</button>
+          <button class="button" value="week">Par semaine</button>
+          <button class="button" value="custom" id="custom-range">
+            <jd-icon icon="calendar"></jd-icon>
+            <div class="popover" id="calendar-container">
+              <jd-calendar data-mode="day" id="calendar"></jd-calendar>
+            </div>
+          </button>
+        </jd-button-toggle-group>
+        <div class="arrow-button-group">
+          <button class="button round" id="range-previous" disabled></button>
+          <button class="button round" id="range-next" disabled></button>
+        </div>
+      </div>
+    </section>
 
-		<section id="error-collapse">
-			<p id="error-display"></p>
-		</section>
+    <section id="error-collapse">
+      <p id="error-display"></p>
+    </section>
 
-		<section class="analytics-group">
-			<h2>Intérêt</h2>
+    <section class="analytics-group">
+      <h2>Intérêt</h2>
 
-			<div class="card">
-				<hgroup>
-					<h3>Sessions</h3>
-					<jd-icon icon="help" tooltip="Total des sessions pour cette période."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Sessions</h3>
+          <jd-icon icon="help" tooltip="Total des sessions pour cette période."></jd-icon>
+        </hgroup>
 
-				<data class="big" id="session-total"></data>
+        <data class="big" id="session-total"></data>
 
-				<figure>
-					<jd-graph id="session-total-graph"></jd-graph>
-				</figure>
-			</div>
+        <figure>
+          <jd-graph id="session-total-graph"></jd-graph>
+        </figure>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Engagement</h3>
-					<jd-icon icon="help" tooltip="Nombre de vues moyen par session."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Engagement</h3>
+          <jd-icon icon="help" tooltip="Nombre de vues moyen par session."></jd-icon>
+        </hgroup>
 
-				<data class="big" id="avg-session-length"><small></small></data>
+        <data class="big" id="avg-session-length"><small></small></data>
 
-				<figure>
-					<jd-graph id="avg-session-length-graph"></jd-graph>
-				</figure>
-			</div>
+        <figure>
+          <jd-graph id="avg-session-length-graph"></jd-graph>
+        </figure>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Pages populaires</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par pages."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Pages populaires</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par pages."></jd-icon>
+        </hgroup>
 
-				<ol id="page-views">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
-		</section>
+        <ol id="page-views">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
+    </section>
 
-		<section class="analytics-group">
-			<h2>Acquisition</h2>
+    <section class="analytics-group">
+      <h2>Acquisition</h2>
 
-			<div class="card">
-				<hgroup>
-					<h3>Canaux</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par canal d’acquisition."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Canaux</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par canal d’acquisition."></jd-icon>
+        </hgroup>
 
-				<ol id="acquisition-channels">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
+        <ol id="acquisition-channels">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Origines</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Origines</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis."></jd-icon>
+        </hgroup>
 
-				<ol id="referrer-origins">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
+        <ol id="referrer-origins">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Points d’entrée</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par page d’atterissage."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Points d’entrée</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par page d’atterissage."></jd-icon>
+        </hgroup>
 
-				<ol id="landings">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
-		</section>
+        <ol id="landings">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
+    </section>
 
-		<section class="analytics-group">
-			<h2>Profilage</h2>
+    <section class="analytics-group">
+      <h2>Profilage</h2>
 
-			<div class="card">
-				<hgroup>
-					<h3>Bilinguisme</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par classe de bilinguisme."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Bilinguisme</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par classe de bilinguisme."></jd-icon>
+        </hgroup>
 
-				<ol id="bilingualism-classes">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
+        <ol id="bilingualism-classes">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Pays</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par pays."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Pays</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par pays."></jd-icon>
+        </hgroup>
 
-				<ol id="countries">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
+        <ol id="countries">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Villes d’intérêt</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par ville, pour certains pays d’intérêt."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Villes d’intérêt</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par ville, pour certains pays d’intérêt."></jd-icon>
+        </hgroup>
 
-				<ol id="cities">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
+        <ol id="cities">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Systèmes d’exploitation</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par système d’exploitation."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Systèmes d’exploitation</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par système d’exploitation."></jd-icon>
+        </hgroup>
 
-				<ol id="oses">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
+        <ol id="oses">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Moteurs de rendu</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par moteur de rendu."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Moteurs de rendu</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par moteur de rendu."></jd-icon>
+        </hgroup>
 
-				<ol id="renderingEngines">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
+        <ol id="renderingEngines">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Tailles d’écran</h3>
-					<jd-icon icon="help" tooltip="Nombre de sessions par taille d’écran. Ces points d’arrêt correspondent à ceux utiliser dans les feuilles de style du site. Ils indiquent donc quels styles s’appliquaient pour cet utilisateur."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Tailles d’écran</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par taille d’écran. Ces points d’arrêt correspondent à ceux utiliser dans les feuilles de style du site. Ils indiquent donc quels styles s’appliquaient pour cet utilisateur."></jd-icon>
+        </hgroup>
 
-				<ol id="screen-breakpoints">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
-		</section>
+        <ol id="screen-breakpoints">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
+    </section>
 
-		<section class="analytics-group">
-			<h2>Autre</h2>
+    <section class="analytics-group">
+      <h2>Autre</h2>
 
-			<div class="card">
-				<hgroup>
-					<h3>Pages d’erreur</h3>
-					<jd-icon icon="help" tooltip="Nombre de <em>vues</em> sur des pages d’erreurs."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Pages d’erreur</h3>
+          <jd-icon icon="help" tooltip="Nombre de <em>vues</em> sur des pages d’erreurs."></jd-icon>
+        </hgroup>
 
-				<ol id="error-pages">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
+        <ol id="error-pages">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
 
-			<div class="card">
-				<hgroup>
-					<h3>Traffic exclu</h3>
-					<jd-icon icon="help" tooltip="Nombre de <em>vues</em> exclues du traffic selon la cause. Les pourcentages sont sur le nombre de vue total <em>avant</em> filtrage."></jd-icon>
-				</hgroup>
+      <div class="card">
+        <hgroup>
+          <h3>Traffic exclu</h3>
+          <jd-icon icon="help" tooltip="Nombre de <em>vues</em> exclues du traffic selon la cause. Les pourcentages sont sur le nombre de vue total <em>avant</em> filtrage."></jd-icon>
+        </hgroup>
 
-				<ol id="excluded-traffic">
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-					<li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-				</ol>
-			</div>
-		</section>
+        <ol id="excluded-traffic">
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
+        </ol>
+      </div>
+    </section>
 
-	</main>
+  </main>
 
-	<footer>
-		<p>© 2022 Jérémie Dupuis</p>
-		<p>v0.6.0</p>
-	</footer>
+  <footer>
+    <p>© 2022 Jérémie Dupuis</p>
+    <p>v0.6.0</p>
+  </footer>
 
 </body>
 

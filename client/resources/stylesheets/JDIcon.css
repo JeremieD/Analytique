@@ -1,12 +1,12 @@
 jd-icon {
-	display: inline-block;
+  display: inline-block;
 }
 
 jd-icon.placeholder {
-	min-width: 16px;
-	min-height: 16px;
+  min-width: 16px;
+  min-height: 16px;
 }
 
 jd-icon svg {
-	overflow: visible;
+  overflow: visible;
 }

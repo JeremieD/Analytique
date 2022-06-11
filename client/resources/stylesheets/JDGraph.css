@@ -1,142 +1,142 @@
 jd-graph {
-	display: block;
-	position: relative;
-	width: 100%;
-	font-size: 12px;
-	display: grid;
-	grid-template-areas: "y-axis graph"
-						 "x-axis x-axis";
-	grid-template-columns: min-content 1fr;
-	grid-template-rows: minmax(80px, 1fr) min-content;
-	gap: 0 16px;
+  display: block;
+  position: relative;
+  width: 100%;
+  font-size: 12px;
+  display: grid;
+  grid-template-areas: "y-axis graph"
+                       "x-axis x-axis";
+  grid-template-columns: min-content 1fr;
+  grid-template-rows: minmax(80px, 1fr) min-content;
+  gap: 0 16px;
 }
 
 jd-graph>axis[name="x"] {
-	display: block;
-	width: 100%;
-	border-top: 1px solid var(--color-text);
-	padding-top: 4px;
-	grid-area: x-axis;
+  display: block;
+  width: 100%;
+  border-top: 1px solid var(--color-text);
+  padding-top: 4px;
+  grid-area: x-axis;
 }
 
 jd-graph>axis[name="y"] {
-	grid-area: y-axis;
-	display: grid;
-	height: 80%;
-	grid-template-rows: 1fr 1fr 1fr;
-	font-family: "Akkurat Mono";
-	text-align: right;
+  grid-area: y-axis;
+  display: grid;
+  height: 80%;
+  grid-template-rows: 1fr 1fr 1fr;
+  font-family: "Akkurat Mono";
+  text-align: right;
 }
 
 jd-graph>axis>label {
-	color: var(--color-grey);
+  color: var(--color-grey);
 }
 
 jd-graph>graph {
-	display: block;
-	position: relative;
-	grid-area: graph;
-	width: calc(100% - 24px);
-	margin-top: .5em;
+  display: block;
+  position: relative;
+  grid-area: graph;
+  width: calc(100% - 24px);
+  margin-top: .5em;
 }
 
 jd-graph>graph>point {
-	display: block;
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	transform: translateX(-50%) translateY(50%);
-	cursor: pointer;
+  display: block;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  transform: translateX(-50%) translateY(50%);
+  cursor: pointer;
 }
 
 jd-graph>graph>point.selected {
-	cursor: default;
+  cursor: default;
 }
 
 jd-graph>graph>point:hover {
-	z-index: 10;
+  z-index: 10;
 }
 
 jd-graph>graph>point::before {
-	content: "";
-	display: block;
-	width: 4px;
-	height: 4px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background-color: var(--color-text);
-	outline: 3px solid var(--color-background);
-	border-radius: 50%;
-	transition: .2s ease all;
+  content: "";
+  display: block;
+  width: 4px;
+  height: 4px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--color-text);
+  outline: 3px solid var(--color-background);
+  border-radius: 50%;
+  transition: .2s ease all;
 }
 
 jd-graph>graph>point:hover::before, jd-graph>graph>point.selected::before {
-	width: 8px;
-	height: 8px;
-	background-color: var(--color-accent);
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-accent);
 }
 
 jd-graph>graph>cursor {
-	display: block;
-	position: absolute;
-	top: 0;
-	width: 2px;
-	opacity: .5;
-	height: 100%;
-	background-color: var(--color-accent);
-	transform: translateX(-50%);
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 2px;
+  opacity: .5;
+  height: 100%;
+  background-color: var(--color-accent);
+  transform: translateX(-50%);
 }
 
 jd-graph>graph>svg {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	fill: none;
-	stroke: var(--color-grey);
-	stroke-width: 1px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--color-grey);
+  stroke-width: 1px;
 }
 
 jd-graph>graph>svg * {
-	vector-effect: non-scaling-stroke;
+  vector-effect: non-scaling-stroke;
 }
 
 jd-graph>graph>point>label {
-	display: block;
-	position: absolute;
-	width: max-content;
-	padding: 4px;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background-color: var(--color-background);
-	box-shadow: 0 0 2px 2px var(--color-background);
-	border-radius: 8px;
-	text-align: center;
-	color: var(--color-grey);
-	opacity: 0;
-	transition: .15s ease all;
-	pointer-events: none;
+  display: block;
+  position: absolute;
+  width: max-content;
+  padding: 4px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--color-background);
+  box-shadow: 0 0 2px 2px var(--color-background);
+  border-radius: 8px;
+  text-align: center;
+  color: var(--color-grey);
+  opacity: 0;
+  transition: .15s ease all;
+  pointer-events: none;
 }
 
 jd-graph>graph>point:hover>label {
-	transform: translate(-50%, calc(-100% - 6px));
-	opacity: 1;
+  transform: translate(-50%, calc(-100% - 6px));
+  opacity: 1;
 }
 
 jd-graph>graph>point>label>em, jd-graph>graph>point.selected>label {
-	color: var(--color-text);
-	font-weight: bold;
-	box-shadow: none;
+  color: var(--color-text);
+  font-weight: bold;
+  box-shadow: none;
 }
 
 jd-graph>graph>point.selected>label {
-	text-align: left;
-	top: 50%;
-	left: 75%;
-	transform: translateY(-50%);
-	opacity: 1;
+  text-align: left;
+  top: 50%;
+  left: 75%;
+  transform: translateY(-50%);
+  opacity: 1;
 }

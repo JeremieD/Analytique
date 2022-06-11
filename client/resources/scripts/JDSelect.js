@@ -3,172 +3,171 @@
  */
 class JDSelect extends HTMLElement {
 
-	constructor() {
-		super();
+  constructor() {
+    super();
 
-		this.value;
-		this.options = [];
-		this.label = document.createElement("label");
+    this.value;
+    this.options = [];
+    this.label = document.createElement("label");
 
-		this._mouseDownTime;
-		this._abort;
+    this._mouseDownTime;
+    this._abort;
 
-		this.menu = document.createElement("ol");
-		this.menu.classList.add("jd-select-menu");
+    this.menu = document.createElement("ol");
+    this.menu.classList.add("jd-select-menu");
 
-		this.addEventListener("mousedown", this.handleMouseDown);
-		this.addEventListener("mouseup", this.handleMouseUp);
-		this.addEventListener("keydown", this.handleKeyboardEvent);
-	}
+    this.addEventListener("mousedown", this.handleMouseDown);
+    this.addEventListener("mouseup", this.handleMouseUp);
+    this.addEventListener("keydown", this.handleKeyboardEvent);
+  }
 
-	connectedCallback() {
-		this.tabIndex = 0;
+  connectedCallback() {
+    this.tabIndex = 0;
 
-		const icon = document.createElement("jd-icon");
-		icon.setAttribute("icon", "chevron-down");
+    const icon = document.createElement("jd-icon");
+    icon.setAttribute("icon", "chevron-down");
 
-		this.append(this.label, icon);
-	}
+    this.append(this.label, icon);
+  }
 
-	addOption(value) {
-		if (this.options.length === 0) {
-			this.label.innerText = value;
-		}
-		this.options.push(value);
+  addOption(value) {
+    if (this.options.length === 0) {
+      this.label.innerText = value;
+    }
+    this.options.push(value);
 
-		const newElement = document.createElement("li");
-		newElement.tabIndex = -1;
-		newElement.dataset.value = value;
+    const newElement = document.createElement("li");
+    newElement.tabIndex = -1;
+    newElement.dataset.value = value;
 
-		newElement.innerText = value;
-		this.menu.append(newElement);
-	}
+    newElement.innerText = value;
+    this.menu.append(newElement);
+  }
 
-	handleMouseDown(e) {
-		if (!this.classList.contains("open")) {
-			this._mouseDownTime = Date.now();
-			this.open();
-		}
-	}
+  handleMouseDown(e) {
+    if (this.classList.contains("open")) return;
+    this._mouseDownTime = Date.now();
+    this.open();
+  }
 
-	handleMouseUp(e) {
-		if (this._mouseDownTime === undefined || Date.now() - this._mouseDownTime > 250) {
-			if (e.target !== this.menu && e.target.dataset.value !== this.value) {
-				this.value = e.target.dataset.value;
-				this.label.innerText = e.target.dataset.value;
-				this.dispatchEvent(new Event("change"));
-			}
-			this.close();
-		}
-	}
+  handleMouseUp(e) {
+    if (this._mouseDownTime === undefined || Date.now() - this._mouseDownTime > 250) {
+      if (e.target !== this.menu && e.target.dataset.value !== this.value) {
+        this.value = e.target.dataset.value;
+        this.label.innerText = e.target.dataset.value;
+        this.dispatchEvent(new Event("change"));
+      }
+      this.close();
+    }
+  }
 
-	handleKeyboardEvent(e) {
-		if (e.code === "Space" || e.code === "Enter") {
-			e.preventDefault();
+  handleKeyboardEvent(e) {
+    if (e.code === "Space" || e.code === "Enter") {
+      e.preventDefault();
 
-			if (e.target === this) {
-				this.open();
-				this.menu.children[this.options.indexOf(this.value)].focus();
+      if (e.target === this) {
+        this.open();
+        this.menu.children[this.options.indexOf(this.value)].focus();
 
-			} else {
-				if (e.target.dataset.value !== this.value) {
-					this.value = e.target.dataset.value;
-					this.label.innerText = e.target.dataset.value;
-					this.dispatchEvent(new Event("change"));
-				}
-				this.close();
-				this.focus();
-			}
+      } else {
+        if (e.target.dataset.value !== this.value) {
+          this.value = e.target.dataset.value;
+          this.label.innerText = e.target.dataset.value;
+          this.dispatchEvent(new Event("change"));
+        }
+        this.close();
+        this.focus();
+      }
 
-		} else if (e.code === "ArrowDown") {
-			e.preventDefault();
+    } else if (e.code === "ArrowDown") {
+      e.preventDefault();
 
-			if (e.target === this) {
-				if (this.classList.contains("open")) {
-					this.menu.children[0].focus();
-					return;
-				}
-				const nextIndex = this.options.indexOf(this.value) + 1;
-				if (nextIndex < this.options.length) {
-					this.value = this.options[nextIndex];
-					this.label.innerText = this.options[nextIndex];
-					this.dispatchEvent(new Event("change"));
-				}
-				return;
-			}
+      if (e.target === this) {
+        if (this.classList.contains("open")) {
+          this.menu.children[0].focus();
+          return;
+        }
+        const nextIndex = this.options.indexOf(this.value) + 1;
+        if (nextIndex < this.options.length) {
+          this.value = this.options[nextIndex];
+          this.label.innerText = this.options[nextIndex];
+          this.dispatchEvent(new Event("change"));
+        }
+        return;
+      }
 
-			let nextIndex = this.options.indexOf(e.target.dataset.value) + 1;
-			if (nextIndex >= this.options.length) {
-				nextIndex = 0;
-			}
+      let nextIndex = this.options.indexOf(e.target.dataset.value) + 1;
+      if (nextIndex >= this.options.length) {
+        nextIndex = 0;
+      }
 
-			this.menu.children[nextIndex].focus();
+      this.menu.children[nextIndex].focus();
 
-		} else if (e.code === "ArrowUp") {
-			e.preventDefault();
+    } else if (e.code === "ArrowUp") {
+      e.preventDefault();
 
-			if (e.target === this) {
-				if (this.classList.contains("open")) {
-					this.menu.children[this.options.length - 1].focus();
-					return;
-				}
-				const previousIndex = this.options.indexOf(this.value) - 1;
-				if (previousIndex >= 0) {
-					this.value = this.options[previousIndex];
-					this.label.innerText = this.options[previousIndex];
-					this.dispatchEvent(new Event("change"));
-				}
-				return;
-			}
+      if (e.target === this) {
+        if (this.classList.contains("open")) {
+          this.menu.children[this.options.length - 1].focus();
+          return;
+        }
+        const previousIndex = this.options.indexOf(this.value) - 1;
+        if (previousIndex >= 0) {
+          this.value = this.options[previousIndex];
+          this.label.innerText = this.options[previousIndex];
+          this.dispatchEvent(new Event("change"));
+        }
+        return;
+      }
 
-			let previousIndex = this.options.indexOf(e.target.dataset.value) - 1;
-			if (previousIndex < 0) {
-				previousIndex = this.options.length - 1;
-			}
+      let previousIndex = this.options.indexOf(e.target.dataset.value) - 1;
+      if (previousIndex < 0) {
+        previousIndex = this.options.length - 1;
+      }
 
-			this.menu.children[previousIndex].focus();
+      this.menu.children[previousIndex].focus();
 
-		} else if (e.code === "Tab") {
-			this.close();
+    } else if (e.code === "Tab") {
+      this.close();
 
-		} else if (e.code === "Escape") {
-			this.close();
-			e.preventDefault();
+    } else if (e.code === "Escape") {
+      this.close();
+      e.preventDefault();
 
-		} else {
-			this.close();
-		}
-	}
+    } else {
+      this.close();
+    }
+  }
 
-	open() {
-		this.classList.add("open");
-		this.menu.classList.remove("fade-out");
+  open() {
+    this.classList.add("open");
+    this.menu.classList.remove("fade-out");
 
-		this._abort = new AbortController();
+    this._abort = new AbortController();
 
-		const yOffset = -12 - this.options.indexOf(this.value) * 32;
-		this.menu.style.transform = "translateY(" + yOffset + "px)";
-		this.append(this.menu);
+    const yOffset = -12 - this.options.indexOf(this.value) * 32;
+    this.menu.style.transform = "translateY(" + yOffset + "px)";
+    this.append(this.menu);
 
-		this.backdropClickTimeout = setTimeout(() => {
-			document.addEventListener("click", () => {
-				this.close();
-			}, { once: true, passive: true, signal: this._abort.signal });
-		}, 125);
-	}
+    this.backdropClickTimeout = setTimeout(() => {
+      document.addEventListener("click", () => {
+        this.close();
+      }, { once: true, passive: true, signal: this._abort.signal });
+    }, 125);
+  }
 
-	close() {
-		clearTimeout(this.backdropClickTimeout);
-		this._abort.abort();
-		this._mouseDownTime = undefined;
+  close() {
+    clearTimeout(this.backdropClickTimeout);
+    this._abort.abort();
+    this._mouseDownTime = undefined;
 
-		this.menu.addEventListener("animationend", () => {
-			this.menu.remove();
-		}, { once: true, passive: true });
+    this.menu.addEventListener("animationend", () => {
+      this.menu.remove();
+    }, { once: true, passive: true });
 
-		this.classList.remove("open");
-		this.menu.classList.add("fade-out");
-	}
+    this.classList.remove("open");
+    this.menu.classList.add("fade-out");
+  }
 
 }
 

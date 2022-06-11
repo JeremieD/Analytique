@@ -2,58 +2,58 @@
 <html dir="ltr" lang="fr">
 
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<title>JD Analytique</title>
+  <title>JD Analytique</title>
 
-	<link rel="apple-touch-icon" sizes="180x180" href="https://jeremiedupuis.com/resources/graphics/favicon/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-16x16.png">
-	<link rel="manifest" href="https://jeremiedupuis.com/resources/graphics/favicon/site.webmanifest">
-	<link rel="mask-icon" href="https://jeremiedupuis.com/resources/graphics/favicon/safari-pinned-tab.svg" color="#8833ff">
-	<link rel="shortcut icon" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon.ico">
-	<meta name="msapplication-TileColor" content="#603cba">
-	<meta name="msapplication-config" content="https://jeremiedupuis.com/resources/graphics/favicon/browserconfig.xml">
-	<meta name="theme-color" content="#eee">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://jeremiedupuis.com/resources/graphics/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon-16x16.png">
+  <link rel="manifest" href="https://jeremiedupuis.com/resources/graphics/favicon/site.webmanifest">
+  <link rel="mask-icon" href="https://jeremiedupuis.com/resources/graphics/favicon/safari-pinned-tab.svg" color="#8833ff">
+  <link rel="shortcut icon" href="https://jeremiedupuis.com/resources/graphics/favicon/favicon.ico">
+  <meta name="msapplication-TileColor" content="#603cba">
+  <meta name="msapplication-config" content="https://jeremiedupuis.com/resources/graphics/favicon/browserconfig.xml">
+  <meta name="theme-color" content="#eee">
 
-	<!-- Styling -->
-	<link rel="stylesheet" href="/resources/stylesheets/jd.css">
-	<link rel="stylesheet" href="/resources/stylesheets/analytics.css">
-	<link rel="stylesheet" href="/resources/stylesheets/form.css">
-	<link rel="stylesheet" href="/resources/stylesheets/login.css">
-	<link rel="stylesheet" href="/resources/stylesheets/JDIcon.css">
+  <!-- Styling -->
+  <link rel="stylesheet" href="/resources/stylesheets/jd.css">
+  <link rel="stylesheet" href="/resources/stylesheets/analytics.css">
+  <link rel="stylesheet" href="/resources/stylesheets/form.css">
+  <link rel="stylesheet" href="/resources/stylesheets/login.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDIcon.css">
 
-	<!-- Scripts -->
-	<script src="/resources/scripts/utilities.js"></script>
-	<script async src="/resources/scripts/login.js"></script>
-	<script async src="/resources/scripts/JDIcon.js"></script>
+  <!-- Scripts -->
+  <script src="/resources/scripts/utilities.js"></script>
+  <script async src="/resources/scripts/login.js"></script>
+  <script async src="/resources/scripts/JDIcon.js"></script>
 
 </head>
 
 <body class="login">
 
-	<span id="symbol" aria-labelledby="logo"></span>
-	<header>
-		<span id="logo">Analytique</span>
-	</header>
+  <span id="symbol" aria-labelledby="logo"></span>
+  <header>
+    <span id="logo">Analytique</span>
+  </header>
 
-	<main>
+  <main>
 
-		<form id="form" method="post" action="/login">
-			<h3>Connexion</h3>
-			<input type="text" name="u" id="username" placeholder="Nom d’utilisateur" required autofocus>
-			<div class="password-input">
-				<input type="password" name="p" id="password" placeholder="Mot de passe" required>
-				<button type="button" id="togglePassword"><jd-icon icon="eye"></jd-icon></button>
-			</div>
-			<div>
-				<p id="feedback"></p>
-				<button class="button primary">Se connecter</button>
-			</div>
-		</form>
+    <form id="form" method="post" action="/login">
+      <h3>Connexion</h3>
+      <input type="text" name="u" id="username" placeholder="Nom d’utilisateur" required autofocus>
+      <div class="password-input">
+        <input type="password" name="p" id="password" placeholder="Mot de passe" required>
+        <button type="button" id="togglePassword"><jd-icon icon="eye"></jd-icon></button>
+      </div>
+      <div>
+        <p id="feedback"></p>
+        <button class="button primary">Se connecter</button>
+      </div>
+    </form>
 
-	</main>
+  </main>
 
 </body>
 

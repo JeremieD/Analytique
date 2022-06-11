@@ -1,55 +1,55 @@
 .login {
-	padding: 0;
-	justify-content: center;
-	align-items: center;
-	gap: 64px;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  gap: 64px;
 }
 
 .login header {
-	position: relative;
-	height: 64px;
+  position: relative;
+  height: 64px;
 }
 
 .login #logo {
-	position: absolute;
-	left: calc(50% - .5em);
+  position: absolute;
+  left: calc(50% - .5em);
 }
 
 .login #symbol {
-	position: absolute;
-	top: calc(50% - 10.55em);
-	left: calc(50% - 84px - .5em);
+  position: absolute;
+  top: calc(50% - 10.55em);
+  left: calc(50% - 84px - .5em);
 }
 
 .login main {
-	max-width: 384px;
-	padding: 0;
-	flex-grow: 0;
+  max-width: 384px;
+  padding: 0;
+  flex-grow: 0;
 }
 
 #form {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 #form>div {
-	display: flex;
-	width: 100%;
-	justify-content: space-between;
-	align-items: center;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
 }
 
 #form>:last-child { margin-top: 1em; }
 
 .shake {
-	animation: shake .33s ease both;
+  animation: shake .33s ease both;
 }
 
 @keyframes shake {
-	0%, 100% 	{ transform: translateX(0); }
-	20%  		{ transform: translateX(-1%); }
-	40%  		{ transform: translateX(2%); }
-	60%  		{ transform: translateX(-2%); }
-	80%  		{ transform: translateX(1%); }
+  0%, 100%  { transform: translateX(0); }
+  20%       { transform: translateX(-1%); }
+  40%       { transform: translateX(2%); }
+  60%       { transform: translateX(-2%); }
+  80%       { transform: translateX(1%); }
 }

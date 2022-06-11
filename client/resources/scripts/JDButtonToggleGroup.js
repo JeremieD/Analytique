@@ -3,67 +3,67 @@
  */
 class JDButtonToggleGroup extends HTMLElement {
 
-	constructor() {
-		super();
-		this.value = this.querySelector("[selected]").value;
-		this.values = [];
+  constructor() {
+    super();
 
-		for (const button of this.children) {
-			this.values.push(button.value);
+    this.value = this.querySelector("[selected]").value;
+    this.values = [];
 
-			// Select on click.
-			const self = this;
-			button.addEventListener("click", function() {
-				self.select(this.value);
-			});
-		}
+    for (const button of this.children) {
+      this.values.push(button.value);
 
-		this.select(this.value);
+      // Select on click.
+      const self = this;
+      button.addEventListener("click", function() {
+        self.select(this.value);
+      });
+    }
 
-		this.addEventListener("keydown", this.handleKeyboardEvent);
-	}
+    this.select(this.value);
 
-	// Selects the given value.
-	select(value, focus = false) {
-		for (const button of this.children) {
-			const selected = button.value === value;
-			button.tabIndex = selected ? 0 : -1;
+    this.addEventListener("keydown", this.handleKeyboardEvent);
+  }
 
-			if (selected) {
-				button.setAttribute("selected", "");
-				if (focus) {
-					button.focus();
-				}
-				this.value = value;
-				this.dispatchEvent(new Event("change"));
+  // Selects the given value.
+  select(value, focus = false) {
+    for (const button of this.children) {
+      const selected = button.value === value;
+      button.tabIndex = selected ? 0 : -1;
 
-			} else {
-				button.removeAttribute("selected");
-			}
-		}
-	}
+      if (selected) {
+        button.setAttribute("selected", "");
+        if (focus) {
+          button.focus();
+        }
+        this.value = value;
+        this.dispatchEvent(new Event("change"));
 
-	handleKeyboardEvent(e) {
-		// Selects next value.
-		if (e.code === "ArrowRight") {
-			let nextIndex = this.values.indexOf(e.target.value) + 1;
-			if (nextIndex >= this.values.length) {
-				nextIndex = 0;
-			}
-			this.select(this.values[nextIndex], true);
+      } else {
+        button.removeAttribute("selected");
+      }
+    }
+  }
 
-		// Selects previous value.
-		} else if (e.code === "ArrowLeft") {
-			let previousIndex = this.values.indexOf(e.target.value) - 1;
-			if (previousIndex < 0) {
-				previousIndex = this.values.length - 1;
-			}
-			this.select(this.values[previousIndex], true);
-		}
+  handleKeyboardEvent(e) {
+    // Selects next value.
+    if (e.code === "ArrowRight") {
+      let nextIndex = this.values.indexOf(e.target.value) + 1;
+      if (nextIndex >= this.values.length) {
+        nextIndex = 0;
+      }
+      this.select(this.values[nextIndex], true);
 
-		e.stopPropagation();
-	}
+    // Selects previous value.
+    } else if (e.code === "ArrowLeft") {
+      let previousIndex = this.values.indexOf(e.target.value) - 1;
+      if (previousIndex < 0) {
+        previousIndex = this.values.length - 1;
+      }
+      this.select(this.values[previousIndex], true);
+    }
 
+    e.stopPropagation();
+  }
 }
 
 customElements.define("jd-button-toggle-group", JDButtonToggleGroup);

@@ -9,29 +9,29 @@ To run your own Analytique server, you will need [Node.js](https://nodejs.org), 
 After cloning this repo on your machine, you will need to create `config.json` at the root. That file will eventually look like this:
 ```json
 {
-	"server": {
-		"hostname": "localhost",
-		"port": 8000,
-		"compressionEnabled": false
-	},
+  "server": {
+    "hostname": "localhost",
+    "port": 8000,
+    "compressionEnabled": false
+  },
 
-	"users": {
-		"username": "passwordHash"
-	},
+  "users": {
+    "username": "passwordHash"
+  },
 
-	"analytics": {
-		"ipGeoToken": "token"
-	},
+  "analytics": {
+    "ipGeoToken": "token"
+  },
 
-	"origins": {
-		"hostname": {
-			"allowedUsers": [ "jeremie" ],
-			"preciseGeolocation": [ "CA" ],
-			"errorPagePatterns": [ "Erreur" ],
-			"excludeClientIPs": [ "104.221.122.236" ],
-			"excludeCountries": [ "CN" ]
-		}
-	}
+  "origins": {
+    "hostname": {
+      "allowedUsers": [ "jeremie" ],
+      "preciseGeolocation": [ "CA" ],
+      "errorPagePatterns": [ "Erreur" ],
+      "excludeClientIPs": [ "104.221.122.236" ],
+      "excludeCountries": [ "CN" ]
+    }
+  }
 }
 
 ```

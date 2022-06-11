@@ -1,334 +1,334 @@
 :root {
-	--color-secondary: var(--color-light);
-	--color-tertiary: #E8E8E8;
-	--color-loading1: #CCC;
-	--color-loading2: #D4D4D4;
-	color-scheme: light dark;
+  --color-secondary: var(--color-light);
+  --color-tertiary: #E8E8E8;
+  --color-loading1: #CCC;
+  --color-loading2: #D4D4D4;
+  color-scheme: light dark;
 }
 
 @media(prefers-color-scheme: dark) {
-	:root {
-		--color-secondary: var(--color-dark);
-		--color-tertiary: #282828;
-		--color-loading1: #282828;
-		--color-loading2: #2C2C2C;
-	}
+  :root {
+    --color-secondary: var(--color-dark);
+    --color-tertiary: #282828;
+    --color-loading1: #282828;
+    --color-loading2: #2C2C2C;
+  }
 }
 
 * { cursor: unset; }
 
 a:hover {
-	cursor: pointer;
-	color: var(--color-text);
+  cursor: pointer;
+  color: var(--color-text);
 }
 
 .analytics>:first-child {
-	position: relative;
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 24px;
-	align-items: start;
-	z-index: 10;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+  z-index: 10;
 }
 
 #filter-reset {
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	border-radius: 50%;
-	background-color: var(--color-accent);
-	transform: translate(calc(-100% - 8px), 50%);
-	transition: .2s ease all;
-	cursor: pointer;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--color-accent);
+  transform: translate(calc(-100% - 8px), 50%);
+  transition: .2s ease all;
+  cursor: pointer;
 }
 
 #filter-reset:disabled {
-	opacity: 0;
-	cursor: auto;
+  opacity: 0;
+  cursor: auto;
 }
 
 #filter-reset svg {
-	position: absolute;
-	width: 6px;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	color: var(--color-lightest);
-	opacity: 0;
-	transition: .2s ease opacity;
+  position: absolute;
+  width: 6px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-lightest);
+  opacity: 0;
+  transition: .2s ease opacity;
 }
 
 #filter-reset:hover svg, #filter-reset:focus-visible svg { opacity: 1; }
 
 .range-select {
-	display: flex;
-	gap: 24px;
-	justify-content: flex-end;
-	align-items: center;
-	transform: translateY(.5em);
+  display: flex;
+  gap: 24px;
+  justify-content: flex-end;
+  align-items: center;
+  transform: translateY(.5em);
 }
 
 .arrow-button-group {
-	display: flex;
-	gap: 8px;
+  display: flex;
+  gap: 8px;
 }
 
 .arrow-button-group>.button::before {
-	position: absolute;
-	font-size: 24px;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+  position: absolute;
+  font-size: 24px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .arrow-button-group>.button:first-of-type::before { content: "←"; }
 .arrow-button-group>.button:last-of-type::before { content: "→"; }
 
 #error-collapse {
-	overflow: hidden;
-	height: 0;
-	margin: 0;
-	opacity: 0;
-	transition: .25s .25s ease all;
+  overflow: hidden;
+  height: 0;
+  margin: 0;
+  opacity: 0;
+  transition: .25s .25s ease all;
 }
 
 #error-collapse.shown {
-	height: 1.5em;
-	margin: 64px 0 0;
-	opacity: 1;
+  height: 1.5em;
+  margin: 64px 0 0;
+  opacity: 1;
 }
 
 * + section {
-	margin-top: 80px;
+  margin-top: 80px;
 }
 
 .analytics-group {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
 }
 
 .analytics-group + .analytics-group { margin-top: 64px; }
 
 .card {
-	--color-background: var(--color-secondary);
-	position: relative;
-	display: grid;
-	gap: 16px;
-	grid-template-rows: auto 1fr;
-	min-height: 280px;
-	padding: 24px;
-	background-color: var(--color-background);
-	border-radius: 8px;
+  --color-background: var(--color-secondary);
+  position: relative;
+  display: grid;
+  gap: 16px;
+  grid-template-rows: auto 1fr;
+  min-height: 280px;
+  padding: 24px;
+  background-color: var(--color-background);
+  border-radius: 8px;
 }
 
 .card:nth-child(3n-1) {
-	grid-column-start: 2;
+  grid-column-start: 2;
 }
 
 .card>figure, .card>data.big {
-	align-self: end;
-	line-height: 1;
+  align-self: end;
+  line-height: 1;
 }
 
 .card figure>figcaption {
-	font-size: 12px;
-	color: var(--color-grey);
+  font-size: 12px;
+  color: var(--color-grey);
 }
 
 hgroup>p {
-	margin-top: .5em;
-	color: var(--color-grey);
+  margin-top: .5em;
+  color: var(--color-grey);
 }
 
 h1 {
-	position: relative;
-	font-size: 4em;
-	line-height: 1;
-	letter-spacing: -0.025em;
+  position: relative;
+  font-size: 4em;
+  line-height: 1;
+  letter-spacing: -0.025em;
 }
 
 .analytics-group>h2 {
-	transform: translateY(8px);
-	line-height: 1;
+  transform: translateY(8px);
+  line-height: 1;
 }
 
 .analytics-group>h2::after {
-	content: "";
-	display: block;
-	width: 64px;
-	height: 1px;
-	background-color: var(--color-grey);
-	transform: translateY(16px);
+  content: "";
+  display: block;
+  width: 64px;
+  height: 1px;
+  background-color: var(--color-grey);
+  transform: translateY(16px);
 }
 
 @media (max-width: 1680px) {
-	.analytics-group {
-		grid-template-columns: repeat(3, 1fr);
-	}
+  .analytics-group {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
-	.analytics-group>h2 {
-		grid-column: 1 / -1;
-		margin-bottom: 32px;
-	}
+  .analytics-group>h2 {
+    grid-column: 1 / -1;
+    margin-bottom: 32px;
+  }
 
-	.card:nth-child(3n-1) {
-		grid-column-start: auto;
-	}
+  .card:nth-child(3n-1) {
+    grid-column-start: auto;
+  }
 
-	.analytics section+section {
-		margin-top: 64px;
-	}
+  .analytics section+section {
+    margin-top: 64px;
+  }
 }
 
 @media (max-width: 1440px) {
-	.analytics>:first-child {
-		grid-template-columns: 1fr;
-		justify-items: start;
-	}
+  .analytics>:first-child {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
 }
 
 h3 {
-	width: calc(100% - 32px);
-	font-size: 21px;
-	line-height: 1;
+  width: calc(100% - 32px);
+  font-size: 21px;
+  line-height: 1;
 }
 
 .card>ol {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .card>ol>li {
-	display: grid;
-	position: relative;
-	grid-template-columns: 1fr repeat(2, minmax(3ch, max-content));
-	gap: 8px;
-	align-items: center;
+  display: grid;
+  position: relative;
+  grid-template-columns: 1fr repeat(2, minmax(3ch, max-content));
+  gap: 8px;
+  align-items: center;
 }
 
 .card>ol>li[data-filter-key] {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .card>ol>li.selected * {
-	color: var(--color-lightest);
+  color: var(--color-lightest);
 }
 
 .card>ol>li::before {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	box-sizing: content-box;
-	width: 100%;
-	height: 100%;
-	padding: 6px 24px;
-	background-color: var(--color-accent);
-	opacity: 0;
-	transition: .2s ease opacity;
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: content-box;
+  width: 100%;
+  height: 100%;
+  padding: 6px 24px;
+  background-color: var(--color-accent);
+  opacity: 0;
+  transition: .2s ease opacity;
 }
 
 .card>ol:not(.loading)>li.subdued {
-	opacity: .25;
+  opacity: .25;
 }
 
 .card>ol.loading>li:not(.selected) {
-	pointer-events: none;
+  pointer-events: none;
 }
 
 .card>ol>li.selected::before {
-	opacity: 1;
+  opacity: 1;
 }
 
 .card>ol>li.selected :is(data.secondary, data>small) {
-	opacity: .5;
+  opacity: .5;
 }
 
 .card>ol>li.last {
-	order: 1;
-	color: var(--color-grey);
+  order: 1;
+  color: var(--color-grey);
 }
 
 data {
-	position: relative;
-	display: block;
-	width: 100%;
-	overflow: clip;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: clip;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 data.numerical {
-	font-family: "Akkurat Mono";
-	text-align: right;
-	font-weight: bold;
+  font-family: "Akkurat Mono";
+  text-align: right;
+  font-weight: bold;
 }
 
 data.secondary, data>small {
-	color: var(--color-grey);
-	font-weight: normal;
+  color: var(--color-grey);
+  font-weight: normal;
 }
 
 data.big {
-	font-size: 80px;
-	line-height: 1;
-	font-weight: bold;
+  font-size: 80px;
+  line-height: 1;
+  font-weight: bold;
 }
 
 data.big, data.loading.big {
-	min-height: 1em;
+  min-height: 1em;
 }
 
 data.big>small {
-	font-size: 18px;
+  font-size: 18px;
 }
 
 :is(data, jd-graph)::after {
-	display: block;
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(90deg, var(--color-loading1) 0%, var(--color-loading2) 50%, var(--color-loading1) 100%), var(--color-loading1);
-	background-attachment: fixed;
-	background-size: 512px 512px;
-	background-repeat: repeat-y;
-	animation: loadingWave 2.5s .25s ease infinite both;
-	border-radius: 4px;
-	pointer-events: none;
-	opacity: 0;
-	transition: .2s ease opacity;
+  display: block;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-loading1) 0%, var(--color-loading2) 50%, var(--color-loading1) 100%), var(--color-loading1);
+  background-attachment: fixed;
+  background-size: 512px 512px;
+  background-repeat: repeat-y;
+  animation: loadingWave 2.5s .25s ease infinite both;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: .2s ease opacity;
 }
 
 @keyframes loadingWave {
-	from { background-position: -50%; }
-	to { background-position: 150%; }
+  from { background-position: -50%; }
+  to { background-position: 150%; }
 }
 
 :is(data, jd-graph).loading, .loading *, .loading *::before {
-	color: transparent !important;
-	background-color: transparent !important;
-	border-color: transparent !important;
-	outline-color: transparent !important;
-	fill: transparent !important;
-	stroke: transparent !important;
-	user-select: none;
-		-webkit-user-select: none;
-	pointer-events: none;
-	transition: .2s .1s ease all;
+  color: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  outline-color: transparent !important;
+  fill: transparent !important;
+  stroke: transparent !important;
+  user-select: none;
+    -webkit-user-select: none;
+  pointer-events: none;
+  transition: .2s .1s ease all;
 }
 
 .loading data {
-	min-height: 1.5em;
-	height: 100%;
+  min-height: 1.5em;
+  height: 100%;
 }
 
 :is(data, jd-graph).loading::after, .loading :not(.selected) data::after {
-	opacity: 1;
-	transition: .2s .2s ease opacity;
+  opacity: 1;
+  transition: .2s .2s ease opacity;
 }
