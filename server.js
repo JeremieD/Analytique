@@ -2,13 +2,12 @@ const http = require("http");
 const fs = require("fs").promises;
 const uri = require("./server/utilities/uri.js");
 
-const config = require("./server/config.js").server;
-
 const beaconReceiver = require("./server/api/beaconReceiver.js");
 const api = require("./server/api/processor.js");
 const static = require("./server/static.js");
 const account = require("./server/account.js");
 
+const config = require("./server/config.js").server;
 const hostname = config.hostname;
 const port = config.port;
 
@@ -33,12 +32,13 @@ const requestListener = (req, res) => {
         res.setHeader("Access-Control-Allow-Origin", "*");
         static.serveFile(req, res, "/beaconSender.js");
 
-     // Request for data
+      // Request for data
       } else if (req.url.startsWith("/api/")) {
         if (account.sessionIsValid(req, res)) {
           api.processRequest(req, res);
         }
 
+      // Serve 404 error
       } else {
         static.serveError(res);
       }
@@ -54,12 +54,14 @@ const requestListener = (req, res) => {
       } else if (req.url === "/login") {
         account.login(req, res);
 
+      // Serve 404 error
       } else {
         static.serveError(res);
       }
 
       break;
 
+    // Protocol is unsupported
     default:
       static.serveError(res, "", 405);
   }

@@ -3,13 +3,16 @@ const static = require("../static.js");
 
 const origins = Object.keys(require("../config.js").origins);
 
-/*
+/**
  * A user-agent is sending a view beacon.
  * The server calls this function with the *req*uest and *res*ponse context.
+ * @param req - The request object from the HTTP server.
+ * @param res - The response object from the HTTP server.
  */
 function receive(req, res) {
   let body = "";
 
+  // When receiving data...
   req.on("data", data => {
     body += data;
 
@@ -19,8 +22,11 @@ function receive(req, res) {
     }
   });
 
+  // When done receiving data.
   req.on("end", () => {
     const beacon = body.split("\t");
+
+    // Test for beacon version and length.
     if (beacon[0] !== "1" || beacon.length !== 10) {
       // Received beacon is invalid.
       static.serveError(res, `Received an invalid beacon: “${beacon}”`, 400);
@@ -39,7 +45,7 @@ function receive(req, res) {
     beacon[11] = encodeURI(req.headers["x-forwarded-for"] ?? req.connection.remoteAddress);
 
     // Write the beacon data to file.
-    const date = new Date;
+    const date = new Date();
     const currentYear = date.getFullYear();
     const currentMonth = (date.getMonth() + 1).toString().padStart(2, "0");
     const viewsFile = currentYear + "-" + currentMonth + ".tsv";
@@ -49,9 +55,8 @@ function receive(req, res) {
       .then(() => {
         res.writeHead(200);
         res.end();
-      }).catch(e => console.error(e));
-    }).catch(e => console.error(e));
-
+      }).catch(console.error);
+    }).catch(console.error);
   });
 }
 

@@ -283,8 +283,10 @@ const errorsDict = {
 };
 
 
-/*
+/**
  * Replaces "" with "Indéterminé", otherwise returns the input.
+ * @param {string} input
+ * @returns {string}
  */
 function _identity(input) {
   if (input === "") {
@@ -294,16 +296,20 @@ function _identity(input) {
 }
 
 
-/*
+/**
  * Converts the acquisition channel code to a French string.
+ * @param {string} input
+ * @returns {string}
  */
 function niceAcquisitionChannelName(input) {
   return acquisitionChannelsDict[input];
 }
 
 
-/*
+/**
  * Simplifies the URL.
+ * @param {string} input
+ * @returns {string}
  */
 function niceOriginName(input) {
   // Don’t touch variants of the current origin.
@@ -314,16 +320,20 @@ function niceOriginName(input) {
 }
 
 
-/*
+/**
  * Converts the bilingualism class code to a short explanation string.
+ * @param {string} input
+ * @returns {string}
  */
 function niceBilingualismClassName(input) {
   return bilingualismClassesDict[input];
 }
 
 
-/*
+/**
  * Converts an ISO 3166 2-letter country code to its French short-form.
+ * @param {string} input
+ * @returns {string}
  */
 function niceCountryName(input) {
   if (countriesDict[input]) {
@@ -333,24 +343,30 @@ function niceCountryName(input) {
 }
 
 
-/*
+/**
  * Converts the breakpoint name to a French string.
+ * @param {string} input
+ * @returns {string}
  */
 function niceScreenBreakpointsName(input) {
   return screenBreakpointsDict[input];
 }
 
 
-/*
+/**
  * Converts the breakpoint name to a French string.
+ * @param {string} input
+ * @returns {string}
  */
 function niceExcludedTrafficName(input) {
   return excludedTrafficDict[input];
 }
 
 
-/*
+/**
  * Converts an error code to a French explanation.
+ * @param {string} input
+ * @returns {string}
  */
 function niceErrorName(input) {
   if (errorsDict[input]) {

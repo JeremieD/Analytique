@@ -1,5 +1,7 @@
-/*
+/**
  * Radio-like button group element.
+ * @property {string} value - Currently selected value.
+ * @property {string[]} options - List of possible values, each one corresponding to a button.
  */
 class JDButtonToggleGroup extends HTMLElement {
 
@@ -7,10 +9,10 @@ class JDButtonToggleGroup extends HTMLElement {
     super();
 
     this.value = this.querySelector("[selected]").value;
-    this.values = [];
+    this.options = [];
 
     for (const button of this.children) {
-      this.values.push(button.value);
+      this.options.push(button.value);
 
       // Select on click.
       const self = this;
@@ -21,10 +23,34 @@ class JDButtonToggleGroup extends HTMLElement {
 
     this.select(this.value);
 
-    this.addEventListener("keydown", this.handleKeyboardEvent);
+    // Handle keybpard events
+    this.addEventListener("keydown", e => {
+      // Selects next value.
+      if (e.code === "ArrowRight") {
+        let nextIndex = this.options.indexOf(e.target.value) + 1;
+        if (nextIndex >= this.options.length) {
+          nextIndex = 0;
+        }
+        this.select(this.options[nextIndex], true);
+
+      // Selects previous value.
+      } else if (e.code === "ArrowLeft") {
+        let previousIndex = this.options.indexOf(e.target.value) - 1;
+        if (previousIndex < 0) {
+          previousIndex = this.options.length - 1;
+        }
+        this.select(this.options[previousIndex], true);
+      }
+
+      e.stopPropagation();
+    });
   }
 
-  // Selects the given value.
+  /**
+   * Selects the given value.
+   * @param {string} value - The value to select.
+   * @param {boolean} [focus=false] - If set to true, moves focus to selected button.
+   */
   select(value, focus = false) {
     for (const button of this.children) {
       const selected = button.value === value;
@@ -42,27 +68,6 @@ class JDButtonToggleGroup extends HTMLElement {
         button.removeAttribute("selected");
       }
     }
-  }
-
-  handleKeyboardEvent(e) {
-    // Selects next value.
-    if (e.code === "ArrowRight") {
-      let nextIndex = this.values.indexOf(e.target.value) + 1;
-      if (nextIndex >= this.values.length) {
-        nextIndex = 0;
-      }
-      this.select(this.values[nextIndex], true);
-
-    // Selects previous value.
-    } else if (e.code === "ArrowLeft") {
-      let previousIndex = this.values.indexOf(e.target.value) - 1;
-      if (previousIndex < 0) {
-        previousIndex = this.values.length - 1;
-      }
-      this.select(this.values[previousIndex], true);
-    }
-
-    e.stopPropagation();
   }
 }
 

@@ -3,7 +3,7 @@ let collectedData = [];
 collectedData[0] = 1;
 
 collectedData[1] = Date.now();
-collectedData[2] = (new Date).getTimezoneOffset();
+collectedData[2] = (new Date()).getTimezoneOffset();
 
 collectedData[3] = document.title;
 collectedData[4] = location.href;
@@ -15,7 +15,7 @@ collectedData[7] = navigator.languages.join(",");
 collectedData[8] = innerWidth + "x" + innerHeight;
 collectedData[9] = outerWidth + "x" + outerHeight;
 
-collectedData = collectedData.map(x => encodeURI(x));
+collectedData = collectedData.map(encodeURI);
 
 const analyticsHomebase = "https://analytique.jeremiedupuis.com";
 navigator.sendBeacon(analyticsHomebase, collectedData.join("\t"));

@@ -17,7 +17,8 @@ const cachePolicies = {
   woff2: "no-cache"
 }
 
-/* Structure for fileCache:
+/*
+ * Structure for fileCache:
  * {
  *   filePath: {
  *     eTag: "",
@@ -34,9 +35,12 @@ const cachePolicies = {
 const fileCache = {};
 
 
-/*
+/**
  * Serves the requested file, either from cache or from disk,
  * compressing it if appropriate.
+ * @param req - The request object from the HTTP server.
+ * @param res - The response object from the HTTP server.
+ * @param {string} urlOverride - If set, will be used as the file path.
  */
 function serveFile(req, res, urlOverride) {
   const path = new uri.URIPath(urlOverride ?? req.url);
@@ -111,8 +115,15 @@ function serveFile(req, res, urlOverride) {
 }
 
 
-/*
+/**
  * Respond 200 with the given content and headers.
+ * @param req - The request object from the HTTP server.
+ * @param res - The response object from the HTTP server.
+ * @param {string|object} content - The data to serve. If content is an object and mimeType is "application/json", the object will be automatically stringified.
+ * @param {string} mimeType - The MIME type of the data.
+ * @param {string} [encoding="identity"] - The compression algorithm to use.
+ * @param {string} [cachePolicy] - The cache policy to serve the content with.
+ * @param {string} [eTag] - The pre-generated ETag of the content.
  */
 function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, eTag) {
   if (eTagMatches(req, res, eTag)) return;
@@ -144,21 +155,28 @@ function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, 
 }
 
 
-/*
+/**
  * Serves an error with an optional log to the console.
+ * @param res - The response object from the HTTP server.
+ * @param {string} [message=""] - A message to log to the server console.
+ * @param {number} [code=404] - The HTTP error code to throw.
  */
-function serveError(res, msg = "", code = 404) {
-  if (msg !== "") {
-    console.error(msg);
+function serveError(res, message = "", code = 404) {
+  if (message !== "") {
+    console.error(message);
   }
   res.writeHead(code);
   res.end();
 }
 
 
-/*
- * Compares a given ETag with the requested one and short-circuits
+/**
+ * Compares a given ETag with the one in the request and short-circuits
  * the request if they match, responding 304.
+ * @param req - The request object from the HTTP server.
+ * @param res - The response object from the HTTP server.
+ * @param {string} eTag - An ETag of some data that is cached on the server, to compare against the request.
+ * @returns {boolean} Whether eTag matches the ETag in the If-None-Match HTTP request header.
  */
 function eTagMatches(req, res, eTag = "") {
   const requestedETag = req.headers["if-none-match"];
@@ -174,9 +192,10 @@ function eTagMatches(req, res, eTag = "") {
 }
 
 
-/*
- * Returns the ETag for the given value.
- * This Etag is based on a simple hash of the passed value.
+/**
+ * Generates an ETag based on a simple hash of the passed value.
+ * @param {string} value - The data to hash into an ETag.
+ * @returns {string} The ETag for the given value.
  */
 function getETagFrom(value) {
   let hash;

@@ -1,6 +1,4 @@
-/*
- * Display a tooltip when hovering an element with the “tooltip” attribute.
- */
+// Display a tooltip when hovering an element with the “tooltip” attribute.
 whenDOMReady(() => {
   const elementsWithTooltips = document.querySelectorAll("[tooltip]");
 
@@ -10,6 +8,7 @@ whenDOMReady(() => {
     }
 
     el.abortController;
+
     el.tooltipElement = document.createElement("jd-tooltip");
     el.tooltipElement.innerHTML = el.getAttribute("tooltip");
 
@@ -26,7 +25,8 @@ whenDOMReady(() => {
     };
 
     const hide = el => {
-      el.abortController = new AbortController(); // Reset AbortController
+      // Reset AbortController
+      el.abortController = new AbortController();
 
       el.tooltipElement.addEventListener("transitionend", () => {
         el.tooltipElement.remove();

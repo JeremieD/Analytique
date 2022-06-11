@@ -37,9 +37,11 @@ const renderingEngines = {
 };
 
 
-/*
+/**
  * Queries ipinfo.io for the country of the given IP address. Caches the result.
  * WARNING: Very slow.
+ * @param {string} ipAddress - The IP address.
+ * @returns {Promise<string>} A promise to the 2-letter country code of the country.
  */
 async function inferCountry(ipAddress) {
   return new Promise(function(resolve, reject) {
@@ -71,9 +73,11 @@ async function inferCountry(ipAddress) {
 }
 
 
-/*
+/**
  * Queries ipinfo.io for the city of the given IP address. Caches the result.
  * WARNING: Very slow.
+ * @param {string} ipAddress - The IP address.
+ * @returns {Promise<string>} A promise to the city name.
  */
 async function inferCity(ipAddress) {
   return new Promise(function(resolve, reject) {
@@ -102,20 +106,24 @@ async function inferCity(ipAddress) {
 }
 
 
-/*
- * Returns whether user agent contains a known bot-identifying string.
+/**
+ * Infers whether user is a bot from the user-agent string using simple patterns.
+ * @param {string} userAgent - A user-agent string.
+ * @returns {boolean} Whether the user-agent is a bot.
  */
 function inferIfBot(userAgent) {
   return userAgent.includesAny(botPatterns);
 }
 
 
-/*
- * Returns the acquisition channel, given the referrer URL, .
- * direct   User typed in the address manually, or the browser did not include a referrer.
- * social   User comes from a social media website.
- * organic  User comes from a search engine.
- * other    User comes from another website.
+/**
+ * Infers the acquisition channel from a URL.
+ * @param {string} referrerURL
+ * @returns {string} One of the following:
+ *  - direct   User typed in the address manually, or the browser did not include a referrer.
+ *  - social   User comes from a social media website.
+ *  - organic  User comes from a search engine.
+ *  - other    User comes from another website.
  */
 function inferAcquisitionChannel(referrerURL) {
   if (referrerURL === "") return "direct";
@@ -127,8 +135,10 @@ function inferAcquisitionChannel(referrerURL) {
 }
 
 
-/*
- * Returns OS name, given a user-agent string.
+/**
+ * Infers the OS name from a user-agent string.
+ * @param {string} userAgent - A user-agent string.
+ * @returns {string} The proper name of the OS. An empty string if the OS could not be determined.
  */
 function inferOS(userAgent) {
   for (const os of Object.keys(oses)) {
@@ -142,8 +152,10 @@ function inferOS(userAgent) {
 }
 
 
-/*
- * Returns rendering engine name, given a user-agent string.
+/**
+ * Infers rendering engine name from a user-agent string.
+ * @param {string} userAgent - A user-agent string.
+ * @returns {string} The proper name of the rendering engine. An empty string if the engine could not be determined.
  */
 function inferRenderingEngine(userAgent) {
   for (const renderingEngine of Object.keys(renderingEngines)) {
@@ -157,20 +169,23 @@ function inferRenderingEngine(userAgent) {
 }
 
 
-/*
- * Returns screen size class, given a WxH pixel size.
+/**
+ * Infers the screen size class, given a WxH pixel size.
+ *
  * These correspond to the CSS breakpoints in the main stylesheet,
  * and are not meant to be a good approximation of the physical form factor.
- * xsmall   The smallest mobile phones, like the original iPhone SE.
- * mobile   Less than 801 pixels wide.
- * tablet   Less than 1081 pixels wide.
- * desktop  Wider than 1081 pixels.
- *
  * Note that the "laptop" breakpoint is treated as part of "desktop" since
  * the styles are almost the same.
+ *
+ * @param {string} screenSize - A screen size in the format "WxH".
+ * @returns {string} One of the following:
+ *  - xsmall   Less than or equal to 360 pixels wide.
+ *  - mobile   Less than or equal to 800 pixels wide.
+ *  - tablet   Less than or equal to 1080 pixels wide.
+ *  - desktop  Wider than 1080 pixels wide.
  */
-function inferScreenBreakpoint(size) {
-  const width = parseInt(size.split("x")[0]);
+function inferScreenBreakpoint(screenSize) {
+  const width = parseInt(screenSize.split("x")[0]);
 
   if (width <= 360) return "xsmall";
   if (width <= 800) return "mobile";
@@ -180,13 +195,15 @@ function inferScreenBreakpoint(size) {
 }
 
 
-/*
- * Returns the bilingualism class, given an array of language codes.
- * fr+  Bilingual, French before English.
- * en+  Bilingual, English before French.
- * fr   French, no English.
- * en   English, no French.
- * al   Other languages only.
+/**
+ * Infers the bilingualism class from an array of language codes.
+ * @param {string[]} languages - List of language codes.
+ * @returns {string} One of the following:
+ *  - fr+  Bilingual, French before English.
+ *  - en+  Bilingual, English before French.
+ *  - fr   French, no English.
+ *  - en   English, no French.
+ *  - al   Other languages only.
  */
 function inferBilingualismClass(languages) {
   let hasFR = false;
@@ -207,9 +224,8 @@ function inferBilingualismClass(languages) {
     }
   }
 
-  let isBilingual = hasFR && hasEN;
-
-  if (isBilingual) {
+  // If is bilingual.
+  if (hasFR && hasEN) {
     if (preferred === "fr") return "fr+";
     if (preferred === "en") return "en+";
   }
@@ -222,8 +238,10 @@ function inferBilingualismClass(languages) {
 }
 
 
-/*
+/**
  * Simplifies referrer URLs.
+ * @param {string} rawURL
+ * @returns {string} The URL without trailing slash.
  */
 function normalizeOriginURL(rawURL) {
   return rawURL.replace(/\/$/, "");

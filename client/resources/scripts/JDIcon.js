@@ -1,5 +1,6 @@
-/*
+/**
  * Icon element that consists of inlined SVG.
+ * The HTML attribute "icon" should contain the name of the SVG file.
  */
 class JDIcon extends HTMLElement {
 
@@ -29,6 +30,7 @@ class JDIcon extends HTMLElement {
     });
   }
 
+  // Holds SVG icons. Access with [iconName].
   static cache = {};
 }
 

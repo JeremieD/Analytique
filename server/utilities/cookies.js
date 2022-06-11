@@ -1,5 +1,7 @@
-/*
- * Parses the cookie header and returns an object.
+/**
+ * Parses the cookie header and turns it into an object.
+ * @param req - The request object from the HTTP server.
+ * @returns {object} An object containing the individual cookies.
  */
 function parse(req) {
   const cookies = {};

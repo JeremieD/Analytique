@@ -1,5 +1,7 @@
-/*
+/**
  * Custom dropdown element.
+ * @property {string} value - Currently selected value.
+ * @property {string[]} options - List of possible values.
  */
 class JDSelect extends HTMLElement {
 
@@ -30,10 +32,15 @@ class JDSelect extends HTMLElement {
     this.append(this.label, icon);
   }
 
+  /**
+   * Adds the given value to the list of options.
+   * @param {string} value
+   */
   addOption(value) {
     if (this.options.length === 0) {
       this.label.innerText = value;
     }
+
     this.options.push(value);
 
     const newElement = document.createElement("li");
@@ -139,6 +146,9 @@ class JDSelect extends HTMLElement {
     }
   }
 
+  /**
+   * Reveals the dropdown.
+   */
   open() {
     this.classList.add("open");
     this.menu.classList.remove("fade-out");
@@ -156,6 +166,9 @@ class JDSelect extends HTMLElement {
     }, 125);
   }
 
+  /**
+   * Hides the dropdown.
+   */
   close() {
     clearTimeout(this.backdropClickTimeout);
     this._abort.abort();
@@ -168,7 +181,6 @@ class JDSelect extends HTMLElement {
     this.classList.remove("open");
     this.menu.classList.add("fade-out");
   }
-
 }
 
 customElements.define("jd-select", JDSelect);

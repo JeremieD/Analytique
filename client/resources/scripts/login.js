@@ -6,10 +6,6 @@ whenDOMReady(() => {
   const feedbackField = document.getElementById("feedback");
 
 
-  form.addEventListener("animationend", () => {
-    form.classList.remove("shake");
-  }, { passive: true });
-
   // On login attempt.
   form.addEventListener("submit", e => {
     e.preventDefault();
@@ -48,6 +44,9 @@ whenDOMReady(() => {
     }));
   });
 
+  form.addEventListener("animationend", () => {
+    form.classList.remove("shake");
+  }, { passive: true });
 
   // Toggle password visibility on click.
   passwordToggle.addEventListener("click", () => {

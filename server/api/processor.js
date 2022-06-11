@@ -121,7 +121,7 @@ function processRequest(req, res) {
       const eTag = static.getETagFrom(JSON.stringify(data) + path.query + user);
       static.serve(req, res, data, "application/json", "auto", "private", eTag);
     })
-    .catch(e => console.log(e));
+    .catch(console.log);
 
   } else {
     static.serveError(res);
@@ -155,8 +155,7 @@ async function getStats(origin, range, filter) {
       return buildStats(origin, range);
 
     } else {
-      return fs.readFile(statsFilePath, "utf8")
-        .then(contents => JSON.parse(contents));
+      return fs.readFile(statsFilePath, "utf8").then(JSON.parse);
     }
   }).catch(() => buildStats(origin, range));
 }
@@ -399,7 +398,7 @@ async function buildStats(origin, range, filter) {
     }
 
     return stats;
-  }).catch(e => console.log(e));
+  }).catch(console.log);
 }
 
 
@@ -598,7 +597,7 @@ async function buildSessions(origin, range) {
     }
 
     return sessions;
-  }).catch(e => console.log(e));
+  }).catch(console.log);
 }
 
 
@@ -635,7 +634,7 @@ async function getBeacons(origin, range) {
 
       for (const rawBeacon of rawBeacons.trim().split("\n")) {
         // Format the view.
-        const beacon = rawBeacon.split("\t").map(field => decodeURI(field));
+        const beacon = rawBeacon.split("\t").map(decodeURI);
 
         if (beacon.length !== 12) {
           return { error: "malformedBeacon" };

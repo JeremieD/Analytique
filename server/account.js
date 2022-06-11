@@ -10,9 +10,12 @@ const users = require("./config.js").users;
 const activeSessions = {};
 
 
-/*
- * Returns whether the request has a valid session ID.
+/**
+ * Checks whether the request has a valid session ID.
  * If the session is refused, the login page is served.
+ * @param req - The request object from the HTTP server.
+ * @param res - The response object from the HTTP server.
+ * @returns {boolean} Whether the request has a valid session ID.
  */
 function sessionIsValid(req, res) {
   const id = getSessionID(req);
@@ -29,8 +32,10 @@ function sessionIsValid(req, res) {
 }
 
 
-/*
+/**
  * Answers a POST request for login.
+ * @param req - The request object from the HTTP server.
+ * @param res - The response object from the HTTP server.
  */
 function login(req, res) {
   let rawData = "";
@@ -80,24 +85,30 @@ function login(req, res) {
 }
 
 
-/*
- * Returns the session ID of the current request.
+/**
+ * Extracts the session ID from the request.
+ * @param req - The request object from the HTTP server.
+ * @returns {string} The session ID of the current request.
  */
 function getSessionID(req) {
   return cookies.parse(req)?.session;
 }
 
 
-/*
- * Returns the user of the current request.
+/**
+ * Looks up the username associated with the current session.
+ * @param req - The request object from the HTTP server.
+ * @returns {string} The user of the current request.
  */
 function getUser(req) {
   return activeSessions[getSessionID(req)]?.username;
 }
 
 
-/*
- * Hashes a message using SHA-512. Encodes as a string of hex digits.
+/**
+ * Hashes a message using SHA-512.
+ * @param {string} message - The message to hash.
+ * @returns {Promise<string>} A promise that represents a string of hex digits.
  */
 async function hash(message) {
   const encoder = new TextEncoder();

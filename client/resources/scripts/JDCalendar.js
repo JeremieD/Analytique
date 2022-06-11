@@ -1,9 +1,13 @@
-/*
+/**
  * Custom element that allows selecting a JDDateRange using a calendar.
- * This object depends on JDDate.js.
+ * This object requires JDDate and JDDateRange classes.
+ * @property {JDDateRange} - The current value. Must be in day(s) mode.
+ * @property {JDDate} - The month currently being shown.
  */
 class JDCalendar extends HTMLElement {
-
+  /**
+   * @param {JDDateRange} [value] - The initial value. Must be in day(s) mode.
+   */
   constructor(value) {
     super();
     this.value = value ?? new JDDateRange(JDDate.today());
@@ -45,6 +49,9 @@ class JDCalendar extends HTMLElement {
     this.draw();
   }
 
+  /**
+   * Updates the calendar view according to state.
+   */
   draw() {
     // Draw month title.
     this.label.innerHTML = monthsDict[this.month.month - 1] +

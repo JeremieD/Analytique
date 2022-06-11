@@ -1,3 +1,11 @@
+/**
+ * Current state of the app.
+ * @property {Promise<array>} availableOrigins - List of available origins.
+ * @property {string} origin - The current origin.
+ * @property {Promise<JDDateRange>} availableRange - The available range of stats data.
+ * @property {JDDateRange} range - The current range.
+ * @property {object} filter - An object containing a "key" and "value" property for the filter.
+ */
 const state = {
   availableOrigins: httpGet("/api/origins").then(JSON.parse),
   origin: "",
@@ -14,15 +22,21 @@ let previousState = {
   filter: {}
 };
 
-// Promises to model data.
+/**
+ * Promises to model data.
+ * @property main - Contains the view that depends on the model for the current range.
+ * @property complementary - Contains the view that depends on models other than the current range.
+ */
 const model = {
   main: {},
   complementary: {}
 };
-const modelCache = {}; // Cached model data. [origin][range][filter][data, modTime]
+
+/** Cached model data. Access with [origin][range][filter][data, modTime]. */
+const modelCache = {};
 const modelCacheTTL = 300000; // 5min to live.
 
-// Reference to view elements.
+/** Reference to view elements. */
 const view = {};
 
 
@@ -223,7 +237,10 @@ whenDOMReady(() => {
 });
 
 
-// Change state to specified origin.
+/**
+ * Changes state to specified origin.
+ * @param {string} origin - The origin to switch to.
+ */
 function switchToOrigin(origin) {
   if (state.origin === origin) return;
 
@@ -260,7 +277,11 @@ function switchToOrigin(origin) {
   });
 }
 
-// Change state to specified range mode.
+
+/**
+ * Changes state to specified range mode, converting the date as best as it can.
+ * @param {string} mode - The mode to switch to.
+ */
 function switchRangeMode(mode) {
   if (state.range.mode === mode) return;
 
@@ -280,7 +301,11 @@ function switchRangeMode(mode) {
   }
 }
 
-// Change state to specified range.
+
+/**
+ * Changes state to specified range.
+ * @param {JDDateRange} range - The range to move to.
+ */
 function setRange(range) {
   state.range.set(range.shortForm);
   if (state.range.mode === "day") {
@@ -290,22 +315,37 @@ function setRange(range) {
   }
 }
 
-// Advances range in state.
+
+/**
+ * Advances range in state.
+ */
 function nextRange() {
   setRange(state.range.plus(1));
 }
 
-// Rewinds range in state.
+
+/**
+ * Rewinds range in state.
+ */
 function previousRange() {
   setRange(state.range.minus(1));
 }
 
-// Set filter state.
+
+/**
+ * Changes state to specified filter.
+ * @param {object} filter - The filter to switch to.
+ *     This object contains a "key" property, containing the stats field to filter by,
+ *     and a "value" property, containing the value to filter.
+ */
 function setFilter(filter) {
   state.filter = filter;
 }
 
-// Clear filter state.
+
+/**
+ * Clear filter state.
+ */
 function clearFilter() {
   state.filter = {
     key: "",
@@ -314,7 +354,7 @@ function clearFilter() {
 }
 
 
-/*
+/**
  * Updates model and view according to current state.
  */
 function update() {
@@ -374,7 +414,7 @@ function update() {
 }
 
 
-/*
+/**
  * Updates the main model according to current state.
  */
 function refreshMainModel() {
@@ -382,7 +422,8 @@ function refreshMainModel() {
   return model.main;
 }
 
-/*
+
+/**
  * Updates the complementary model according to current state.
  */
 function refreshComplementaryModel() {
@@ -435,7 +476,7 @@ function refreshComplementaryModel() {
 }
 
 
-/*
+/**
  * Updates the view with data from the main model.
  */
 function drawMainView() {
@@ -574,7 +615,8 @@ function drawMainView() {
   });
 }
 
-/*
+
+/**
  * Updates the view with data from the complementary model.
  */
 function drawComplementaryView() {
@@ -697,7 +739,7 @@ function drawComplementaryView() {
 }
 
 
-/*
+/**
  * Sets all element to display a placeholder animation.
  */
 function setAllLoading() {
@@ -709,8 +751,13 @@ function setAllLoading() {
   }
 }
 
-/*
+
+/**
  * Returns promised stats data from the server.
+ * @param {string} origin - The origin to fetch stats for.
+ * @param {string} range - The range to limit stats to.
+ * @param {string} [serializedFilter] - If present, data will be filtered. Use {@link serializeFilter()} to format.
+ * @returns {Promise<object>} The promised stats object.
  */
 function fetchStats(origin, range, serializedFilter) {
   let url = "/api/stats?origin=" + origin + "&range=" + range;
@@ -722,8 +769,14 @@ function fetchStats(origin, range, serializedFilter) {
   return httpGet(url).then(JSON.parse);
 }
 
-/*
+
+/**
  * Returns promised model data either from cache or server.
+ * @param {string} origin - The origin to fetch stats for.
+ * @param {string} range - The range to limit stats to.
+ * @param {string} [serializedFilter] - If present, data will be filtered.
+ *     "Serialized" means both filter fields are URI encoded and joined by ":".
+ * @returns {Promise<object>} The promised stats object.
  */
 function getModel(origin, range, serializedFilter) {
   // Ensure safe access to model cache.
@@ -749,8 +802,11 @@ function getModel(origin, range, serializedFilter) {
   return modelCache[origin][range][serializedFilter];
 }
 
-/*
+
+/**
  * Takes a filter object and stringifies it for use in a request.
+ * @param {object} filter - A filter object with a "key" and "value" property.
+ * @returns {string} The formatted filter. Empty string if filter is disabled.
  */
 function serializeFilter(filter) {
   const key = encodeURIComponent(filter.key);

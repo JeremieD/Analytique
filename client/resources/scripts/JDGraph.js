@@ -1,4 +1,4 @@
-/*
+/**
  * Custom element that displays an interactive graph.
  */
 class JDGraph extends HTMLElement {
@@ -7,17 +7,18 @@ class JDGraph extends HTMLElement {
     super();
   }
 
-  /*
-   * The data object passed to draw the graph looks like this:
-   * xAxisLabel     Label displayed at the bottom of the graph.
-   * maxPointCount  Maximum number of points. Used for the scale of the X axis.
-   * floatingDigits Integer number of decimal places to round values to.
-   * yAxisMultiple  The scale of the Y axis will be a multiple of this integer. Preferably also a multiple of 3.
-   * points         Array of objects describing the points of the graph.
-   *   x            X coordinate.
-   *   y            Y coordinate.
-   *   label        Label to display for that point.
-   *   onClick      Function to call when point is clicked.
+  /**
+   * Updates the graph according to the given data.
+   * @param {object} data - Data used to draw the graph. It looks like this:
+   *  - xAxisLabel     Label displayed at the bottom of the graph.
+   *  - maxPointCount  Maximum number of points. Used for the scale of the X axis.
+   *  - floatingDigits Integer number of decimal places to round values to.
+   *  - yAxisMultiple  The scale of the Y axis will be a multiple of this integer. Preferably also a multiple of 3.
+   *  - points[]       Array of objects describing the points of the graph.
+   *     - x           X coordinate.
+   *     - y           Y coordinate.
+   *     - label       Label to display for that point.
+   *     - onClick     Function to call when point is clicked.
    */
   draw(data) {
     // Clear the graph.
@@ -34,7 +35,7 @@ class JDGraph extends HTMLElement {
       maxYValue = data.yAxisMultiple * Math.ceil(maxYValue / data.yAxisMultiple);
     }
 
-    // X axis
+    // Draw the X axis
     const xAxis = document.createElement("axis");
     xAxis.setAttribute("name", "x");
 
@@ -43,7 +44,7 @@ class JDGraph extends HTMLElement {
 
     xAxis.append(xAxisLabel);
 
-    // Y axis
+    // Draw the Y axis
     const yAxis = document.createElement("axis");
     yAxis.setAttribute("name", "y");
 
@@ -56,7 +57,7 @@ class JDGraph extends HTMLElement {
 
     yAxis.append(yAxisLabel1, yAxisLabel2, yAxisLabel3);
 
-    // Graph
+    // Draw the graph body.
     const graph = document.createElement("graph");
 
     const cursor = document.createElement("cursor");
