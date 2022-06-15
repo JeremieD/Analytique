@@ -260,6 +260,15 @@ class JDDate {
   }
 
   /**
+   * Checks if the given date is contained in this range.
+   * @param {JDDate} b - Date that must be contained.
+   * @returns {boolean} Whether the passed JDDate is contained in this range.
+   */
+  contains(b) {
+    return !b.earlierThan(this.firstDay) && !b.laterThan(this.lastDay);
+  }
+
+  /**
    * Adds n "mode-units" to the date.
    * The mode-unit is the unit associated with the current mode. So if this date
    * is in "week" mode, this function will add n number of *weeks*.
