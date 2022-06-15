@@ -461,7 +461,7 @@ class JDDate {
    * @returns {number} The last epoch millisecond of the date.
    */
   get lastMillisecond() {
-    return (new Date(this.lastDay.shortForm)).getTime() + 1000 * 60 * 60 * 24;
+    return (new Date(this.lastDay.shortForm)).getTime() + 1000*60*60*24;
   }
 
   /**
@@ -741,8 +741,8 @@ class JDDateRange {
    * @returns this
    */
   convertTo(mode, preferEnd = false) {
-    if (this.plural) throw "unimplemented";
-    return this.set(this.from.convertTo(mode, preferEnd));
+    const bound = preferEnd ? "to" : "from";
+    return this.set(this[bound].convertTo(mode, preferEnd));
   }
 
 
@@ -777,9 +777,9 @@ class JDDateRange {
   }
 
   /**
-   * Checks if the given date is contained in this range.
-   * @param {JDDate|JDDateRange} b - description
-   * @returns {boolean} Whether the passed JDDate is contained in this JDDateRange
+   * @see JDDate#contains
+   * @param {JDDate|JDDateRange} b
+   * @returns {boolean}
    */
   contains(b) {
     return !b.earlierThan(this.from) && !b.laterThan(this.to);
@@ -863,7 +863,15 @@ class JDDateRange {
    * @returns {number}
    */
   get length() {
-    if (this.plural) throw "unimplemented";
+    if (this.plural) {
+      let length = 0;
+      const pointer = new JDDate(this.from.shortForm);
+      while (!pointer.laterThan(this.to)) {
+        length += pointer.length;
+        pointer.next();
+      }
+      return length;
+    }
     return this.from.length;
   }
 
