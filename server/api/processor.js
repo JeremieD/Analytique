@@ -481,10 +481,11 @@ async function buildSessions(origin, range) {
 
       sessions.viewTotal++;
 
+      // Check if view matches an open session.
       for (let i = aggregates.length - 1; i >= 0; i--) {
         if (aggregates.length === 0) break;
 
-        const lastView = aggregates[i][aggregates[i].length - 1];
+        const lastView = aggregates[i].at(-1);
 
         // Continue if lastView was more than an hour before this view.
         if (view[1] - lastView[1] > 1000*60*60) continue;
@@ -495,14 +496,14 @@ async function buildSessions(origin, range) {
         // Continue if lastView doesn't have the same user-agent string.
         if (view[10] !== lastView[10]) continue;
 
-        // Continue if this view doesn't follow lastView.
-        if (view[5] !== lastView[4]) continue;
+        // Skip identical page views (most likely page refreshes).
+        if (view[4] === lastView[4] && view[5] === lastView[5]) {
+          sessionFound = true;
+          break;
+        }
 
         // The view matches this session.
         sessionFound = true;
-
-        // Skip identical page views (most likely page refreshes?).
-        if (view[3] === lastView[3] && view[4] === lastView[4]) break;
 
         aggregates[i].push(view);
         break;
