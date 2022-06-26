@@ -640,15 +640,15 @@ function drawComplementaryView() {
       maxPointCount = 10;
       break;
     case "month":
-      xAxisLabel = "Mois précédents";
+      xAxisLabel = "12 mois précédents";
       maxPointCount = 12;
       break;
     case "week":
-      xAxisLabel = "Semaines précédentes";
+      xAxisLabel = "12 semaines précédentes";
       maxPointCount = 12;
       break;
     case "day":
-      xAxisLabel = "Jours précédents";
+      xAxisLabel = "14 jours précédents";
       maxPointCount = 14;
       break;
     default:
