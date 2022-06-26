@@ -13,7 +13,7 @@ class JDCalendar extends HTMLElement {
     this.value = new JDDateRange(JDDate.today());
     this.highlighted = new JDDateRange(JDDate.today());
     this.monthInView = JDDate.thisMonth();
-    this.scrollLock = false;
+    this.scrollLock = true;
 
     this.view = {};
     this.days = {};
@@ -103,7 +103,7 @@ class JDCalendar extends HTMLElement {
           this.setMonthInView(monthInView);
         }
       }
-    });
+    }, { passive: true });
   }
 
   /**
@@ -113,6 +113,7 @@ class JDCalendar extends HTMLElement {
   setRange(value) {
     this.range = new JDDateRange(value.shortForm);
     this.drawDaysGrid();
+    this.drawMonthInView();
   }
 
   /**
@@ -206,6 +207,8 @@ class JDCalendar extends HTMLElement {
       this.view.grid.append(day);
       this.days[pointer.shortForm] = day;
     }
+
+    this.view.grid.scrollTop = this.days[this.value.from.shortForm].offsetTop;
   }
 
   drawHighlight() {
@@ -244,22 +247,18 @@ class JDCalendar extends HTMLElement {
     }
 
     // Scroll to month
+    this.scrollLock = true;
+    setTimeout(() => {
+      this.scrollLock = false;
+    }, 500);
     const tileSize = parseInt(getComputedStyle(this).getPropertyValue('--day-size'));
     const tileGap = parseInt(getComputedStyle(this).getPropertyValue('--day-gap'));
     const firstOfMonth = new JDDate(this.monthInView.shortForm + "-01");
     const yOffset = this.days[firstOfMonth.shortForm].offsetTop;
-    const scrollTop = yOffset - tileSize - tileGap;
-    if (scrollTop !== this.view.grid.scrollTop) {
-      this.scrollLock = true;
-      setTimeout(() => {
-        this.scrollLock = false;
-      }, 500);
-
-      this.view.grid.scrollTo({
-        top: scrollTop,
-        behavior: "smooth"
-      });
-    }
+    this.view.grid.scrollTo({
+      top: yOffset - tileSize - tileGap,
+      behavior: "smooth"
+    });
   }
 }
 
