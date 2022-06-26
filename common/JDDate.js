@@ -944,15 +944,18 @@ class JDDateRange {
           if (this.from.year !== this.to.year) {
             niceForm += " " + this.from.year;
           }
-          niceForm += " à " + this.to.niceForm.toLowerCase();
+          niceForm += " à " + monthsDict[this.to.month - 1].toLowerCase();
+          niceForm += " " + this.to.year;
           break;
 
         case "weeks":
-          niceForm = this.from.niceForm;
-          niceForm += " à ";
+          niceForm = "";
           if (this.from.year !== this.to.year) {
-            niceForm += this.to.year + " ";
+            niceForm += this.from.year + " ";
           }
+          niceForm += "W" + this.from.week;
+          niceForm += " à ";
+          niceForm += this.to.year + " ";
           niceForm += "W" + this.to.week;
           break;
 
@@ -964,7 +967,10 @@ class JDDateRange {
           if (this.from.year !== this.to.year) {
             niceForm += " " + this.from.year;
           }
-          niceForm += " au " + this.to.niceForm;
+          niceForm += " au ";
+          niceForm += this.to.day + (daysSuffixDict[this.to.day - 1] ?? "");
+          niceForm += " " + monthsDict[this.to.month - 1].toLowerCase();
+          niceForm += " " + this.to.year;
           break;
       }
 
