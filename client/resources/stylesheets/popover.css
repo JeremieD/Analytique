@@ -10,7 +10,6 @@
   opacity: 0;
   transition: .2s ease opacity;
   cursor: default;
-  overflow: hidden;
 }
 
 .popover { pointer-events: none; }

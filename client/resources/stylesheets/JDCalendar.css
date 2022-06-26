@@ -1,5 +1,6 @@
 #calendar-container {
   padding-bottom: 0;
+  padding: 0;
 }
 
 jd-calendar {
@@ -9,6 +10,9 @@ jd-calendar {
   flex-direction: column;
   gap: 16px;
   color: var(--color-text);
+  padding: 1.5rem 1.5rem 0;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
 jd-calendar>.grid-container {
