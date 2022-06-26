@@ -761,7 +761,7 @@ class JDDateRange {
    */
   equals(b) {
     const fromEquals = this.from.shortForm === (b.from?.shortForm ?? b.shortForm);
-    const toEquals = this.plural ? this.to.shortForm === b.to.shortform : true;
+    const toEquals = this.to?.shortForm === b.to?.shortform;
     return fromEquals && toEquals;
   }
 
