@@ -1,63 +1,134 @@
+#calendar-container {
+  padding-bottom: 0;
+}
+
 jd-calendar {
-  display: inline-flex;
+  --day-size: 28px;
+  --day-gap: 8px;
+  display: flex;
   flex-direction: column;
   gap: 16px;
   color: var(--color-text);
 }
 
-jd-calendar>div:first-child {
+jd-calendar>.grid-container {
+  position: relative;
+}
+
+jd-calendar>.grid-container::before, jd-calendar>.grid-container::after {
+  position: absolute;
+  content: "";
+  width: calc(100% + 3rem);
+  left: -1.5rem;
+  height: var(--day-size);
+  z-index: 3;
+  pointer-events: none;
+}
+
+jd-calendar>.grid-container::before {
+  background: linear-gradient(var(--color-secondary), rgba(28,28,28,0));
+}
+
+jd-calendar>.grid-container::after {
+  height: calc(.5 * var(--day-size) + var(--day-gap));
+  bottom: 0;
+  background: linear-gradient(rgba(28,28,28,0), var(--color-secondary));
+}
+
+jd-calendar hgroup {
+  position: absolute;
+  top: calc(4px - 1ch);
+  left: -1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  z-index: 5;
+  padding: 1ch 1ch 0 1.5rem;
+  background-color: var(--color-secondary);
+  box-shadow: 0 0 8px 4px var(--color-secondary),
+              8px 0 16px 4px var(--color-secondary);
 }
 
-jd-calendar>div:first-child button {
-  width: 1.5em;
-  height: 1.5em;
-  text-align: center;
-  line-height: 0;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-jd-calendar>div:first-child label {
+jd-calendar hgroup>label {
   font-weight: bold;
 }
 
-jd-calendar>div:first-child label>small {
+jd-calendar hgroup>label>small {
   color: var(--color-grey);
 }
 
-jd-calendar>div:last-child {
+jd-calendar .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  gap: var(--day-gap);
+  height: calc(7.5 * var(--day-size) + 6 * var(--day-gap));
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: calc(var(--day-size) + var(--day-gap));
+  margin: 0 -1.5rem;
+  padding: 0 1.5rem;
 }
 
-jd-calendar>div:last-child button {
+jd-calendar .days-grid>button {
   position: relative;
   display: block;
-  width: 32px;
-  height: 24px;
-  border-radius: 4px;
+  width: var(--day-size);
+  height: var(--day-size);
+  border-radius: 50%;
   background-color: var(--color-background);
   font-size: 12px;
   color: var(--color-grey);
   text-align: center;
   user-select: none;
   cursor: pointer;
+  transition-delay: .2s;
 }
 
-jd-calendar>div:last-child button:is([disabled], .secondary) {
+jd-calendar .days-grid>button.firstOfMonth {
+  scroll-snap-align: start;
+}
+
+jd-calendar .days-grid>button:is([disabled], .subdued) {
   opacity: .5;
 }
 
-jd-calendar>div:last-child button[disabled] {
+jd-calendar .days-grid>button[disabled] {
   cursor: not-allowed;
 }
 
-jd-calendar>div:last-child button.selected {
-  background-color: var(--color-accent);
+
+jd-calendar .days-grid>button.highlighted {
   color: var(--color-lightest);
+  background-color: transparent;
   opacity: 1;
+}
+
+jd-calendar .days-grid>button.highlighted::before {
+  content: "";
+  position: absolute;
+  display: block;
+  top: 0;
+  left: -1.5rem;
+  width: calc(var(--day-size) + 3rem);
+  height: 100%;
+  background-color: var(--color-accent);
+  z-index: -10;
+}
+
+jd-calendar .days-grid>button.highlighted:is(.start, .end)::before {
+  width: calc(var(--day-size) + 1.5rem);
+}
+
+jd-calendar .days-grid>button.highlighted.start::before {
+  left: 0;
+  border-radius: calc(var(--day-size) / 2) 0 0 calc(var(--day-size) / 2);
+}
+
+jd-calendar .days-grid>button.highlighted.end::before {
+  border-radius: 0 calc(var(--day-size) / 2) calc(var(--day-size) / 2) 0;
+}
+
+jd-calendar .days-grid>button.highlighted.start.end::before {
+  width: var(--day-size);
+  border-radius: calc(var(--day-size) / 2);
 }

@@ -189,12 +189,6 @@ whenDOMReady(() => {
 
   view.hud.customRange.addEventListener("click", e => {
     view.hud.calendarContainer.classList.add("open");
-    // Scroll to current value on open.
-    if (e.target !== view.hud.calendarContainer &&
-      !view.hud.calendarContainer.contains(e.target)) {
-      view.hud.calendar.month = new JDDate(state.range.to.year, state.range.to.month);
-      view.hud.calendar.draw()
-    }
     e.stopPropagation();
   });
 
@@ -256,20 +250,17 @@ function switchToOrigin(origin) {
 
     bounds = new JDDateRange(bounds);
 
-    view.hud.calendar.availableRange = bounds;
-    view.hud.calendar.draw();
+    view.hud.calendar.setRange(bounds);
 
     // Check range bounds and move range accordingly.
     if (state.range.earlierThan(bounds.from)) {
-      state.range = new JDDateRange(new JDDate(bounds.from.shortForm).convertTo(state.range.mode));
-      view.hud.calendar.value = new JDDateRange(bounds.from);
-      view.hud.calendar.draw();
+      state.range = (new JDDateRange(bounds.from.shortForm)).convertTo(state.range.mode);
+      view.hud.calendar.setValue(new JDDateRange(bounds.from.shortForm));
       update();
     }
     if (state.range.laterThan(bounds.to)) {
-      state.range = new JDDateRange(new JDDate(bounds.to.shortForm).convertTo(state.range.mode));
-      view.hud.calendar.value = new JDDateRange(bounds.to);
-      view.hud.calendar.draw();
+      state.range = (new JDDateRange(bounds.to.shortForm)).convertTo(state.range.mode);
+      view.hud.calendar.setValue(new JDDateRange(bounds.to.shortForm));
       update();
     }
 
@@ -297,7 +288,7 @@ function switchRangeMode(mode) {
       } else {
         state.range = new JDDateRange(view.hud.calendar.value.shortForm);
       }
-      view.hud.calendar.value = new JDDateRange(state.range.shortForm);
+      view.hud.calendar.setValue(new JDDateRange(state.range.shortForm));
   }
 }
 
@@ -309,9 +300,7 @@ function switchRangeMode(mode) {
 function setRange(range) {
   state.range.set(range.shortForm);
   if (state.range.mode === "day") {
-    view.hud.calendar.value = new JDDateRange(state.range.shortForm);
-    view.hud.calendar.month = new JDDate(view.hud.calendar.value.year, view.hud.calendar.value.month);
-    view.hud.calendar.draw();
+    view.hud.calendar.setValue(new JDDateRange(state.range.shortForm));
   }
 }
 
