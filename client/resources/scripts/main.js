@@ -425,32 +425,48 @@ function refreshComplementaryModel() {
         ranges.push(state.range.minus(i).shortForm);
       }
       break;
+
     case "month":
       // Load 12 previous months in month mode.
       for (let i = 0; i < 12; i++) {
         ranges.push(state.range.minus(i).shortForm);
       }
       break;
+
     case "week":
       // Load 12 previous weeks in week mode.
       for (let i = 0; i < 12; i++) {
         ranges.push(state.range.minus(i).shortForm);
       }
       break;
+
     default:
-      // If range is 28 days (4 weeks) or less, display each day.
-      if (state.range.length <= 28) {
-        for (let i = 0; i < 28; i++) {
-          ranges.push(state.range.minus(i).shortForm);
+      const pointer = new JDDate(state.range.from.shortForm);
+
+      // If range is 7 days or less, display the 14 previous days.
+      if (state.range.length <= 7) {
+        pointer.convertTo("day", true);
+        for (let i = 0; i < 14; i++) {
+          ranges.push(pointer.previous().shortForm);
         }
+        break;
+      }
+
+      // If range is 21 days (3 weeks) or less, display each day.
+      if (state.range.length <= 21) {
+        pointer.convertTo("day");
 
       // If range is 112 days (4 months) or less, display each week.
       } else if (state.range.length <= 112) {
-        // TODO
+        pointer.convertTo("week");
 
       // Otherwise, display each month.
       } else {
-        // TODO
+        pointer.convertTo("month");
+      }
+
+      while (pointer.earlierThan(state.range.to)) {
+        ranges.push(pointer.next().shortForm);
       }
   }
 
@@ -617,30 +633,31 @@ function drawComplementaryView() {
     complementaryModels.push(model.complementary[range]);
   }
 
-  let xAxisLabel;
+  let xAxisLabel, maxPointCount;
   switch (state.range.mode) {
     case "year":
-      xAxisLabel = "10 dernières années";
+      xAxisLabel = "Années précédentes";
       maxPointCount = 10;
       break;
     case "month":
-      xAxisLabel = "12 derniers mois";
+      xAxisLabel = "Mois précédents";
       maxPointCount = 12;
       break;
     case "week":
-      xAxisLabel = "12 dernières semaines";
+      xAxisLabel = "Semaines précédentes";
       maxPointCount = 12;
       break;
+    case "day":
+      xAxisLabel = "Jours précédents";
+      maxPointCount = 14;
+      break;
     default:
-      if (state.range.length <= 28) {
-        xAxisLabel = "28 derniers jours";
-        maxPointCount = 28;
+      if (state.range.length <= 21) {
+        xAxisLabel = "Par jour";
       } else if (state.range.length <= 112) {
-        xAxisLabel = "16 dernières semaines";
-        maxPointCount = 16;
+        xAxisLabel = "Par semaine";
       } else {
-        xAxisLabel = complementaryRanges.length + " derniers mois";
-        maxPointCount = undefined;
+        xAxisLabel = "Par mois";
       }
   }
 

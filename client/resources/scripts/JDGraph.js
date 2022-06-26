@@ -24,6 +24,11 @@ class JDGraph extends HTMLElement {
     // Clear the graph.
     this.innerHTML = "";
 
+    // Auto-size X axis if maxPointCount is left undefined.
+    if (data.maxPointCount === undefined) {
+      data.maxPointCount = data.points.length;
+    }
+
     // Find maximum Y coordinate.
     let maxYValue = 0;
     for (const point of data.points) {
@@ -64,7 +69,7 @@ class JDGraph extends HTMLElement {
     cursor.style.left = "100%";
 
     const line = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    line.setAttribute("viewBox", `0 0 ${maxPointCount - 1} ${maxYValue}`);
+    line.setAttribute("viewBox", `0 0 ${data.maxPointCount - 1} ${maxYValue}`);
     line.setAttribute("preserveAspectRatio", "none");
     line.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
@@ -79,14 +84,14 @@ class JDGraph extends HTMLElement {
       // Ignore points with no Y value.
       if (dataPoint.y === undefined) continue;
 
-      const xOffset = i + (data.maxPointCount ?? 0) - data.points.length;
+      const xOffset = i + data.maxPointCount - data.points.length;
 
       polylinePoints += xOffset + "," + (maxYValue - dataPoint.y) + " ";
 
       const point = document.createElement("point");
       point.style.bottom = dataPoint.y / (maxYValue !== 0 ? maxYValue : 1) * 100 + "%";
-      point.style.left = `calc(100%/${maxPointCount - 1}*${xOffset})`;
-      if (xOffset === maxPointCount - 1) {
+      point.style.left = `calc(100%/${data.maxPointCount - 1}*${xOffset})`;
+      if (xOffset === data.maxPointCount - 1) {
         point.classList.add("selected");
       }
       if (dataPoint.onClick !== undefined) {
@@ -94,7 +99,7 @@ class JDGraph extends HTMLElement {
       }
 
       const label = document.createElement("label");
-      if (xOffset === maxPointCount - 1) {
+      if (xOffset === data.maxPointCount - 1) {
         if (dataPoint.y !== 0) {
           label.innerHTML = dataPoint.y.round(data.floatingDigits);
         }
