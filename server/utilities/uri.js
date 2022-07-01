@@ -1,7 +1,7 @@
 /**
  * Utility class that allows easy access to parts of a URI.
  * @property {string} pathname - Path without the query.
- * @property {string} filename - Filename, including the extension.
+ * @property {string} filename - Filename, including the extension. Limited to A-z, 0-9, _, - and @.
  * @property {string} extension - Letters after the final dot.
  * @property {string} query - Complete query, starting with "?".
  * @property {object} parameters - Query parameters as an object.
@@ -12,7 +12,7 @@ class URIPath {
    * @param {string} uri - The URI to decompose.
    */
   constructor(uri) {
-    const matches = uri.match(/^(\/(?:\w*\/?)*?([\w-]+(?:\.(\w+))?)?)(\?.*)?(#.*)?$/) ?? "";
+    const matches = uri.match(/^(\/(?:\w*\/?)*?([\w-@]+(?:\.(\w+))?)?)(\?.*)?(#.*)?$/) ?? "";
 
     this.pathname = matches[1];
     this.filename = matches[2];
