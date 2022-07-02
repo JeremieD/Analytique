@@ -299,7 +299,7 @@ function switchRangeMode(mode) {
  */
 function setRange(range) {
   state.range.set(range.shortForm);
-  if (state.range.mode === "day") {
+  if (state.range.mode === "day" || state.range.mode === "days") {
     view.hud.calendar.setValue(new JDDateRange(state.range.shortForm));
   }
 }
@@ -309,7 +309,8 @@ function setRange(range) {
  * Advances range in state.
  */
 function nextRange() {
-  setRange(state.range.plus(1));
+  const newRange = new JDDateRange(state.range.shortForm);
+  setRange(newRange.next());
 }
 
 
@@ -317,7 +318,8 @@ function nextRange() {
  * Rewinds range in state.
  */
 function previousRange() {
-  setRange(state.range.minus(1));
+  const newRange = new JDDateRange(state.range.shortForm);
+  setRange(newRange.previous());
 }
 
 

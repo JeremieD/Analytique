@@ -821,8 +821,10 @@ class JDDateRange {
    * @returns this - Undefined if range is plural.
    */
   next(n = 1) {
-    if (this.plural) return undefined;
-    return this.set(this.from.next(n));
+    if (this.plural) {
+      return this.set(this.from.plus(this.modeLength), this.to.plus(this.modeLength));
+    }
+    return this.set(this.from.plus(n));
   }
 
   /**
@@ -831,8 +833,10 @@ class JDDateRange {
    * @returns this - Undefined if range is plural.
    */
   previous(n = 1) {
-    if (this.plural) return undefined;
-    return this.set(this.from.previous(n));
+    if (this.plural) {
+      return this.set(this.from.minus(this.modeLength), this.to.minus(this.modeLength));
+    }
+    return this.set(this.from.minus(n));
   }
 
 
@@ -883,6 +887,23 @@ class JDDateRange {
       return length;
     }
     return this.from.length;
+  }
+
+  /**
+   * Counts the number of mode units this range spans.
+   * @returns {number}
+   */
+  get modeLength() {
+    if (this.plural) {
+      let length = 0;
+      const pointer = new JDDate(this.from.shortForm);
+      while (!pointer.laterThan(this.to)) {
+        length++;
+        pointer.next();
+      }
+      return length;
+    }
+    return 1;
   }
 
   /**
