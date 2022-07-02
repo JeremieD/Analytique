@@ -197,7 +197,7 @@ whenDOMReady(() => {
   });
 
   view.hud.calendar.addEventListener("change", e => {
-    state.range = new JDDateRange(view.hud.calendar.value.shortForm);
+    state.range = new JDDateRange(view.hud.calendar.state.value.shortForm);
     update();
     e.stopPropagation();
   });
@@ -286,7 +286,7 @@ function switchRangeMode(mode) {
       if (state.range.mode !== "day" && state.range.mode !== "days") {
         state.range.convertTo("day");
       } else {
-        state.range = new JDDateRange(view.hud.calendar.value.shortForm);
+        state.range = new JDDateRange(view.hud.calendar.state.value.shortForm);
       }
       view.hud.calendar.setValue(new JDDateRange(state.range.shortForm));
   }

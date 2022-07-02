@@ -4,17 +4,21 @@
  */
 class JDIcon extends HTMLElement {
 
-  constructor() {
+  constructor(icon) {
     super();
+
+    this.iconName = icon;
   }
 
   connectedCallback() {
-    if (!this.hasAttribute("icon")) return;
+    if (this.hasAttribute("icon")) {
+      this.iconName = this.getAttribute("icon");
+    }
 
-    const iconName = encodeURI(this.getAttribute("icon"));
+    const safeIconName = encodeURI(this.iconName);
 
-    if (JDIcon.cache[iconName] !== undefined) {
-      JDIcon.cache[iconName].then(svg => {
+    if (JDIcon.cache[safeIconName] !== undefined) {
+      JDIcon.cache[safeIconName].then(svg => {
         this.innerHTML = svg;
       });
       return;
@@ -22,8 +26,8 @@ class JDIcon extends HTMLElement {
 
     this.classList.add("placeholder");
 
-    const iconPath = `/resources/graphics/icons/${iconName}.svg`;
-    JDIcon.cache[iconName] = httpGet(iconPath).then(svg => {
+    const iconPath = `/resources/graphics/icons/${safeIconName}.svg`;
+    JDIcon.cache[safeIconName] = httpGet(iconPath).then(svg => {
       this.innerHTML = svg;
       this.classList.remove("placeholder");
       return svg;

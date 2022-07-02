@@ -1,0 +1,23 @@
+jd-button-group {
+  display: flex;
+  gap: 4px;
+}
+
+jd-button-group>.button {
+  border-radius: 2px;
+}
+
+jd-button-group>.button:first-child { border-radius: 4px 2px 2px 4px; }
+jd-button-group>.button:last-child { border-radius: 2px 4px 4px 2px; }
+
+jd-button-group>.button.selected {
+  z-index: 5;
+}
+
+jd-button-group>.button:focus-visible {
+  box-shadow: 0 0 0 6px var(--color-background),
+              0 0 0 10px var(--color-accent),
+              0 0 0 12px var(--color-background);
+  background-color: var(--color-accent);
+  border-radius: 4px;
+}

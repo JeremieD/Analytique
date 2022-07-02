@@ -22,14 +22,15 @@
   <!-- Styling -->
   <!-- <link rel="stylesheet" href="https://jeremiedupuis.com/resources/stylesheets/main.css"> -->
   <link rel="stylesheet" href="/resources/stylesheets/jd.css">
-  <link rel="stylesheet" href="/resources/stylesheets/form.css">
   <link rel="stylesheet" href="/resources/stylesheets/analytics.css">
   <link rel="stylesheet" href="/resources/stylesheets/JDIcon.css">
   <link rel="stylesheet" href="/resources/stylesheets/JDGraph.css">
   <link rel="stylesheet" href="/resources/stylesheets/popover.css">
-  <link rel="stylesheet" href="/resources/stylesheets/JDSelect.css">
-  <link rel="stylesheet" href="/resources/stylesheets/JDButtonToggleGroup.css">
-  <link rel="stylesheet" href="/resources/stylesheets/JDCalendar.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDForms/main.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDForms/dropdown.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDForms/dayField.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDForms/buttonGroup.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDForms/calendar.css">
 
   <!-- Scripts -->
   <script src="/resources/scripts/utilities.js"></script>
@@ -39,9 +40,10 @@
   <script src="/resources/scripts/JDGraph.js"></script>
   <script src="/resources/scripts/main.js" async></script>
   <script src="/resources/scripts/tooltip.js" async></script>
-  <script src="/resources/scripts/JDSelect.js"></script>
-  <script src="/resources/scripts/JDButtonToggleGroup.js" async></script>
-  <script src="/resources/scripts/JDCalendar.js" async></script>
+  <script src="/resources/scripts/JDForms/dropdown.js"></script>
+  <script src="/resources/scripts/JDForms/dayField.js"></script>
+  <script src="/resources/scripts/JDForms/buttonGroup.js" async></script>
+  <script src="/resources/scripts/JDForms/calendar.js" async></script>
   <script src="/resources/scripts/session.js" async></script>
 
 </head>
@@ -65,12 +67,12 @@
       <hgroup>
         <button id="filter-reset" disabled><jd-icon icon="x"></jd-icon></button>
         <h1 id="range-display">Ce mois-ci</h1>
-        <p>sur <jd-select id="origin-selector"></jd-select></p>
+        <p>sur <jd-dropdown id="origin-selector"></jd-dropdown></p>
       </hgroup>
       <div class="range-select">
-        <jd-button-toggle-group id="range-mode">
+        <jd-button-group id="range-mode">
           <button class="button" value="year">Par année</button>
-          <button class="button" value="month" selected>Par mois</button>
+          <button class="button selected" value="month">Par mois</button>
           <button class="button" value="week">Par semaine</button>
           <button class="button" value="custom" id="custom-range">
             <jd-icon icon="calendar"></jd-icon>
@@ -78,7 +80,7 @@
               <jd-calendar id="calendar"></jd-calendar>
             </div>
           </button>
-        </jd-button-toggle-group>
+        </jd-button-group>
         <div class="arrow-button-group">
           <button class="button round" id="range-previous" disabled></button>
           <button class="button round" id="range-next" disabled></button>

@@ -2,7 +2,6 @@ whenDOMReady(() => {
   const form = document.getElementById("form");
   const usernameField = document.getElementById("username");
   const passwordField = document.getElementById("password");
-  const passwordToggle = document.getElementById("togglePassword");
   const feedbackField = document.getElementById("feedback");
 
 
@@ -47,14 +46,4 @@ whenDOMReady(() => {
   form.addEventListener("animationend", () => {
     form.classList.remove("shake");
   }, { passive: true });
-
-  // Toggle password visibility on click.
-  passwordToggle.addEventListener("click", () => {
-    if (passwordField.type === "password") {
-      passwordField.type = "text";
-    } else {
-      passwordField.type = "password";
-    }
-  });
-
 });

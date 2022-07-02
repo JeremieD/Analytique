@@ -1,0 +1,98 @@
+:root {
+  --color-interactive: var(--color-dark);
+  --color-accent-secondary: #3B2559;
+  --color-error: #E33;
+}
+
+:is(input, button):not(.no-focus):focus-visible {
+  box-shadow: 0 0 0 4px var(--color-accent);
+  background-color: var(--color-interactive);
+  border-radius: 4px;
+  color: var(--color-text);
+}
+
+:is(.field, .button) {
+  transition: .2s ease box-shadow,
+              .2s ease opacity,
+              .1s ease background-color;
+}
+
+.field {
+  display: block;
+  min-width: 24ch;
+  width: 100%;
+  height: 3em;
+  padding: 0 1em;
+  background-color: var(--color-interactive);
+  border-radius: 4px;
+}
+
+.field.small {
+  font-size: .875rem;
+  height: 2rem;
+  padding: 0 .5rem;
+}
+
+.field.invalid {
+  box-shadow: 0 0 0 4px var(--color-error);
+}
+
+.button {
+  display: inline-block;
+  position: relative;
+  padding: 0 16px;
+  height: 40px;
+  border-radius: 4px;
+  background-color: var(--color-interactive);
+  user-select: none;
+    -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.button.round {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.button.round:focus-visible {
+  background-color: var(--color-interactive);
+  border-radius: 50%;
+}
+
+.button.primary {
+  width: auto;
+  min-width: 0;
+  align-self: end;
+  height: 3em;
+  padding: 0 1.25em;
+  text-align: center;
+  font-weight: bold;
+  background-color: var(--color-accent);
+  color: var(--color-lightest);
+  user-select: none;
+    -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.button.primary:focus-visible {
+  background-color: var(--color-interactive);
+  color: var(--color-text);
+}
+
+.button.selected {
+  background-color: var(--color-accent);
+  color: var(--color-lightest);
+  transition: .2s ease box-shadow,
+              .1s ease background-color,
+              .2s ease border-radius;
+}
+
+:disabled {
+  opacity: .33;
+  cursor: not-allowed;
+}
+
+.button jd-icon {
+  vertical-align: middle;
+}

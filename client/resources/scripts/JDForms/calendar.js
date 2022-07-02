@@ -1,25 +1,41 @@
 /**
  * Custom element that allows selecting a JDDateRange using a calendar.
- * This object requires JDDate.js.
- * @property
- * @property
- * @property
  */
 class JDCalendar extends HTMLElement {
   constructor() {
     super();
 
-    this.range = new JDDateRange(JDDate.thisYear());
-    this.value = new JDDateRange(JDDate.today());
-    this.highlighted = new JDDateRange(JDDate.today());
-    this.monthInView = JDDate.thisMonth();
-    this.scrollLock = true;
+    this.state = {
+      range: new JDDateRange(JDDate.thisYear()),
+      value: new JDDateRange(JDDate.today()),
+      highlighted: new JDDateRange(JDDate.today()),
+      active: 0,
+      monthInView: JDDate.thisMonth(),
+      scrollLock: true
+    };
 
-    this.view = {};
-    this.days = {};
+    this.previousState = {
+      value: undefined,
+    };
+
+    this.view = {
+      fields: [],
+      days: {}
+    };
   }
 
   connectedCallback() {
+    const fieldsContainer = document.createElement("div");
+    fieldsContainer.classList.add("fields-container");
+
+    this.view.fields[0] = new JDDayField();
+    this.view.fields[0].classList.add("small");
+    const rangeSeparator = document.createElement("span");
+    rangeSeparator.innerText = "→";
+    this.view.fields[1] = new JDDayField();
+    this.view.fields[1].classList.add("small");
+    fieldsContainer.append(this.view.fields[0], rangeSeparator, this.view.fields[1]);
+
     const gridContainer = document.createElement("div");
     gridContainer.classList.add("grid-container");
 
@@ -30,9 +46,10 @@ class JDCalendar extends HTMLElement {
     // Days grid
     this.view.grid = document.createElement("div");
     this.view.grid.classList.add("days-grid");
+    this.view.grid.tabIndex = -1;
 
     gridContainer.append(header, this.view.grid);
-    this.append(gridContainer);
+    this.append(fieldsContainer, gridContainer);
 
     // Initial draw
     this.drawDaysGrid();
@@ -47,6 +64,7 @@ class JDCalendar extends HTMLElement {
       if (e.target.dataset.value) {
         locked = true;
         start = new JDDate(e.target.dataset.value);
+        this.state.active = 0;
         this.setHighlighted(new JDDateRange(start));
       }
     }, { passive: true });
@@ -67,7 +85,6 @@ class JDCalendar extends HTMLElement {
         } else {
           this.setValue(new JDDateRange(start, end));
         }
-
         locked = false;
 
         start = undefined;
@@ -81,8 +98,10 @@ class JDCalendar extends HTMLElement {
     this.view.grid.addEventListener("mousemove", e => {
       if (locked && e.target.dataset.value && !e.target.disabled) {
         end = new JDDate(e.target.dataset.value);
+        this.state.active = 1;
 
         if (end.earlierThan(start)) {
+          this.state.active = 0;
           this.setHighlighted(new JDDateRange(end, start));
         } else {
           this.setHighlighted(new JDDateRange(start, end));
@@ -92,18 +111,46 @@ class JDCalendar extends HTMLElement {
 
     // Update on scroll.
     this.view.grid.addEventListener("scroll", () => {
-      if (!this.scrollLock) {
+      if (!this.state.scrollLock) {
         const tileSize = parseInt(getComputedStyle(this).getPropertyValue('--day-size'));
         const tileGap = parseInt(getComputedStyle(this).getPropertyValue('--day-gap'));
         const row = Math.ceil(this.view.grid.scrollTop / (tileSize + tileGap));
         const topDayIndex = (row + 1) * 7 + 7;
         const topDay = this.view.grid.children[topDayIndex];
         const monthInView = (new JDDate(topDay.dataset.value)).convertTo("month");
-        if (!monthInView.equals(this.monthInView)) {
+        if (!monthInView.equals(this.state.monthInView)) {
           this.setMonthInView(monthInView);
         }
       }
     }, { passive: true });
+
+    // Update on field change
+    this.view.fields[0].addEventListener("change", () => {
+      this.setValue(new JDDateRange(this.view.fields[0].value, this.view.fields[1].value));
+      if (!this.range.contains(this.view.fields[0].value)) {
+        this.view.fields[0].classList.add("invalid");
+      } else {
+        this.view.fields[0].classList.remove("invalid");
+      }
+      this.dispatchEvent(new Event("change"));
+    });
+    this.view.fields[1].addEventListener("change", () => {
+      this.setValue(new JDDateRange(this.view.fields[0].value, this.view.fields[1].value));
+      this.view.fields[1].classList.remove("invalid");
+      if (!this.state.range.contains(this.view.fields[1].value)) {
+        this.view.fields[1].classList.add("invalid");
+      }
+      this.dispatchEvent(new Event("change"));
+    });
+
+    this.view.fields[0].addEventListener("focus", () => {
+      this.state.active = 0;
+      this.drawHighlight();
+    });
+    this.view.fields[1].addEventListener("focus", () => {
+      this.state.active = 1;
+      this.drawHighlight();
+    });
   }
 
   /**
@@ -111,40 +158,45 @@ class JDCalendar extends HTMLElement {
    * @param {JDDateRange} value
    */
   setRange(value) {
-    this.range = new JDDateRange(value.shortForm);
+    this.state.range = new JDDateRange(value.shortForm);
     this.drawDaysGrid();
     this.drawMonthInView();
   }
 
   /**
-   *
    * @param {JDDateRange} value
    */
   setValue(value) {
-    this.value.set(value.shortForm);
-    this.setHighlighted(value);
+    if (this.previousState.value === undefined ||
+        !value.equals(this.previousState.value)) {
+      this.state.value.set(value.shortForm);
+      this.setHighlighted(value);
 
-    value.convertTo("month");
-    if (!value.equals(this.monthInView)) {
-      this.setMonthInView(value);
+      this.view.fields[0].setValue(new JDDate(value.from.shortForm), false);
+      this.view.fields[1].setValue(new JDDate(value.to.shortForm), false);
+
+      value.convertTo("month");
+      if (!value.equals(this.state.monthInView)) {
+        this.setMonthInView(value);
+      }
+
+      this.previousState.value = new JDDateRange(value.shortForm);
     }
   }
 
   /**
-   *
    * @param {JDDateRange} value
    */
   setHighlighted(value) {
-    this.highlighted.set(value.shortForm);
+    this.state.highlighted.set(value.shortForm);
     this.drawHighlight();
   }
 
   /**
-   *
    * @param {JDDate} value
    */
   setMonthInView(value) {
-    this.monthInView.set(value.shortForm);
+    this.state.monthInView.set(value.shortForm);
     this.drawMonthInView();
   }
 
@@ -152,7 +204,7 @@ class JDCalendar extends HTMLElement {
     this.view.grid.innerHTML = "";
 
     // Draw main range
-    for (let month of this.range.monthRange()) {
+    for (let month of this.state.range.monthRange()) {
       month = new JDDate(month);
 
       for (let i = 1; i <= nbOfDaysInMonth(month.year, month.month); i++) {
@@ -163,7 +215,7 @@ class JDCalendar extends HTMLElement {
         day.tabIndex = -1;
         day.dataset.value = date.shortForm;
 
-        if (!this.range.contains(date)) {
+        if (!this.state.range.contains(date)) {
           day.disabled = true;
         }
 
@@ -174,7 +226,7 @@ class JDCalendar extends HTMLElement {
 
         this.view.grid.append(day);
 
-        this.days[date.shortForm] = day;
+        this.view.days[date.shortForm] = day;
       }
     }
 
@@ -190,7 +242,7 @@ class JDCalendar extends HTMLElement {
       day.dataset.value = pointer.shortForm;
       day.disabled = true;
       this.view.grid.prepend(day);
-      this.days[pointer.shortForm] = day;
+      this.view.days[pointer.shortForm] = day;
     }
 
     // Overdraw 2 weeks after range.
@@ -205,10 +257,10 @@ class JDCalendar extends HTMLElement {
       day.dataset.value = pointer.shortForm;
       day.disabled = true;
       this.view.grid.append(day);
-      this.days[pointer.shortForm] = day;
+      this.view.days[pointer.shortForm] = day;
     }
 
-    this.view.grid.scrollTop = this.days[this.value.from.shortForm].offsetTop;
+    this.view.grid.scrollTop = this.view.days[this.state.value.from.shortForm].offsetTop;
   }
 
   drawHighlight() {
@@ -216,45 +268,53 @@ class JDCalendar extends HTMLElement {
       const date = new JDDate(day.dataset.value);
 
       day.classList.remove("highlighted");
-      if (this.highlighted.contains(date)) {
+      if (this.state.highlighted.contains(date)) {
         day.classList.add("highlighted");
       }
 
+      day.classList.remove("active");
+
       day.classList.remove("start");
-      if (date.equals(this.highlighted.firstDay)) {
+      if (date.equals(this.state.highlighted.firstDay)) {
         day.classList.add("start");
+        if (this.state.active === 0) {
+          day.classList.add("active");
+        }
       }
 
       day.classList.remove("end");
-      if (date.equals(this.highlighted.lastDay)) {
+      if (date.equals(this.state.highlighted.lastDay)) {
         day.classList.add("end");
+        if (this.state.active === 1) {
+          day.classList.add("active");
+        }
       }
     }
   }
 
   drawMonthInView() {
     // Draw title
-    this.view.label.innerHTML = monthsDict[this.monthInView.month - 1] +
-      " <small>" + this.monthInView.year + "</small>";
+    this.view.label.innerHTML = monthsDict[this.state.monthInView.month - 1] +
+      " <small>" + this.state.monthInView.year + "</small>";
 
     // Fade other days.
     for (const day of this.view.grid.children) {
       const date = new JDDate(day.dataset.value);
       day.classList.remove("subdued");
-      if (!this.monthInView.contains(date)) {
+      if (!this.state.monthInView.contains(date)) {
         day.classList.add("subdued");
       }
     }
 
     // Scroll to month
-    this.scrollLock = true;
+    this.state.scrollLock = true;
     setTimeout(() => {
-      this.scrollLock = false;
+      this.state.scrollLock = false;
     }, 500);
     const tileSize = parseInt(getComputedStyle(this).getPropertyValue('--day-size'));
     const tileGap = parseInt(getComputedStyle(this).getPropertyValue('--day-gap'));
-    const firstOfMonth = new JDDate(this.monthInView.shortForm + "-01");
-    const yOffset = this.days[firstOfMonth.shortForm].offsetTop;
+    const firstOfMonth = new JDDate(this.state.monthInView.shortForm + "-01");
+    const yOffset = this.view.days[firstOfMonth.shortForm].offsetTop;
     this.view.grid.scrollTo({
       top: yOffset - tileSize - tileGap,
       behavior: "smooth"

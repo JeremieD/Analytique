@@ -1,0 +1,28 @@
+jd-day-field {
+  display: flex !important;
+  min-width: 0 !important;
+  align-items: center;
+  font-feature-settings: "tnum" on;
+}
+
+jd-day-field>input {
+  width: 2.5em;
+  user-select: all;
+  text-align: center;
+}
+
+jd-day-field>input:not(:first-of-type) {
+  width: 1.25em;
+}
+
+jd-day-field>span {
+  color: var(--color-grey);
+  user-select: none;
+}
+
+jd-day-field:focus-within {
+  box-shadow: 0 0 0 4px var(--color-accent);
+  background-color: var(--color-interactive);
+  border-radius: 4px;
+  color: var(--color-text);
+}

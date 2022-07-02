@@ -20,14 +20,16 @@
   <!-- Styling -->
   <link rel="stylesheet" href="/resources/stylesheets/jd.css">
   <link rel="stylesheet" href="/resources/stylesheets/analytics.css">
-  <link rel="stylesheet" href="/resources/stylesheets/form.css">
-  <link rel="stylesheet" href="/resources/stylesheets/login.css">
   <link rel="stylesheet" href="/resources/stylesheets/JDIcon.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDForms/main.css">
+  <link rel="stylesheet" href="/resources/stylesheets/JDForms/passwordField.css">
+  <link rel="stylesheet" href="/resources/stylesheets/login.css">
 
   <!-- Scripts -->
   <script src="/resources/scripts/utilities.js"></script>
   <script async src="/resources/scripts/login.js"></script>
   <script async src="/resources/scripts/JDIcon.js"></script>
+  <script async src="/resources/scripts/JDForms/passwordField.js"></script>
 
 </head>
 
@@ -42,11 +44,8 @@
 
     <form id="form" method="post" action="/login">
       <h3>Connexion</h3>
-      <input type="text" name="u" id="username" placeholder="Nom d’utilisateur" required autofocus>
-      <div class="password-input">
-        <input type="password" name="p" id="password" placeholder="Mot de passe" required>
-        <button type="button" id="togglePassword"><jd-icon icon="eye"></jd-icon></button>
-      </div>
+      <input class="field" type="text" name="u" id="username" placeholder="Nom d’utilisateur" required autofocus>
+      <jd-password-field name="p" id="password" placeholder="Mot de passe" required></jd-password-field>
       <div>
         <p id="feedback"></p>
         <button class="button primary">Se connecter</button>
