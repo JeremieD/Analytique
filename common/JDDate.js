@@ -49,14 +49,15 @@ class JDDate {
 
       // Build object from components.
       } else if (typeof arg1 === "number") {
+        if (isNaN(arg1)) throw "malformedDate";
         this.year = arg1;
         this.mode = "year";
 
-        if (typeof arg2 === "number") {
+        if (typeof arg2 === "number" && !isNaN(arg2)) {
           this.month = arg2;
           this.mode = "month";
 
-          if (typeof arg3 === "number") {
+          if (typeof arg3 === "number" && !isNaN(arg3)) {
             this.day = arg3;
             this.mode = "day";
           }
@@ -226,7 +227,7 @@ class JDDate {
   /**
    * Checks if this date is strictly before the given date.
    * @param {JDDate|JDDateRange} b - Another date to compare.
-   * @returns {boolean} Whether this date is strictly before the passed date
+   * @returns {boolean} Whether this date is strictly before the passed date.
    */
   earlierThan(b) {
     const a = this.firstDay;
@@ -666,11 +667,11 @@ class JDDateRange {
 
         // Build object from JDDate objects.
       } else if (arg1 instanceof JDDate) {
-        this.from = arg1;
-        this.to = arg1;
+        this.from = new JDDate(arg1.shortForm);
+        this.to = new JDDate(arg1.shortForm);
 
         if (arg2 instanceof JDDate) {
-          this.to = arg2;
+          this.to = new JDDate(arg2.shortForm);
         }
       }
 
