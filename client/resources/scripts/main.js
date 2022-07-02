@@ -441,7 +441,7 @@ function refreshComplementaryModel() {
       break;
 
     default:
-      const pointer = new JDDate(state.range.from.shortForm);
+      const pointer = new JDDate(state.range.to.shortForm);
 
       // If range is 7 days or less, display the 14 previous days.
       if (state.range.length <= 7) {
