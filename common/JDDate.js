@@ -688,6 +688,13 @@ class JDDateRange {
         this.set(arg1.shortForm);
       }
 
+      // Check bounds. Swap if necessary.
+      if (this.from.laterThan(this.to)) {
+        const toTemp = new JDDate(this.to);
+        this.to = this.from;
+        this.from = toTemp;
+      }
+
       return this;
     };
 
