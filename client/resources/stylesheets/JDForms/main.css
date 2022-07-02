@@ -88,6 +88,10 @@
               .2s ease border-radius;
 }
 
+.button>jd-icon {
+  pointer-events: none;
+}
+
 :disabled {
   opacity: .33;
   cursor: not-allowed;
