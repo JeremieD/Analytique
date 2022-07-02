@@ -8,7 +8,7 @@
  */
 class JDDate {
   /**
-   * @param {string|number|Date} arg1 - If a string, parses the string according to short-form format. If a Date, converts it a JDDate.
+   * @param {string|number|Date|JDDate} arg1 - If a string, parses the string according to short-form format. If a Date, converts it to a JDDate. If a JDDate, creates a copy.
    * @param {number} [arg2] - If all parameters are present and numbers, treats them as the year, month and day, respectively.
    * @param {number} [arg3]
    */
@@ -67,12 +67,13 @@ class JDDate {
           this.mode = "week";
         }
 
-        // Build object from Date object.
+      // Convert Date to JDDate.
       } else if (arg1 instanceof Date) {
-        this.mode = "day";
-        this.year = arg1.getFullYear();
-        this.month = arg1.getMonth() + 1;
-        this.day = arg1.getDate();
+        this.set(arg1.getFullYear(), arg1.getMonth() + 1, arg1.getDate());
+
+      // Copy JDDate object.
+      } else if (arg1 instanceof JDDate) {
+        this.set(arg1.shortForm);
       }
 
       // Check bounds.
@@ -142,12 +143,12 @@ class JDDate {
     switch (targetMode) {
       case "year":
         // Current range.
-        if (this.isCurrent) return this.set(JDDate.thisYear().shortForm);
+        if (this.isCurrent) return this.set(JDDate.thisYear());
 
         // Week → Year
         if (this.mode === "week") {
-          const fourthOfTheWeek = (new JDDate(this.shortForm)).convertTo("day").plus(3);
-          return this.set(fourthOfTheWeek.convertTo("year").shortForm);
+          const fourthOfTheWeek = this.convertedTo("day").plus(3);
+          return this.set(fourthOfTheWeek.convertTo("year"));
         }
 
         // Day/Month → Year
@@ -155,12 +156,12 @@ class JDDate {
 
       case "month":
         // Current range.
-        if (this.isCurrent) return this.set(JDDate.thisMonth().shortForm);
+        if (this.isCurrent) return this.set(JDDate.thisMonth());
 
         // Week → Month
         if (this.mode === "week") {
-          const fourthOfTheWeek = (new JDDate(this.shortForm)).convertTo("day").plus(3);
-          return this.set(fourthOfTheWeek.convertTo("month").shortForm);
+          const fourthOfTheWeek = this.convertedTo("day").plus(3);
+          return this.set(fourthOfTheWeek.convertTo("month"));
         }
 
         // Day/Year → Month
@@ -170,12 +171,12 @@ class JDDate {
       case "week":
         // Current range.
         if (this.mode !== "day" && this.isCurrent) {
-          return this.set(JDDate.thisWeek().shortForm);
+          return this.set(JDDate.thisWeek());
         }
 
         // Month → Week
         if (this.mode === "month") {
-          return this.set((new JDDate(this.year, this.month, 4)).convertTo("week").shortForm);
+          return this.set((new JDDate(this.year, this.month, 4)).convertTo("week"));
         }
 
         // Day → Week
@@ -199,14 +200,14 @@ class JDDate {
 
       case "day":
         // Current range.
-        if (this.isCurrent) return this.set(JDDate.today().shortForm);
+        if (this.isCurrent) return this.set(JDDate.today());
 
         // Week → Day
         if (this.mode === "week") {
           const firstOfYear = new JDDate(this.year, 1, 4);
           const nearestThuToFirstOfYear = firstOfYear.plus(3 - firstOfYear.dayOfWeek);
           const firstMondayOfYear = nearestThuToFirstOfYear.minus(nearestThuToFirstOfYear.dayOfWeek);
-          return this.set(firstMondayOfYear.plus(7 * (this.week - 1)).shortForm);
+          return this.set(firstMondayOfYear.plus(7 * (this.week - 1)));
         }
 
         // Month/Year → Day
@@ -214,6 +215,13 @@ class JDDate {
     }
   }
 
+  /**
+   * @see JDDate#convertTo
+   * @returns A *new* JDDate converted to the given mode.
+   */
+  convertedTo(targetMode, preferEnd = false) {
+    return (new JDDate(this)).convertTo(targetMode, preferEnd);
+  }
 
   /**
    * Checks if operand is the same date.
@@ -400,7 +408,7 @@ class JDDate {
    * @returns this
    */
   next(n = 1) {
-    return this.set(this.plus(n).shortForm);
+    return this.set(this.plus(n));
   }
 
   /**
@@ -433,7 +441,7 @@ class JDDate {
         return (new JDDate(this.year, 1, 1)).plus(nbOfDays);
 
       case "day":
-        return new JDDate(this.shortForm);
+        return new JDDate(this);
     }
   }
 
@@ -456,7 +464,7 @@ class JDDate {
         return (new JDDate(this.year, 1, 1)).plus(nbOfDays);
 
       case "day":
-        return new JDDate(this.shortForm);
+        return new JDDate(this);
     }
   }
 
@@ -636,7 +644,7 @@ class JDDateRange {
 
   /**
    * Creates a new JDDateRange. Defaults to this month if no arguments are specified.
-   * @param {JDDate|string} [arg1=JDDate.thisMonth()] - If a string, the string will be parsed for 2 short-form dates separated by ":".
+   * @param {string|JDDate|JDDateRange} [arg1=JDDate.thisMonth()] - If a string, the string will be parsed for 2 short-form dates separated by ":". If a JDDateRange, creates a copy.
    * @param {JDDate} [arg2] - If both arguments are present and JDDates, will use them as the beginning and end of the range.
    */
   constructor(arg1 = JDDate.thisMonth(), arg2) {
@@ -665,14 +673,19 @@ class JDDateRange {
             throw "malformedRange";
         }
 
-        // Build object from JDDate objects.
+      // Build object from JDDate objects.
       } else if (arg1 instanceof JDDate) {
-        this.from = new JDDate(arg1.shortForm);
-        this.to = new JDDate(arg1.shortForm);
+        this.from = new JDDate(arg1);
 
         if (arg2 instanceof JDDate) {
-          this.to = new JDDate(arg2.shortForm);
+          this.to = new JDDate(arg2);
+        } else {
+          this.to = new JDDate(arg1);
         }
+
+      // Copy JDDateRange object.
+      } else if (arg1 instanceof JDDateRange) {
+        this.set(arg1.shortForm);
       }
 
       return this;
@@ -750,9 +763,18 @@ class JDDateRange {
    * @see JDDate.convertTo()
    * @returns this
    */
-  convertTo(mode, preferEnd = false) {
+  convertTo(targetMode, preferEnd = false) {
     const bound = preferEnd ? "to" : "from";
-    return this.set(this[bound].convertTo(mode, preferEnd));
+    return this.set(this[bound].convertTo(targetMode, preferEnd));
+  }
+
+
+  /**
+   * @see JDDateRange#convertTo
+   * @returns A *new* JDDateRange converted to the given mode.
+   */
+  convertedTo(targetMode, preferEnd = false) {
+    return (new JDDateRange(this)).convertTo(targetMode, preferEnd);
   }
 
 
@@ -879,7 +901,7 @@ class JDDateRange {
   get length() {
     if (this.plural) {
       let length = 0;
-      const pointer = new JDDate(this.from.shortForm);
+      const pointer = new JDDate(this.from);
       while (!pointer.laterThan(this.to)) {
         length += pointer.length;
         pointer.next();
@@ -896,7 +918,7 @@ class JDDateRange {
   get modeLength() {
     if (this.plural) {
       let length = 0;
-      const pointer = new JDDate(this.from.shortForm);
+      const pointer = new JDDate(this.from);
       while (!pointer.laterThan(this.to)) {
         length++;
         pointer.next();

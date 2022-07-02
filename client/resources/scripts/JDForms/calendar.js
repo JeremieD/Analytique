@@ -77,7 +77,7 @@ class JDCalendar extends HTMLElement {
         }
 
         if (end === undefined) {
-          end = new JDDate(start.shortForm);
+          end = new JDDate(start);
         }
 
         if (end.earlierThan(start)) {
@@ -117,7 +117,7 @@ class JDCalendar extends HTMLElement {
         const row = Math.ceil(this.view.grid.scrollTop / (tileSize + tileGap));
         const topDayIndex = (row + 1) * 7 + 7;
         const topDay = this.view.grid.children[topDayIndex];
-        const monthInView = (new JDDate(topDay.value)).convertTo("month");
+        const monthInView = topDay.value.convertedTo("month");
         if (!monthInView.equals(this.state.monthInView)) {
           this.setMonthInView(monthInView);
         }
@@ -158,7 +158,7 @@ class JDCalendar extends HTMLElement {
    * @param {JDDateRange} value
    */
   setRange(value) {
-    this.state.range = new JDDateRange(value.shortForm);
+    this.state.range = new JDDateRange(value);
     this.drawDaysGrid();
     this.drawMonthInView();
   }
@@ -169,18 +169,18 @@ class JDCalendar extends HTMLElement {
   setValue(value) {
     if (this.previousState.value === undefined ||
         !value.equals(this.previousState.value)) {
-      this.state.value.set(value.shortForm);
+      this.state.value.set(value);
       this.setHighlighted(value);
 
-      this.view.fields[0].setValue(new JDDate(value.from.shortForm), false);
-      this.view.fields[1].setValue(new JDDate(value.to.shortForm), false);
+      this.view.fields[0].setValue(new JDDate(value.from), false);
+      this.view.fields[1].setValue(new JDDate(value.to), false);
 
       value.convertTo("month");
       if (!value.equals(this.state.monthInView)) {
-        this.setMonthInView(value);
+        this.setMonthInView(value.from);
       }
 
-      this.previousState.value = new JDDateRange(value.shortForm);
+      this.previousState.value = new JDDateRange(value);
     }
   }
 
@@ -188,7 +188,7 @@ class JDCalendar extends HTMLElement {
    * @param {JDDateRange} value
    */
   setHighlighted(value) {
-    this.state.highlighted.set(value.shortForm);
+    this.state.highlighted.set(value);
     this.drawHighlight();
   }
 
@@ -196,7 +196,7 @@ class JDCalendar extends HTMLElement {
    * @param {JDDate} value
    */
   setMonthInView(value) {
-    this.state.monthInView.set(value.shortForm);
+    this.state.monthInView.set(value);
     this.drawMonthInView();
   }
 

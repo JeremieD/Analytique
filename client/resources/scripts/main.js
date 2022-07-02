@@ -197,7 +197,7 @@ whenDOMReady(() => {
   });
 
   view.hud.calendar.addEventListener("change", e => {
-    state.range = new JDDateRange(view.hud.calendar.state.value.shortForm);
+    state.range.set(view.hud.calendar.state.value);
     update();
     e.stopPropagation();
   });
@@ -254,13 +254,13 @@ function switchToOrigin(origin) {
 
     // Check range bounds and move range accordingly.
     if (state.range.earlierThan(bounds.from)) {
-      state.range = (new JDDateRange(bounds.from.shortForm)).convertTo(state.range.mode);
-      view.hud.calendar.setValue(new JDDateRange(bounds.from.shortForm));
+      state.range.set(bounds.from.convertedTo(state.range.mode));
+      view.hud.calendar.setValue(new JDDateRange(bounds.from));
       update();
     }
     if (state.range.laterThan(bounds.to)) {
-      state.range = (new JDDateRange(bounds.to.shortForm)).convertTo(state.range.mode);
-      view.hud.calendar.setValue(new JDDateRange(bounds.to.shortForm));
+      state.range.set(bounds.to.convertedTo(state.range.mode));
+      view.hud.calendar.setValue(new JDDateRange(bounds.to));
       update();
     }
 
@@ -286,9 +286,9 @@ function switchRangeMode(mode) {
       if (state.range.mode !== "day" && state.range.mode !== "days") {
         state.range.convertTo("day");
       } else {
-        state.range = new JDDateRange(view.hud.calendar.state.value.shortForm);
+        state.range.set(view.hud.calendar.state.value);
       }
-      view.hud.calendar.setValue(new JDDateRange(state.range.shortForm));
+      view.hud.calendar.setValue(new JDDateRange(state.range));
   }
 }
 
@@ -298,9 +298,9 @@ function switchRangeMode(mode) {
  * @param {JDDateRange} range - The range to move to.
  */
 function setRange(range) {
-  state.range.set(range.shortForm);
+  state.range.set(range);
   if (state.range.mode === "day" || state.range.mode === "days") {
-    view.hud.calendar.setValue(new JDDateRange(state.range.shortForm));
+    view.hud.calendar.setValue(new JDDateRange(state.range));
   }
 }
 
@@ -309,7 +309,7 @@ function setRange(range) {
  * Advances range in state.
  */
 function nextRange() {
-  const newRange = new JDDateRange(state.range.shortForm);
+  const newRange = new JDDateRange(state.range);
   setRange(newRange.next());
 }
 
@@ -318,7 +318,7 @@ function nextRange() {
  * Rewinds range in state.
  */
 function previousRange() {
-  const newRange = new JDDateRange(state.range.shortForm);
+  const newRange = new JDDateRange(state.range);
   setRange(newRange.previous());
 }
 
@@ -363,7 +363,7 @@ function update() {
   // Write previousState before update.
   previousState = {
     origin: state.origin,
-    range: new JDDateRange(state.range.shortForm),
+    range: new JDDateRange(state.range),
     filter: {
       key: state.filter.key,
       value: state.filter.value
@@ -443,7 +443,7 @@ function refreshComplementaryModel() {
       break;
 
     default:
-      const pointer = new JDDate(state.range.to.shortForm);
+      const pointer = new JDDate(state.range.to);
 
       // If range is 7 days or less, display the 14 previous days.
       if (state.range.length <= 7) {

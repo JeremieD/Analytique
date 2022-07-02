@@ -76,13 +76,13 @@ class JDDayField extends HTMLElement {
     });
     this.view.monthField.addEventListener("keydown", e => {
       if (e.key === "ArrowUp") {
-        const newDate = (new JDDate(this.value.shortForm)).convertTo("month");
+        const newDate = this.value.convertedTo("month");
         newDate.next();
         this.setValue(new JDDate(newDate.year, newDate.month, this.value.day));
         this.view.monthField.select();
 
       } else if (e.key === "ArrowDown") {
-        const newDate = (new JDDate(this.value.shortForm)).convertTo("month");
+        const newDate = this.value.convertedTo("month");
         newDate.previous();
         this.setValue(new JDDate(newDate.year, newDate.month, this.value.day));
         this.view.monthField.select();
@@ -98,13 +98,13 @@ class JDDayField extends HTMLElement {
     });
     this.view.dayField.addEventListener("keydown", e => {
       if (e.key === "ArrowUp") {
-        const newDate = new JDDate(this.value.shortForm);
+        const newDate = new JDDate(this.value);
         newDate.next();
         this.setValue(newDate);
         this.view.dayField.select();
 
       } else if (e.key === "ArrowDown") {
-        const newDate = new JDDate(this.value.shortForm);
+        const newDate = new JDDate(this.value);
         newDate.previous();
         this.setValue(newDate);
         this.view.dayField.select();
@@ -117,7 +117,7 @@ class JDDayField extends HTMLElement {
   }
 
   setValue(date, dispatchEvent = true) {
-    this.value = new JDDate(date.shortForm);
+    this.value.set(date);
     this.classList.remove("invalid");
     this.draw();
     if (dispatchEvent) {
