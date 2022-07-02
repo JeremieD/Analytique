@@ -700,14 +700,13 @@ function drawComplementaryView() {
           label = String(rangeObject.year);
           break;
         case "month":
-          label = monthsDict[rangeObject.month - 1];
+          label = monthsDict[rangeObject.month - 1] + " " + rangeObject.year;
           break;
         case "week":
-          label = "W" + String(rangeObject.week).padStart(2, "0");
+          label = rangeObject.year + " " + "W" + String(rangeObject.week).padStart(2, "0");
           break;
         default:
-          label = String(rangeObject.month).padStart(2, "0") +
-            "-" + String(rangeObject.day).padStart(2, "0");
+          label = rangeObject.niceForm;
       }
 
       // Draw point as 0 if there is no *matching sessions*,
