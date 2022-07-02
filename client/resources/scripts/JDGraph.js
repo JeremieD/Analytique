@@ -100,9 +100,7 @@ class JDGraph extends HTMLElement {
 
       const label = document.createElement("label");
       if (xOffset === data.maxPointCount - 1) {
-        if (dataPoint.y !== 0) {
-          label.innerHTML = dataPoint.y.round(data.floatingDigits);
-        }
+        label.innerHTML = dataPoint.y.round(data.floatingDigits);
       } else {
         label.innerHTML = dataPoint.label + ": <em>" + dataPoint.y.round(data.floatingDigits) + "</em>";
       }

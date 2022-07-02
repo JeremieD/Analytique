@@ -447,7 +447,8 @@ function refreshComplementaryModel() {
       if (state.range.length <= 7) {
         pointer.convertTo("day", true);
         for (let i = 0; i < 14; i++) {
-          ranges.push(pointer.previous().shortForm);
+          ranges.push(pointer.shortForm);
+          pointer.previous();
         }
         break;
       }
