@@ -552,7 +552,7 @@ class JDDate {
           break;
         }
         niceForm = this.day + (daysSuffixDict[this.day - 1] ?? "");
-        niceForm += " " + monthsDict[this.month - 1].toLowerCase();
+        niceForm += " " + monthsDict[this.month - 1].toLowerCase();
         niceForm += " " + this.year;
         break;
 
@@ -962,14 +962,14 @@ class JDDateRange {
         case "days":
           niceForm = this.from.day + (daysSuffixDict[this.from.day - 1] ?? "");
           if (this.from.month !== this.to.month || this.from.year !== this.to.year) {
-            niceForm += " " + monthsDict[this.from.month - 1].toLowerCase();
+            niceForm += " " + monthsDict[this.from.month - 1].toLowerCase();
           }
           if (this.from.year !== this.to.year) {
             niceForm += " " + this.from.year;
           }
           niceForm += " au ";
           niceForm += this.to.day + (daysSuffixDict[this.to.day - 1] ?? "");
-          niceForm += " " + monthsDict[this.to.month - 1].toLowerCase();
+          niceForm += " " + monthsDict[this.to.month - 1].toLowerCase();
           niceForm += " " + this.to.year;
           break;
       }
