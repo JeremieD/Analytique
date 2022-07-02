@@ -61,9 +61,9 @@ class JDCalendar extends HTMLElement {
 
     // Lock on mousedown
     this.view.grid.addEventListener("mousedown", e => {
-      if (e.target.dataset.value) {
+      if (e.target.value) {
         locked = true;
-        start = new JDDate(e.target.dataset.value);
+        start = new JDDate(e.target.value);
         this.state.active = 0;
         this.setHighlighted(new JDDateRange(start));
       }
@@ -72,8 +72,8 @@ class JDCalendar extends HTMLElement {
     // Unlock on mouseup
     document.addEventListener("mouseup", e => {
       if (locked && start) {
-        if (e.target.dataset.value && !e.target.disabled) {
-          end = new JDDate(e.target.dataset.value);
+        if (e.target.value && !e.target.disabled) {
+          end = new JDDate(e.target.value);
         }
 
         if (end === undefined) {
@@ -96,8 +96,8 @@ class JDCalendar extends HTMLElement {
 
     // Update on mousemove
     this.view.grid.addEventListener("mousemove", e => {
-      if (locked && e.target.dataset.value && !e.target.disabled) {
-        end = new JDDate(e.target.dataset.value);
+      if (locked && e.target.value && !e.target.disabled) {
+        end = new JDDate(e.target.value);
         this.state.active = 1;
 
         if (end.earlierThan(start)) {
@@ -117,7 +117,7 @@ class JDCalendar extends HTMLElement {
         const row = Math.ceil(this.view.grid.scrollTop / (tileSize + tileGap));
         const topDayIndex = (row + 1) * 7 + 7;
         const topDay = this.view.grid.children[topDayIndex];
-        const monthInView = (new JDDate(topDay.dataset.value)).convertTo("month");
+        const monthInView = (new JDDate(topDay.value)).convertTo("month");
         if (!monthInView.equals(this.state.monthInView)) {
           this.setMonthInView(monthInView);
         }
@@ -213,7 +213,7 @@ class JDCalendar extends HTMLElement {
         const day = document.createElement("button");
         day.innerText = i;
         day.tabIndex = -1;
-        day.dataset.value = date.shortForm;
+        day.value = date.shortForm;
 
         if (!this.state.range.contains(date)) {
           day.disabled = true;
@@ -231,7 +231,7 @@ class JDCalendar extends HTMLElement {
     }
 
     // Overdraw 2 weeks before range.
-    let pointer = new JDDate(this.view.grid.children[0].dataset.value);
+    let pointer = new JDDate(this.view.grid.children[0].value);
     let dayOfWeek = pointer.dayOfWeek;
     let overdrawCount = 14 + dayOfWeek;
     for (let i = 0; i < overdrawCount; i++) {
@@ -239,14 +239,14 @@ class JDCalendar extends HTMLElement {
       const day = document.createElement("button");
       day.innerText = pointer.day;
       day.tabIndex = -1;
-      day.dataset.value = pointer.shortForm;
+      day.value = pointer.shortForm;
       day.disabled = true;
       this.view.grid.prepend(day);
       this.view.days[pointer.shortForm] = day;
     }
 
     // Overdraw 2 weeks after range.
-    pointer = new JDDate(this.view.grid.children[this.view.grid.children.length - 1].dataset.value);
+    pointer.set(this.view.grid.children[this.view.grid.children.length - 1].value);
     dayOfWeek = pointer.dayOfWeek;
     overdrawCount = 20 - dayOfWeek;
     for (let i = 0; i < overdrawCount; i++) {
@@ -254,7 +254,7 @@ class JDCalendar extends HTMLElement {
       const day = document.createElement("button");
       day.innerText = pointer.day;
       day.tabIndex = -1;
-      day.dataset.value = pointer.shortForm;
+      day.value = pointer.shortForm;
       day.disabled = true;
       this.view.grid.append(day);
       this.view.days[pointer.shortForm] = day;
@@ -265,7 +265,7 @@ class JDCalendar extends HTMLElement {
 
   drawHighlight() {
     for (const day of this.view.grid.children) {
-      const date = new JDDate(day.dataset.value);
+      const date = new JDDate(day.value);
 
       day.classList.remove("highlighted");
       if (this.state.highlighted.contains(date)) {
@@ -299,7 +299,7 @@ class JDCalendar extends HTMLElement {
 
     // Fade other days.
     for (const day of this.view.grid.children) {
-      const date = new JDDate(day.dataset.value);
+      const date = new JDDate(day.value);
       day.classList.remove("subdued");
       if (!this.state.monthInView.contains(date)) {
         day.classList.add("subdued");
