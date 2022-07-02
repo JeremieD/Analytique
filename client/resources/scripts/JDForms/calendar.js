@@ -29,10 +29,12 @@ class JDCalendar extends HTMLElement {
     fieldsContainer.classList.add("fields-container");
 
     this.view.fields[0] = new JDDayField();
+    this.view.fields[0].disableValidation = true;
     this.view.fields[0].classList.add("small");
     const rangeSeparator = document.createElement("span");
     rangeSeparator.innerText = "→";
     this.view.fields[1] = new JDDayField();
+    this.view.fields[1].disableValidation = true;
     this.view.fields[1].classList.add("small");
     fieldsContainer.append(this.view.fields[0], rangeSeparator, this.view.fields[1]);
 
@@ -127,10 +129,9 @@ class JDCalendar extends HTMLElement {
     // Update on field change
     this.view.fields[0].addEventListener("change", () => {
       this.setValue(new JDDateRange(this.view.fields[0].value, this.view.fields[1].value));
-      if (!this.range.contains(this.view.fields[0].value)) {
+      this.view.fields[0].classList.remove("invalid");
+      if (!this.state.range.contains(this.view.fields[0].value)) {
         this.view.fields[0].classList.add("invalid");
-      } else {
-        this.view.fields[0].classList.remove("invalid");
       }
       this.dispatchEvent(new Event("change"));
     });
@@ -307,18 +308,20 @@ class JDCalendar extends HTMLElement {
     }
 
     // Scroll to month
-    this.state.scrollLock = true;
-    setTimeout(() => {
-      this.state.scrollLock = false;
-    }, 500);
-    const tileSize = parseInt(getComputedStyle(this).getPropertyValue('--day-size'));
-    const tileGap = parseInt(getComputedStyle(this).getPropertyValue('--day-gap'));
-    const firstOfMonth = new JDDate(this.state.monthInView.shortForm + "-01");
-    const yOffset = this.view.days[firstOfMonth.shortForm].offsetTop;
-    this.view.grid.scrollTo({
-      top: yOffset - tileSize - tileGap,
-      behavior: "smooth"
-    });
+    if (this.state.range.contains(this.state.monthInView)) {
+      this.state.scrollLock = true;
+      setTimeout(() => {
+        this.state.scrollLock = false;
+      }, 500);
+      const tileSize = parseInt(getComputedStyle(this).getPropertyValue('--day-size'));
+      const tileGap = parseInt(getComputedStyle(this).getPropertyValue('--day-gap'));
+      const firstOfMonth = new JDDate(this.state.monthInView.shortForm + "-01");
+      const yOffset = this.view.days[firstOfMonth.shortForm].offsetTop;
+      this.view.grid.scrollTo({
+        top: yOffset - tileSize - tileGap,
+        behavior: "smooth"
+      });
+    }
   }
 }
 

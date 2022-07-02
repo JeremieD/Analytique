@@ -8,6 +8,7 @@ class JDDayField extends HTMLElement {
     super();
 
     this.value = JDDate.today();
+    this.disableValidation = false;
     this.view = {};
   }
 
@@ -53,12 +54,12 @@ class JDDayField extends HTMLElement {
     this.view.monthField.addEventListener("change", this.updateFromFields);
     this.view.dayField.addEventListener("change", this.updateFromFields);
 
-    this.view.yearField.addEventListener("focus", () => { this.dispatchEvent(new Event("focus"))});
-    this.view.monthField.addEventListener("focus", () => { this.dispatchEvent(new Event("focus"))});
-    this.view.dayField.addEventListener("focus", () => { this.dispatchEvent(new Event("focus"))});
-    this.view.yearField.addEventListener("blur", () => { this.dispatchEvent(new Event("blur"))});
-    this.view.monthField.addEventListener("blur", () => { this.dispatchEvent(new Event("blur"))});
-    this.view.dayField.addEventListener("blur", () => { this.dispatchEvent(new Event("blur"))});
+    this.view.yearField.addEventListener("focus", () => this.dispatchEvent(new Event("focus")));
+    this.view.monthField.addEventListener("focus", () => this.dispatchEvent(new Event("focus")));
+    this.view.dayField.addEventListener("focus", () => this.dispatchEvent(new Event("focus")));
+    this.view.yearField.addEventListener("blur", () => this.dispatchEvent(new Event("blur")));
+    this.view.monthField.addEventListener("blur", () => this.dispatchEvent(new Event("blur")));
+    this.view.dayField.addEventListener("blur", () => this.dispatchEvent(new Event("blur")));
 
     this.view.yearField.addEventListener("keydown", e => {
       if (e.key === "ArrowUp") {
@@ -118,7 +119,9 @@ class JDDayField extends HTMLElement {
 
   setValue(date, dispatchEvent = true) {
     this.value.set(date);
-    this.classList.remove("invalid");
+    if (!this.disableValidation) {
+      this.classList.remove("invalid");
+    }
     this.draw();
     if (dispatchEvent) {
       this.dispatchEvent(new Event("change"));
@@ -131,7 +134,9 @@ class JDDayField extends HTMLElement {
                                parseInt(this.view.monthField.value),
                                parseInt(this.view.dayField.value)));
     } catch (e) {
-      this.classList.add("invalid");
+      if (!this.disableValidation) {
+        this.classList.add("invalid");
+      }
     }
   }
 
