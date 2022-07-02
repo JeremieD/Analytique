@@ -187,6 +187,24 @@ whenDOMReady(() => {
     update();
   });
 
+  view.hud.rangeMode.addEventListener("dblclick", e => {
+    switch (e.target.value) {
+      case "year":
+        setRange(JDDate.thisYear());
+        break;
+      case "month":
+        setRange(JDDate.thisMonth());
+        break;
+      case "week":
+        setRange(JDDate.thisWeek());
+        break;
+      case "custom":
+        setRange(JDDate.today());
+        break;
+    }
+    update();
+  });
+
   view.hud.customRange.addEventListener("click", e => {
     view.hud.calendarContainer.classList.add("open");
     e.stopPropagation();
