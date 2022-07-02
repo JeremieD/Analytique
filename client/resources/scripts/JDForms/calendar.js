@@ -203,6 +203,7 @@ class JDCalendar extends HTMLElement {
 
   drawDaysGrid() {
     this.view.grid.innerHTML = "";
+    this.view.days = [];
 
     // Draw main range
     for (let month of this.state.range.monthRange()) {
