@@ -468,8 +468,9 @@ function refreshComplementaryModel() {
         pointer.convertTo("month");
       }
 
-      while (pointer.earlierThan(state.range.to)) {
-        ranges.push(pointer.next().shortForm);
+      while (!pointer.earlierThan(state.range.from)) {
+        ranges.push(pointer.shortForm);
+        pointer.previous();
       }
   }
 

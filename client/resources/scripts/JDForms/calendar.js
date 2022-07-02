@@ -117,7 +117,7 @@ class JDCalendar extends HTMLElement {
         const row = Math.ceil(this.view.grid.scrollTop / (tileSize + tileGap));
         const topDayIndex = (row + 1) * 7 + 7;
         const topDay = this.view.grid.children[topDayIndex];
-        const monthInView = topDay.value.convertedTo("month");
+        const monthInView = (new JDDate(topDay.value)).convertTo("month");
         if (!monthInView.equals(this.state.monthInView)) {
           this.setMonthInView(monthInView);
         }
