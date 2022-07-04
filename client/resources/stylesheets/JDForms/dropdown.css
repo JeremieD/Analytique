@@ -29,7 +29,7 @@ jd-dropdown>ol {
   max-height: 75vh;
   overflow-y: scroll;
   padding: 6px;
-  background-color: var(--color-secondary);
+  background-color: var(--color-interactive);
   border-radius: 8px;
   box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.1);
   color: var(--color-text);

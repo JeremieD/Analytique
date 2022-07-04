@@ -1,7 +1,14 @@
 :root {
-  --color-interactive: var(--color-dark);
-  --color-accent-secondary: #3B2559;
+  --color-interactive: var(--color-light);
+  --color-accent-secondary: #D5BFF3;
   --color-error: #E33;
+}
+
+@media(prefers-color-scheme: dark) {
+  :root {
+    --color-interactive: var(--color-dark);
+    --color-accent-secondary: #3B2559;
+  }
 }
 
 :is(input, button):not(.no-focus):focus-visible {
@@ -82,7 +89,7 @@
 
 .button.selected {
   background-color: var(--color-accent);
-  color: var(--color-lightest);
+  color: var(--color-lightest) !important;
   transition: .2s ease box-shadow,
               .1s ease background-color,
               .2s ease border-radius;

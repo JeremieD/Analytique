@@ -6,8 +6,8 @@
 jd-calendar {
   --day-size: 28px;
   --day-gap: 8px;
-  --color-interactive: var(--color-darkest);
-  --color-background: var(--color-dark);
+  --color-background: var(--color-light);
+  --color-interactive: var(--color-lightest);
   display: flex;
   flex-direction: column;
   width: fit-content;
@@ -16,6 +16,13 @@ jd-calendar {
   overflow: hidden;
   border-radius: 8px;
   background-color: var(--color-background);
+}
+
+@media(prefers-color-scheme: dark) {
+  jd-calendar {
+    --color-background: var(--color-dark);
+    --color-interactive: var(--color-darkest);
+  }
 }
 
 jd-calendar>.fields-container {
