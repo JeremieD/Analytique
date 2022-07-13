@@ -407,9 +407,13 @@ function update() {
     view.hud.nextRange.disabled = isLastRange;
   });
 
+  // Update filter HUD.
   const filterEnabled = state.filter.key !== "";
   view.hud.filterReset.disabled = !filterEnabled;
-  if (!filterEnabled) {
+  if (filterEnabled) {
+    view.hud.filterReset.title = `Filtre appliqué: ${state.filter.key} = "${state.filter.value}"`;
+  } else {
+    view.hud.filterReset.title = "";
     view.hud.filterReset.blur();
     document.querySelector(".card>ol>li.selected")?.classList.remove("selected");
   }
