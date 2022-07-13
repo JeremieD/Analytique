@@ -264,9 +264,10 @@ data {
 }
 
 data.numerical {
-  font-family: "Akkurat Mono";
   text-align: right;
   font-weight: bold;
+  font-feature-settings: "tnum" on;
+  letter-spacing: .025em;
 }
 
 data.secondary, data>small {

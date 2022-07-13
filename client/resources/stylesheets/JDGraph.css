@@ -24,8 +24,9 @@ jd-graph>axis[name="y"] {
   display: grid;
   height: 80%;
   grid-template-rows: 1fr 1fr 1fr;
-  font-family: "Akkurat Mono";
   text-align: right;
+  font-feature-settings: "tnum";
+  letter-spacing: .025em;
 }
 
 jd-graph>axis>label {
