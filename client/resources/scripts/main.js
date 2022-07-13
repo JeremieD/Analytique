@@ -240,9 +240,25 @@ whenDOMReady(() => {
     if (e.key === "ArrowLeft" && !view.hud.previousRange.disabled) {
       previousRange();
       update();
-
     } else if (e.key === "ArrowRight" && !view.hud.nextRange.disabled) {
       nextRange();
+      update();
+
+    } else if (e.key === "y") {
+      view.hud.rangeMode.select("year");
+      switchRangeMode("year");
+      update();
+    } else if (e.key === "m") {
+      view.hud.rangeMode.select("month");
+      switchRangeMode("month");
+      update();
+    } else if (e.key === "w") {
+      view.hud.rangeMode.select("week");
+      switchRangeMode("week");
+      update();
+    } else if (e.key === "d") {
+      view.hud.rangeMode.select("custom");
+      switchRangeMode("day");
       update();
     }
   });
