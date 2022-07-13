@@ -9,9 +9,9 @@ require("../utilities/misc.js");
 const config = require("../config.js").origins;
 
 const dataRoot = "./data/";
-function viewsRoot(origin) { return dataRoot + origin + "/views/"; }
-function sessionsRoot(origin) { return dataRoot + origin + "/sessions/"; }
-function statsRoot(origin) { return dataRoot + origin + "/stats/"; }
+const viewsRoot = origin => dataRoot + origin + "/views/";
+const sessionsRoot = origin => dataRoot + origin + "/sessions/";
+const statsRoot = origin => dataRoot + origin + "/stats/";
 
 
 /*
