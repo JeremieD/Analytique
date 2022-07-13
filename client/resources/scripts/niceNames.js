@@ -1,5 +1,5 @@
 const acquisitionChannelsDict = {
-  "direct": "Direct",
+  "direct": "Direct/inconnu",
   "organic": "Organique",
   "social": "Social",
   "other": "Autre référence"
