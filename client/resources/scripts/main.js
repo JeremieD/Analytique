@@ -191,15 +191,19 @@ whenDOMReady(() => {
     switch (e.target.value) {
       case "year":
         setRange(JDDate.thisYear());
+        clearFilter();
         break;
       case "month":
         setRange(JDDate.thisMonth());
+        clearFilter();
         break;
       case "week":
         setRange(JDDate.thisWeek());
+        clearFilter();
         break;
       case "custom":
         setRange(JDDate.today());
+        clearFilter();
         break;
     }
     update();
