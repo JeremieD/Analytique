@@ -3,12 +3,10 @@ require("./misc.js");
 
 const config = require("../config.js").analytics;
 
-const ipGeoCountryCache = {};
-const ipGeoCityCache = {};
+const ipGeoCache = {};
 const ipGeoCacheTTL = 3600000*24*7; // 7 days.
 const ipGeoAddress = "http://ipinfo.io/";
-const ipGeoCountryParameters = "/country?token=" + config.ipGeoToken;
-const ipGeoCityParameters = "/city?token=" + config.ipGeoToken;
+const ipGeoParameters = "/json?token=" + config.ipGeoToken;
 
 const botPatterns = [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver", "Dataprovider.com" ];
 const socialNetworkDomains = [
@@ -38,20 +36,20 @@ const renderingEngines = {
 
 
 /**
- * Queries ipinfo.io for the country of the given IP address. Caches the result.
+ * Queries ipinfo.io for the location of the given IP address. Caches the result.
  * WARNING: Very slow.
  * @param {string} ipAddress - The IP address.
- * @returns {Promise<string>} A promise to the 2-letter country code of the country.
+ * @returns {Promise<object>} A promise to an object containing the country code, region and city.
  */
-async function inferCountry(ipAddress) {
+async function inferLocation(ipAddress) {
   return new Promise(function(resolve, reject) {
 
     // Use the cached result if it is fresh.
-    if (ipGeoCountryCache[ipAddress]?.time + ipGeoCacheTTL > Date.now()) {
-      return resolve(ipGeoCountryCache[ipAddress].countryCode);
+    if (ipGeoCache[ipAddress]?.time + ipGeoCacheTTL > Date.now()) {
+      return resolve(ipGeoCache[ipAddress].data);
     }
 
-    http.get(ipGeoAddress + ipAddress + ipGeoCountryParameters, res => {
+    http.get(ipGeoAddress + ipAddress + ipGeoParameters, res => {
       let rawData = "";
 
       res.on("data", chunk => {
@@ -59,48 +57,28 @@ async function inferCountry(ipAddress) {
       });
 
       res.on("end", () => {
-        ipGeoCountryCache[ipAddress] = {
-          countryCode: rawData.trim(),
+        rawData = JSON.parse(rawData);
+
+        if (rawData.error) {
+          resolve(rawData);
+          return;
+        }
+
+        const data = {
+          country: rawData.country,
+          region: rawData.region,
+          city: rawData.city
+        };
+
+        ipGeoCache[ipAddress] = {
+          data: data,
           time: Date.now()
         }
-        resolve(rawData.trim());
+        resolve(data);
       });
 
     }).on("error", e => {
       resolve({ error: e });
-    });
-  });
-}
-
-
-/**
- * Queries ipinfo.io for the city of the given IP address. Caches the result.
- * WARNING: Very slow.
- * @param {string} ipAddress - The IP address.
- * @returns {Promise<string>} A promise to the city name.
- */
-async function inferCity(ipAddress) {
-  return new Promise(function(resolve, reject) {
-
-    // Use the cached result if it is fresh.
-    if (ipGeoCityCache[ipAddress]?.time + ipGeoCacheTTL > Date.now()) {
-      return resolve(ipGeoCityCache[ipAddress].countryCode);
-    }
-
-    http.get(ipGeoAddress + ipAddress + ipGeoCityParameters, res => {
-      let rawData = "";
-
-      res.on("data", chunk => {
-        rawData += chunk;
-      });
-
-      res.on("end", () => {
-        ipGeoCityCache[ipAddress] = {
-          countryCode: rawData.trim(),
-          time: Date.now()
-        }
-        resolve(rawData.trim());
-      });
     });
   });
 }
@@ -249,8 +227,7 @@ function normalizeOriginURL(rawURL) {
 
 
 module.exports = {
-  inferCountry,
-  inferCity,
+  inferLocation,
   inferIfBot,
   inferAcquisitionChannel,
   inferOS,

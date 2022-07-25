@@ -177,6 +177,7 @@ async function getStats(origin, range, filter) {
  * landings             Number of landings per URL.
  * bilingualismClasses  Number of sessions per bilingualism class.
  * countries            Number of sessions per country.
+ * regions              Number of sessions per region.
  * cities               Number of sessions per city, for some countries.
  * oses                 Number of sessions per OS.
  * renderingEngines     Number of sessions per rendering engine.
@@ -203,6 +204,7 @@ async function buildStats(origin, range, filter) {
       landings: {},
       bilingualismClasses: {},
       countries: {},
+      regions: {},
       cities: {},
       oses: {},
       renderingEngines: {},
@@ -267,6 +269,10 @@ async function buildStats(origin, range, filter) {
           }
           if (filterKey === "countries" &&
             filterValue !== session.country) {
+            continue;
+          }
+          if (filterKey === "regions" &&
+            filterValue !== session.region) {
             continue;
           }
           if (filterKey === "cities" &&
@@ -334,13 +340,17 @@ async function buildStats(origin, range, filter) {
       }
       stats.countries[session.country]++;
 
-      // Cities
-      if (session.city !== undefined) {
-        if (stats.cities[session.city] === undefined) {
-          stats.cities[session.city] = 0;
-        }
-        stats.cities[session.city]++;
+      // Regions
+      if (stats.regions[session.region] === undefined) {
+        stats.regions[session.region] = 0;
       }
+      stats.regions[session.region]++;
+
+      // Cities
+      if (stats.cities[session.city] === undefined) {
+        stats.cities[session.city] = 0;
+      }
+      stats.cities[session.city]++;
 
       // OSes
       if (stats.oses[session.os] === undefined) {
@@ -381,6 +391,7 @@ async function buildStats(origin, range, filter) {
     stats.referrerOrigins = stats.referrerOrigins.sortedAssociativeArray();
     stats.bilingualismClasses = stats.bilingualismClasses.sortedAssociativeArray();
     stats.countries = stats.countries.sortedAssociativeArray();
+    stats.regions = stats.regions.sortedAssociativeArray();
     stats.cities = stats.cities.sortedAssociativeArray();
     stats.oses = stats.oses.sortedAssociativeArray();
     stats.renderingEngines = stats.renderingEngines.sortedAssociativeArray();
@@ -446,8 +457,9 @@ async function getSessions(origin, range) {
  *   referrerOrigin
  *   acquisitionChannel
  *   languages          Array of strings of language codes.
- *   country
- *   city               City name iff the country is Canada.
+ *   country            2-letter country code.
+ *   region             Region name.
+ *   city               City name.
  *   os
  *   renderingEngine
  *   screenBreakpoint
@@ -547,23 +559,19 @@ async function buildSessions(origin, range) {
       }
       currentSession.languages = currentSession.languages.unique();
 
-      currentSession.country = await heuristics.inferCountry(aggregate[0][11]);
-      if (currentSession.country.error) {
+      // Get location info.
+      const location = await heuristics.inferLocation(aggregate[0][11]);
+      if (location.error) {
         return { error: "ipGeoUnavailable" };
       }
+      currentSession.country = location.country;
+      currentSession.region = location.region;
+      currentSession.city = location.city;
 
       // Filter out some countries.
       if (config[origin].excludeCountries.includes(currentSession.country)) {
         sessions.excludedTraffic.spam += aggregate.length;
         continue;
-      }
-
-      // Get some cities according to config.
-      if (config[origin].preciseGeolocation.includes(currentSession.country)) {
-        const city = await heuristics.inferCity(aggregate[0][11]);
-        if (city !== undefined) {
-          currentSession.city = city;
-        }
       }
 
       currentSession.os = heuristics.inferOS(aggregate[0][10]);
