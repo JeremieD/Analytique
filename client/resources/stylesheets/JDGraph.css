@@ -105,6 +105,10 @@ jd-graph>graph>svg * {
   vector-effect: non-scaling-stroke;
 }
 
+jd-graph>graph>svg>*.dashed {
+  stroke-dasharray: 4px 3px;
+}
+
 jd-graph>graph>point>label {
   display: block;
   position: absolute;

@@ -19,6 +19,7 @@ class JDGraph extends HTMLElement {
    *     - y           Y coordinate.
    *     - label       Label to display for that point.
    *     - onClick     Function to call when point is clicked.
+   *     - style       Class to add to the *line* preceding this point.
    */
   draw(data) {
     // Clear the graph.
@@ -73,10 +74,9 @@ class JDGraph extends HTMLElement {
     line.setAttribute("preserveAspectRatio", "none");
     line.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
-    const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-    let polylinePoints = "";
-
     const points = [];
+
+    let polyline, style, linePoint;
 
     for (let i = 0; i < data.points.length; i++) {
       const dataPoint = data.points[i];
@@ -86,7 +86,18 @@ class JDGraph extends HTMLElement {
 
       const xOffset = i + data.maxPointCount - data.points.length;
 
-      polylinePoints += xOffset + "," + (maxYValue - dataPoint.y) + " ";
+      if (style !== dataPoint.style) {
+        style = dataPoint.style;
+        polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        polyline.setAttribute("points", linePoint ?? "");
+        if (dataPoint.style !== "") {
+          polyline.classList.add(dataPoint.style);
+        }
+        line.append(polyline);
+      }
+
+      linePoint = `${xOffset},${maxYValue - dataPoint.y}`;
+      polyline.setAttribute("points", polyline.getAttribute("points") + " " + linePoint);
 
       const point = document.createElement("point");
       point.style.bottom = dataPoint.y / (maxYValue !== 0 ? maxYValue : 1) * 100 + "%";
@@ -108,9 +119,6 @@ class JDGraph extends HTMLElement {
 
       points.push(point);
     }
-
-    polyline.setAttribute("points", polylinePoints);
-    line.append(polyline);
 
     graph.append(cursor, line, ...points);
 

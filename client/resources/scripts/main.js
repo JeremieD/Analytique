@@ -765,16 +765,22 @@ function drawComplementaryView() {
         update();
       };
 
+      // Calculate wheter data point is for a "complete" range or not.
+      const today = JDDate.today();
+      const estimated = rangeObject.to.equals(today) || rangeObject.laterThan(today);
+
       sessionTotalData.points.push({
         label: label,
         y: sessionTotalValue,
-        onClick: onClickHandler
+        onClick: onClickHandler,
+        style: estimated ? "dashed" : ""
       });
 
       sessionLengthData.points.push({
         label: label,
         y: avgSessionLengthValue,
-        onClick: onClickHandler
+        onClick: onClickHandler,
+        style: estimated ? "dashed" : ""
       });
     }
 
