@@ -431,7 +431,7 @@ function update() {
   const filterEnabled = state.filter.key !== "";
   view.hud.filterReset.disabled = !filterEnabled;
   if (filterEnabled) {
-    view.hud.filterReset.title = `Filtre appliqué: ${state.filter.key} = "${state.filter.value}"`;
+    view.hud.filterReset.title = `Filtre appliqué: ${state.filter.key} = "${state.filter.value}". Cliquez pour remettre à zéro.`;
   } else {
     view.hud.filterReset.title = "";
     view.hud.filterReset.blur();
