@@ -798,20 +798,18 @@ class JDDateRange {
   /**
    * @see JDDate.earlierThan()
    * @param {JDDateRange} b
-   * @returns {boolean} Undefined if any operand is plural.
+   * @returns {boolean}
    */
   earlierThan(b) {
-    if (this.plural || b.plural) return undefined;
     return this.from.earlierThan(b.from ?? b);
   }
 
   /**
    * @see JDDate.laterthan()
    * @param {JDDateRange} b
-   * @returns {boolean} Undefined if any operand is plural.
+   * @returns {boolean}
    */
   laterThan(b) {
-    if (this.plural || b.plural) return undefined;
     return this.from.laterThan(b.from ?? b);
   }
 
