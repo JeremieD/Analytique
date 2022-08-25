@@ -767,7 +767,7 @@ function drawComplementaryView() {
 
       // Calculate wheter data point is for a "complete" range or not.
       const today = JDDate.today();
-      const estimated = rangeObject.to.equals(today) || rangeObject.laterThan(today);
+      const estimated = rangeObject.lastDay.equals(today) || rangeObject.laterThan(today);
 
       sessionTotalData.points.push({
         label: label,
