@@ -264,6 +264,12 @@ whenDOMReady(() => {
       view.hud.rangeMode.select("custom");
       switchRangeMode("day");
       update();
+    } else if (e.key === "t") {
+      view.hud.rangeMode.select("custom");
+      switchRangeMode("day");
+      setRange(JDDate.today());
+      clearFilter();
+      update();
     }
   });
 });
