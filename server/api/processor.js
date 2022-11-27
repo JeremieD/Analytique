@@ -81,10 +81,10 @@ function processRequest(req, res) {
       });
 
       Promise.all([lowerBound, upperBound]).then(bounds => {
-        const range = new JDDateRange(bounds[0], bounds[1]);
-        const rangeShortForm = range.shortForm;
-        const eTag = static.getETagFrom(rangeShortForm + origin + user);
-        static.serve(req, res, `"${rangeShortForm}"`,
+        const range = new JDDateInterval(bounds[0], bounds[1]);
+        const rangeCanonicalForm = range.canonicalForm;
+        const eTag = static.getETagFrom(rangeCanonicalForm + origin + user);
+        static.serve(req, res, `"${rangeCanonicalForm}"`,
           "application/json", "auto", "private", eTag);
         return;
       });
@@ -106,7 +106,7 @@ function processRequest(req, res) {
     }
 
     try {
-      range = new JDDateRange(path.parameters.range);
+      range = new JDDateInterval(path.parameters.range);
     } catch (e) {
       static.serve(req, res, { error: e },
         "application/json", "auto", "private");
@@ -139,11 +139,11 @@ async function getStats(origin, range, filter) {
     return buildStats(origin, range, filter);
   }
 
-  const lastMonth = range.to.shortForm;
+  const lastMonth = range.end.canonicalForm;
   const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
   const viewsFileMetadata = fs.stat(viewsFilePath);
 
-  const statsFilePath = statsRoot(origin) + range.mode + "/" + range.shortForm + ".json";
+  const statsFilePath = statsRoot(origin) + range.unit + "/" + range.canonicalForm + ".json";
   const statsFileMetadata = fs.stat(statsFilePath);
 
   return Promise.all([statsFileMetadata, viewsFileMetadata]).then(metadata => {
@@ -399,10 +399,10 @@ async function buildStats(origin, range, filter) {
     stats.excludedTraffic = stats.excludedTraffic.sortedAssociativeArray();
 
     // Save stats to cache, except for filtered data, and some range modes.
-    if (filter === undefined && (range.mode === "year" ||
-        range.mode === "month" || range.mode === "week")) {
-      const dirPath = statsRoot(origin) + range.mode;
-      const filePath = dirPath + "/" + range.shortForm + ".json";
+    if (filter === undefined && (range.unit === "year" ||
+        range.unit === "month" || range.unit === "week")) {
+      const dirPath = statsRoot(origin) + range.unit;
+      const filePath = dirPath + "/" + range.canonicalForm + ".json";
       fs.mkdir(dirPath, { recursive: true }).then(() => {
         fs.writeFile(filePath, JSON.stringify(stats));
       });
@@ -418,11 +418,11 @@ async function buildStats(origin, range, filter) {
  * Returns data from cache, or calls buildSessions(range) and returns that.
  */
 async function getSessions(origin, range) {
-  const lastMonth = range.to.shortForm;
+  const lastMonth = range.end.canonicalForm;
   const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
   const viewsFileMetadata = fs.stat(viewsFilePath);
 
-  const sessionsFilePath = sessionsRoot(origin) + range.mode + "/" + range.shortForm + ".json";
+  const sessionsFilePath = sessionsRoot(origin) + range.unit + "/" + range.canonicalForm + ".json";
   const sessionsFileMetadata = fs.stat(sessionsFilePath);
 
   return Promise.all([sessionsFileMetadata, viewsFileMetadata]).then(metadata => {
@@ -597,9 +597,9 @@ async function buildSessions(origin, range) {
     }
 
     // Save data to cache, except if empty or range mode is plural.
-    if (sessions.sessions.length > 0 && !range.plural) {
-      const folder = sessionsRoot(origin) + range.mode;
-      const filePath = folder + "/" + range.shortForm + ".json";
+    if (sessions.sessions.length > 0 && range.isSingular) {
+      const folder = sessionsRoot(origin) + range.unit;
+      const filePath = folder + "/" + range.canonicalForm + ".json";
       fs.mkdir(folder, { recursive: true }).then(() => {
         fs.writeFile(filePath, JSON.stringify(sessions));
       });
@@ -632,12 +632,12 @@ async function buildSessions(origin, range) {
 async function getBeacons(origin, range) {
   const fileReadPromises = [];
 
-  const firstMillisecond = range.firstMillisecond;
-  const lastMillisecond = range.lastMillisecond;
+  const firstMillisecond = range.first("ms");
+  const lastMillisecond = range.last("ms");
 
   // Issue a promise for each month-file.
-  for (const month of range.monthRange()) {
-    const promise = fs.readFile(viewsRoot(origin) + month + ".tsv", "utf8")
+  for (const month of range.each("month")) {
+    const promise = fs.readFile(viewsRoot(origin) + month.canonicalForm + ".tsv", "utf8")
     .then(rawBeacons => {
       const beacons = [];
 

@@ -1,290 +1,374 @@
 /**
- * Custom date object.
- * @property {string} mode - Indicates the "precision" (year, month, week, day) of the date.
- * @property {number} year - Integer year of the date.
- * @property {number} month - Integer month (1-12) of the year, if applicable.
- * @property {number} week - Integer week (1-53) of the year, if applicable.
- * @property {number} day - Integer day (1-31) of the month, if applicable.
- */
-class JDDate {
-  /**
-   * @param {string|number|Date|JDDate} arg1 - If a string, parses the string according to short-form format. If a Date, converts it to a JDDate. If a JDDate, creates a copy.
-   * @param {number} [arg2] - If all parameters are present and numbers, treats them as the year, month and day, respectively.
-   * @param {number} [arg3]
-   */
-  constructor(arg1, arg2, arg3) {
-
-    /** Changes the date after declaration. See constructor for details. */
-    this.set = function(arg1, arg2, arg3) {
-      this.year = undefined;
-      this.month = undefined;
-      this.week = undefined;
-      this.day = undefined;
-
-      // Build object from short-form representation.
-      if (typeof arg1 === "string") {
-        let matches = arg1.match(/^(\d{4})(?:(?:-(\d{2}))?(?:-(\d{2}))?|(?:-W(\d{2})))$/);
-
-        if (!matches || matches.length < 2) throw "malformedDate";
-
-        if (matches[1] !== undefined) {
-          this.year = parseInt(matches[1]);
-          this.mode = "year";
-        }
-
-        if (matches[2] !== undefined) {
-          this.month = parseInt(matches[2]);
-          this.mode = "month";
-
-          if (matches[3] !== undefined) {
-            this.day = parseInt(matches[3]);
-            this.mode = "day";
-          }
-        }
-
-        if (matches[4] !== undefined) {
-          this.week = parseInt(matches[4]);
-          this.mode = "week";
-        }
-
-      // Build object from components.
-      } else if (typeof arg1 === "number") {
-        if (isNaN(arg1)) throw "malformedDate";
-        this.year = arg1;
-        this.mode = "year";
-
-        if (typeof arg2 === "number" && !isNaN(arg2)) {
-          this.month = arg2;
-          this.mode = "month";
-
-          if (typeof arg3 === "number" && !isNaN(arg3)) {
-            this.day = arg3;
-            this.mode = "day";
-          }
-
-        } else if (typeof arg2 === "string" && arg2.startsWith("W")) {
-          this.week = parseInt(arg2.substr(1));
-          this.mode = "week";
-        }
-
-      // Convert Date to JDDate.
-      } else if (arg1 instanceof Date) {
-        this.set(arg1.getFullYear(), arg1.getMonth() + 1, arg1.getDate());
-
-      // Copy JDDate object.
-      } else if (arg1 instanceof JDDate) {
-        this.set(arg1.shortForm);
-      }
-
-      // Check bounds.
-      if (this.month < 1 || this.month > 12) {
-        throw "monthOutOfBounds";
-      }
-      if (this.day < 1 || this.day > nbOfDaysInMonth(this.year, this.month)) {
-        throw "dayOutOfBounds";
-      }
-      if (this.week < 1 || this.week > nbOfWeeksInYear(this.year)) {
-        throw "weekOutOfBounds";
-      }
-
-      return this;
-    };
-
-    this.set(arg1, arg2, arg3);
+ * Date object based on the proleptic Gregorian calendar, with astronomical year
+ * numbering (1 BC = 0, 2 BC = -1), months 1-12, (ISO) weeks 1-53, days 1-31,
+ * and days of the week 0-6, where 0 is Monday.
+*/
+class _JDDate {
+  constructor() {
+    if (this.constructor == _JDDate) throw new Error();
   }
 
-
-  /**
-   * Calculates the day of the week.
-   * @returns {number} The day of the week from 0 to 6, where 0 is Monday.
-   * @throws "wrongMode" if date is not in "day" mode.
-   */
-  get dayOfWeek() {
-    if (this.mode !== "day") throw "wrongMode";
-    return ((new Date(this.year, this.month - 1, this.day)).getDay() + 6) % 7;
-  }
-
-  /**
-   * Calculates the day of the year.
-   * @returns {number} The day of the year from 1 to 366.
-   * @throws "wrongMode" if date is not in "day" mode.
-   */
-  get ordinalDate() {
-    if (this.mode !== "day") throw "wrongMode";
-
-    const offsetPerMonth = [
-        0,  31,  59,  90,
-      120, 151, 181, 212,
-      243, 273, 304, 334
-    ];
-    const leapYearOffset = isLeapYear(this.year) && this.month > 2 ? 1 : 0;
-    return offsetPerMonth[this.month - 1] + leapYearOffset + this.day;
-  }
-
-  /**
-   * Converts the date to the given mode.
-   *
-   * If range is "current" (this year, month, week or day), tries to keep it that way.
-   * From specific to generic, simply trims the most significant units.
-   * From generic to specific, prefers either the start or end of the range.
-   * Can be unpredictable when dealing with week numbers.
-   *
-   * @param {string} targetMode - The mode to convert this date to.
-   * @param {boolean} [preferEnd=false] - If set to true, will prefer converting to the end of a range when going from generic to specific.
-   * @returns this
-   */
-  convertTo(targetMode, preferEnd = false) {
-    if (this.mode === targetMode) return this;
-
-    const preferredMonth = preferEnd ? 12 : 1;
-    const preferredWeek = preferEnd ? nbOfWeeksInYear(this.year) : 1;
-    const preferredDay = preferEnd ? nbOfDaysInMonth(this.year, this.month) : 1;
-
-    switch (targetMode) {
-      case "year":
-        // Current range.
-        if (this.isCurrent) return this.set(JDDate.thisYear());
-
-        // Week → Year
-        if (this.mode === "week") {
-          const fourthOfTheWeek = this.convertedTo("day").plus(3);
-          return this.set(fourthOfTheWeek.convertTo("year"));
-        }
-
-        // Day/Month → Year
-        return this.set(this.year);
-
-      case "month":
-        // Current range.
-        if (this.isCurrent) return this.set(JDDate.thisMonth());
-
-        // Week → Month
-        if (this.mode === "week") {
-          const fourthOfTheWeek = this.convertedTo("day").plus(3);
-          return this.set(fourthOfTheWeek.convertTo("month"));
-        }
-
-        // Day/Year → Month
-        const month = this.month ?? preferredMonth;
-        return this.set(this.year, month);
-
-      case "week":
-        // Current range.
-        if (this.mode !== "day" && this.isCurrent) {
-          return this.set(JDDate.thisWeek());
-        }
-
-        // Month → Week
-        if (this.mode === "month") {
-          return this.set((new JDDate(this.year, this.month, 4)).convertTo("week"));
-        }
-
-        // Day → Week
-        if (this.mode === "day") {
-          const nearestThu = this.plus(3 - this.dayOfWeek);
-          const nearestThuOrdinal = nearestThu.ordinalDate;
-
-          const isoYear = nearestThu.year;
-
-          const firstOfYear = new JDDate(isoYear, 1, 4);
-          const nearestThuToFirstOfYear = firstOfYear.plus(3 - firstOfYear.dayOfWeek);
-          const nearestThuToFirstOfYearOrdinal = nearestThuToFirstOfYear.ordinalDate;
-
-          const weekOfYear = Math.floor((nearestThuOrdinal - nearestThuToFirstOfYearOrdinal) / 7) + 1;
-
-          return this.set(isoYear + "-W" + String(weekOfYear).padStart(2, "0"));
-        }
-
-        // Year → Week
-        return this.set(this.year + "-W" + String(preferredWeek).padStart(2, "0"));
-
-      case "day":
-        // Current range.
-        if (this.isCurrent) return this.set(JDDate.today());
-
-        // Week → Day
-        if (this.mode === "week") {
-          const firstOfYear = new JDDate(this.year, 1, 4);
-          const nearestThuToFirstOfYear = firstOfYear.plus(3 - firstOfYear.dayOfWeek);
-          const firstMondayOfYear = nearestThuToFirstOfYear.minus(nearestThuToFirstOfYear.dayOfWeek);
-          return this.set(firstMondayOfYear.plus(7 * (this.week - 1)));
-        }
-
-        // Month/Year → Day
-        return this.set(this.year, this.month ?? preferredMonth, preferredDay);
+  get isNow() {
+      switch (this.unit) {
+        case "year":
+          return this.equals(JDDate.thisYear());
+        case "month":
+          return this.equals(JDDate.thisMonth());
+        case "week":
+          return this.equals(JDDate.thisWeek());
+        case "day":
+          return this.equals(JDDate.today());
+      }
     }
-  }
 
-  /**
-   * @see JDDate#convertTo
-   * @returns A *new* JDDate converted to the given mode.
-   */
-  convertedTo(targetMode, preferEnd = false) {
-    return (new JDDate(this)).convertTo(targetMode, preferEnd);
-  }
+  // Commutative
+  equals(b) { return this.canonicalForm === b.canonicalForm; }
 
-  /**
-   * Checks if operand is the same date.
-   * @param {JDDate|JDDateRange} b - Another date to compare.
-   * @returns {boolean} Whether the two operands are equal.
-   */
-  equals(b) {
-    return this.shortForm === b.shortForm;
-  }
+  // Non-commutative
+  // *Stricly* before, meaning the entire range is before the entire other range.
+  isBefore(b) { return this.last("ms") < b.first("ms"); }
 
-  /**
-   * Checks if this date is strictly before the given date.
-   * @param {JDDate|JDDateRange} b - Another date to compare.
-   * @returns {boolean} Whether this date is strictly before the passed date.
-   */
-  earlierThan(b) {
-    const a = this.firstDay;
-    b = b.firstDay;
+  // Non-commutative
+  isBeforeOrIntersects(b) { return !this.isAfter(b); }
 
-    if (a.year === b.year) {
-      if (a.month === b.month) {
-        return a.day < b.day;
-      }
-      return a.month < b.month;
-    }
-    return a.year < b.year;
-  }
+  // Non-commutative
+  // *Stricly* after, meaning the entire range is after the entire other range.
+  isAfter(b) { return this.first("ms") > b.last("ms"); }
 
-  /**
-   * Checks if this date is strictly after the given date.
-   * @param {JDDate|JDDateRange} b - Another date to compare.
-   * @returns {boolean} Whether this date is strictly after the passed date
-   */
-  laterThan(b) {
-    const a = this.lastDay;
-    b = b.lastDay;
+  // Non-commutative
+  isAfterOrIntersects(b) { return !this.isBefore(b); }
 
-    if (a.year === b.year) {
-      if (a.month === b.month) {
-        return a.day > b.day;
-      }
-      return a.month > b.month;
-    }
-    return a.year > b.year;
-  }
-
-  /**
-   * Checks if the given date is contained in this range.
-   * @param {JDDate} b - Date that must be contained.
-   * @returns {boolean} Whether the passed JDDate is contained in this range.
-   */
+  // Non-commutative
   contains(b) {
-    return !b.earlierThan(this.firstDay) && !b.laterThan(this.lastDay);
+    return this.first().isBeforeOrIntersects(b.first())
+        && this.last().isAfterOrIntersects(b.last());
   }
 
-  /**
-   * Adds n "mode-units" to the date.
-   * The mode-unit is the unit associated with the current mode. So if this date
-   * is in "week" mode, this function will add n number of *weeks*.
-   * @param {number} n - Number to add.
-   * @returns {JDDate} A new JDDate with n mode-units added to the date.
-   */
-  plus(n) {
+  // Commutative
+  intersects(b) { return !this.isBefore(b) && !this.isAfter(b); }
+
+  each(unit = this.unit) {
+    unit = JDDate._normalizeUnit(unit);
+    const array = [];
+    const pointer = this.first(unit);
+    const end = this.last(unit);
+
+    while (!pointer.isAfter(end)) {
+      array.push(new JDDate(pointer));
+      pointer.next();
+    }
+    return array;
+  }
+
+  [Symbol.iterator]() {
+    const pointer = this.first(this.unit).previous();
+    const end = this.last(this.unit);
+    return {
+      next: () => ({
+        value: pointer.next(),
+        done: pointer.isAfter(end) })
+    };
+  }
+
+  // Mutates the object.
+  convertTo(unit, options = {}) {
+    return this.set(this.convertedTo(unit, options));
+  }
+
+  formatted(style = "long", options = {}) {
+    const start = this.start ?? this;
+    const end = this.end ?? this;
+    const isInterval = !start.equals(end);
+
+    let formatted = "";
+
+    switch (style) {
+      case "long":
+        // Options for long style.
+        options.language = options.language ?? "fr";
+        options.useNowForms = options.useNowForms ?? false;
+        options.capitalize = options.capitalize ?? false;
+        options.outputNBSPs = options.outputNBSPs ?? true;
+        options.outputSUPTag = options.outputSUPTag ?? false;
+        options.omitSameValues = options.omitSameValues ?? true;
+        options.monthStyle = options.monthStyle ?? "full";
+        options.outputDayOfWeek = options.outputDayOfWeek ?? false;
+        options.dayOfWeekStyle = options.dayOfWeekStyle ?? "full";
+
+        const dictionary = {
+          fr: {
+            month: m => {
+              const styles = {
+                "full": [ "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre" ],
+                "abbr": [ "janv.", "févr.", "mars", "avr.", "mai", "juin", "juill.", "août", "sept.", "oct.", "nov.", "déc." ]
+              };
+              if (!styles.hasOwnProperty(options.monthStyle)) throw new Error("undefinedMonthStyle");
+              return styles[options.monthStyle][m - 1];
+            },
+            daySuffix: d => d === 1 ? (options.outputSUPTag ? "<sup>er</sup>" : "er") : "",
+            dayOfWeek: d => {
+              const styles = {
+                full: [ "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche" ],
+                abbr: [ "lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim." ]
+              };
+              if (!styles.hasOwnProperty(options.dayOfWeekStyle)) throw new Error("undefinedDayOfWeekStyle");
+              return styles[options.dayOfWeekStyle][d];
+            },
+            now: {
+              year: "cette année",
+              month: "ce mois-ci",
+              week: "cette semaine",
+              day: "aujourd’hui"
+            },
+            intervalInfix: () => end.unit === "day" && !end.isNow ? "au" : "à"
+          }
+        };
+        const dict = dictionary[options.language];
+
+        switch (this.unit) {
+          case "year":
+            if (options.useNowForms && start.isNow) {
+              formatted += dict.now.year;
+            } else {
+              formatted += start.year;
+            }
+            if (isInterval) {
+              formatted += " " + dict.intervalInfix(end) + " ";
+              if (options.useNowForms && end.isNow) {
+                formatted += dict.now.year;
+              } else {
+                formatted += end.year;
+              }
+            }
+            break;
+          case "month":
+            if (options.useNowForms && start.isNow) {
+              formatted += dict.now.month;
+            } else {
+              formatted += dict.month(start.month);
+              if (!options.omitSameValues || !isInterval || start.year !== end.year) {
+                formatted += " " + start.year;
+              }
+            }
+            if (isInterval) {
+              formatted += " " + dict.intervalInfix(end) + " ";
+              if (options.useNowForms && end.isNow) {
+                formatted += dict.now.month;
+              } else {
+                formatted += dict.month(end.month) + " " + end.year;
+              }
+            }
+            break;
+          case "week":
+            if (options.useNowForms && start.isNow) {
+              formatted += dict.now.week;
+            } else {
+              formatted += "S" + start.week;
+              if (!options.omitSameValues || !isInterval || start.year !== end.year) {
+                formatted += " " + start.year;
+              }
+            }
+
+            if (isInterval) {
+              formatted += " " + dict.intervalInfix(end) + " ";
+              if (options.useNowForms && end.isNow) {
+                formatted += dict.now.week;
+              } else {
+                formatted += "S" + end.week + " " + end.year;
+              }
+            }
+            break;
+          case "day":
+            if (options.useNowForms && start.isNow) {
+              formatted += dict.now.day;
+            } else {
+              if (options.outputDayOfWeek) {
+                formatted += dict.dayOfWeek(start.dayOfWeek) + " ";
+              }
+              formatted += start.day;
+              formatted += dict.daySuffix(start.day);
+              if (!options.omitSameValues || !isInterval || start.month !== end.month || start.year !== end.year) {
+                formatted += " " + dict.month(start.month);
+              }
+              if (!options.omitSameValues || !isInterval || start.year !== end.year) {
+                formatted += " " + start.year;
+              }
+            }
+            if (isInterval) {
+              formatted += " " + dict.intervalInfix(end) + " ";
+              if (options.useNowForms && end.isNow) {
+                formatted += dict.now.day;
+              } else {
+                if (options.outputDayOfWeek) {
+                  formatted += dict.dayOfWeek(end.dayOfWeek) + " ";
+                }
+                formatted += end.day;
+                formatted += dict.daySuffix(end.day);
+                formatted += " " + dict.month(end.month) + " " + end.year;
+              }
+            }
+            break;
+        }
+
+        if (options.capitalize) formatted = formatted[0].toUpperCase() + formatted.substring(1);
+        if (!options.outputNBSPs) formatted = formatted.replaceAll(" ", " ");
+
+        return formatted;
+
+      case "short":
+        // Options for short style.
+        options.unitsSeparator = options.unitsSeparator ?? "-";
+        options.boundsSeparator = options.boundsSeparator ?? "—";
+        options.unitsOrder = options.unitsOrder ?? ">";
+        options.fixedLengthValues = options.fixedLengthValues ?? true;
+        options.truncateYear = options.truncateYear ?? false;
+
+        const year = d => {
+          return options.truncateYear ? String(d.year).slice(-2) : d.year;
+        };
+        const month = d => {
+          if (this.unit !== "month" && this.unit !== "day") return undefined;
+          return options.fixedLengthValues ? String(d.month).padStart(2, "0") : d.month;
+        };
+        const week = d => {
+          if (this.unit !== "week") return undefined;
+          return "W" + (options.fixedLengthValues ? String(d.week).padStart(2, "0") : d.week);
+        };
+        const day = d => {
+          if (this.unit !== "day") return undefined;
+          return options.fixedLengthValues ? String(d.day).padStart(2, "0") : d.day;
+        };
+
+        const order = {
+          ">": [ year, month, week, day ],
+          "<": [ day, week, month, year ],
+          "american": [ month, day, year, week ],
+        };
+
+        const bounds = [ start ];
+        if (isInterval) bounds.push(end);
+
+        const tokens = [];
+
+        for (let i = 0; i < bounds.length; i++) {
+          for (let value of order[options.unitsOrder]) {
+            value = value(bounds[i]);
+            if (tokens[i] === undefined) tokens[i] = [];
+            if (value) tokens[i].push(value);
+          }
+        }
+
+        return tokens.map(t => t.join(options.unitsSeparator)).join(options.boundsSeparator);
+
+      default:
+        throw new Error("undefinedFormatStyle");
+    }
+  }
+}
+
+
+class JDDate extends _JDDate {
+  constructor(...args) {
+    super();
+    if (args.length === 0) {
+      args[0] = JDDate.today();
+    }
+    this.set(...args);
+  }
+
+  // Mutates the object.
+  set(...args) {
+    delete this.year;
+    delete this.month;
+    delete this.week;
+    delete this.day;
+
+    // From canonical form
+    if (args.length === 1 && typeof args[0] === "string") {
+      let matches = args[0].match(/^(-?\d{4,6})(?:(?:-(\d{2}))?(?:-(\d{2}))?|(?:-W(\d{2})))$/);
+
+      if (!matches || matches.length < 2) throw new Error("malformedDate");
+
+      if (matches[1] !== undefined) {
+        this.year = parseInt(matches[1]);
+        this.unit = "year";
+      }
+
+      if (matches[2] !== undefined) {
+        this.month = parseInt(matches[2]);
+        this.unit = "month";
+
+        if (matches[3] !== undefined) {
+          this.day = parseInt(matches[3]);
+          this.unit = "day";
+        }
+      }
+
+      if (matches[4] !== undefined) {
+        this.week = parseInt(matches[4]);
+        this.unit = "week";
+      }
+
+    // From numbers
+    } else if (args.length <= 3 && typeof args[0] === "number") {
+      this.year = args[0];
+      this.unit = "year";
+
+      if (typeof args[1] === "number") {
+        this.month = args[1];
+        this.unit = "month";
+
+        if (typeof args[2] === "number") {
+          this.day = args[2];
+          this.unit = "day";
+        } else if (args[2] !== undefined) throw new Error("malformedDate");
+
+      } else if (typeof args[1] === "string" && args[1][0] === "W") {
+        this.week = parseInt(args[1].substr(1));
+        this.unit = "week";
+
+      } else if (args[1] !== undefined) throw new Error("malformedDate");
+
+    // From vanilla Date
+    } else if (args.length === 1 && args[0] instanceof Date) {
+      return this.set(args[0].getFullYear(), args[0].getMonth() + 1, args[0].getDate());
+
+    // From other JDDate (make a copy)
+    } else if (args.length === 1 && args[0] instanceof JDDate) {
+      return this.set(args[0].canonicalForm);
+
+    } else {
+      throw new Error("malformedDate");
+    }
+
+    // Check bounds
+    JDDate._validateYear(this.year);
+    JDDate._validateMonth(this.month);
+    JDDate._validateWeek(this.year, this.week);
+    JDDate._validateDay(this.year, this.month, this.day);
+
+    return this;
+  }
+
+  get dayOfWeek() {
+    if (this.unit !== "day") throw new Error("undefinedForUnit");
+    const date = new Date(this.year, this.month - 1, this.day);
+    date.setFullYear(this.year);
+    return (date.getDay() + 6) % 7;
+  }
+
+  get dayOfYear() {
+    if (this.unit !== "day") throw new Error("undefinedForUnit");
+    const monthOffset = [
+        0,  31,  59,  90, 120, 151,
+      181, 212, 243, 273, 304, 334
+    ];
+    const leapYearOffset = JDDate.isLeapYear(this.year) && this.month > 2 ? 1 : 0;
+    return monthOffset[this.month - 1] + leapYearOffset + this.day;
+  }
+
+  // Returns a new object.
+  advancedBy(n) {
     const sign = Math.sign(n);
 
     let newYear = this.year;
@@ -292,7 +376,7 @@ class JDDate {
     let newWeek = this.week;
     let newDay = this.day;
 
-    switch (this.mode) {
+    switch (this.unit) {
       case "year":
         return new JDDate(this.year + n);
 
@@ -302,10 +386,7 @@ class JDDate {
             if (newMonth === 12) {
               newYear++;
               newMonth = 1;
-
-            } else {
-              newMonth++;
-            }
+            } else { newMonth++; }
           }
 
         } else {
@@ -313,10 +394,7 @@ class JDDate {
             if (newMonth === 1) {
               newYear--;
               newMonth = 12;
-
-            } else {
-              newMonth--;
-            }
+            } else { newMonth--; }
           }
         }
 
@@ -325,13 +403,10 @@ class JDDate {
       case "week":
         if (sign === 1) {
           for (let i = 0; i < n; i++) {
-            if (newWeek === nbOfWeeksInYear(newYear)) {
+            if (newWeek === JDDate.weeksInYear(newYear)) {
               newYear++;
               newWeek = 1;
-
-            } else {
-              newWeek++;
-            }
+            } else { newWeek++; }
 
           }
 
@@ -339,11 +414,8 @@ class JDDate {
           for (let i = 0; i < Math.abs(n); i++) {
             if (newWeek === 1) {
               newYear--;
-              newWeek = nbOfWeeksInYear(newYear);
-
-            } else {
-              newWeek--;
-            }
+              newWeek = JDDate.weeksInYear(newYear);
+            } else { newWeek--; }
           }
         }
 
@@ -352,20 +424,15 @@ class JDDate {
       case "day":
         if (sign === 1) {
           for (let i = 0; i < n; i++) {
-            if (newDay === nbOfDaysInMonth(newYear, newMonth)) {
+            if (newDay === JDDate.daysInMonth(newYear, newMonth)) {
               if (newMonth === 12) {
                 newYear++;
                 newMonth = 1;
-
-              } else {
-                newMonth++;
-              }
+              } else { newMonth++; }
 
               newDay = 1;
 
-            } else {
-              newDay++;
-            }
+            } else { newDay++; }
           }
         } else {
           for (let i = 0; i < Math.abs(n); i++) {
@@ -373,16 +440,11 @@ class JDDate {
               if (newMonth === 1) {
                 newYear--;
                 newMonth = 12;
+              } else { newMonth--; }
 
-              } else {
-                newMonth--;
-              }
+              newDay = JDDate.daysInMonth(newYear, newMonth);
 
-              newDay = nbOfDaysInMonth(newYear, newMonth);
-
-            } else {
-              newDay--;
-            }
+            } else { newDay--; }
           }
         }
 
@@ -390,714 +452,423 @@ class JDDate {
     }
   }
 
-  /**
-   * Subtracts n "mode-units" from the date.
-   * The mode-unit is the unit associated with the current mode. So if this date
-   * is in "week" mode, this function will subtract n number of *weeks*.
-   * @param {number} n - Number to subtract.
-   * @returns {JDDate} A new JDDate with n mode-units subtracted to the date.
-   */
-  minus(n) {
-    return this.plus(-1 * n);
-  }
+  // Mutates the object.
+  plus(n) { return this.set(this.advancedBy(n)); }
+  minus(n) { return this.set(this.advancedBy(-n)); }
+  next(n = 1) { return this.plus(n); }
+  previous(n = 1) { return this.minus(n); }
 
-  /**
-   * Adds n "mode-units" to this date.
-   * @see JDDate.plus()
-   * @param {number} [n=1] - Number to add.
-   * @returns this
-   */
-  next(n = 1) {
-    return this.set(this.plus(n));
-  }
+  duration(unit = "day") {
+    unit = JDDate._normalizeUnit(unit);
+    if (unit === this.unit) return 1;
 
-  /**
-   * Subtracts n "mode-units" from this date.
-   * @see JDDate.minus()
-   * @param {number} [n=1] - Number to subtract.
-   * @returns this
-   */
-  previous(n = 1) {
-    return this.set(this.minus(n).shortForm);
-  }
-
-
-  /**
-   * @returns {JDDate} A new JDDate of the canonical first day of the date.
-   */
-  get firstDay() {
-    switch (this.mode) {
+    switch (unit) {
+      case "day":
+        switch (this.unit) {
+          case "week": // How many days in that week?
+            return 7;
+          case "month": // How many days in that month?
+            return JDDate.daysInMonth(this.year, this.month);
+          case "year": // How many days in that year?
+            return JDDate.daysInYear(this.year);
+        }
+      case "week":
+        switch (this.unit) {
+          case "day": // How many weeks in that day?
+            return 1/7;
+          case "month": // How many weeks in that month?
+            return JDDate.weeksInMonth(this.year, this.month);
+          case "year": // How many weeks in that year?
+            return JDDate.weeksInYear(this.year);
+        }
+      case "month":
+        switch (this.unit) {
+          case "day": // How many months in that day?
+            return 1/30;
+          case "week": // How many months in that week?
+            return 1/4;
+          case "year": // How many months in that year?
+            return 12;
+        }
       case "year":
-        return new JDDate(this.year, 1, 1);
+        switch (this.unit) {
+          case "day": // How many years in that day?
+            return 1/365;
+          case "week": // How many years in that week?
+            return 1/52;
+          case "month": // How many years in that month?
+            return 1/12;
+        }
+    }
+
+    // return 1 / this.convertedTo(unit).duration(this.unit);
+  }
+
+  first(unit = "day") {
+    unit = JDDate._normalizeUnit(unit, { allowMillisecond: true });
+    if (unit === "millisecond") {
+      const firstJDDay = this.first("d");
+      const firstDay = new Date(0, 0, 1);
+      firstDay.setFullYear(firstJDDay.year);
+      firstDay.setMonth(firstJDDay.month - 1);
+      firstDay.setDate(firstJDDay.day);
+      return firstDay.getTime();
+    }
+    return this.convertedTo(unit);
+  }
+
+  last(unit = "day") {
+    unit = JDDate._normalizeUnit(unit, { allowMillisecond: true });
+    if (unit === "millisecond") {
+      const lastJDDay = this.last("d");
+      const lastDay = new Date(0, 0, 1);
+      lastDay.setFullYear(lastJDDay.year);
+      lastDay.setMonth(lastJDDay.month - 1);
+      lastDay.setDate(lastJDDay.day);
+      return lastDay.getTime() + 1000*60*60*24 - 1;
+    }
+    return this.convertedTo(unit, { preferEnd: true });
+  }
+
+  // Mutates the object.
+  convertedTo(unit, options = {}) {
+    unit = JDDate._normalizeUnit(unit);
+
+    const newDate = new JDDate(this);
+
+    if (unit === this.unit) return newDate;
+
+    // Now → Now
+    if (options.keepNow && newDate.isNow) return newDate.set(JDDate.now(unit));
+
+    const defaultMonth = options.preferEnd ? 12 : 1;
+    const defaultWeek = options.preferEnd ? JDDate.weeksInYear(newDate.year) : 1;
+    const defaultDay = options.preferEnd ? JDDate.daysInMonth(newDate.year, this.month ?? defaultMonth) : 1;
+
+    switch (unit) {
+      case "year":
+        // Week → Year
+        if (this.unit === "week") {
+          const fourthOfTheWeek = newDate.convertedTo("d").plus(3);
+          return newDate.set(fourthOfTheWeek.convertTo("y"));
+        }
+
+        // Day/Month → Year
+        return newDate.set(this.year);
 
       case "month":
-        const lastDayOfMonth = nbOfDaysInMonth(this.year, this.month);
-        return new JDDate(this.year, this.month, 1);
+        // Week → Month
+        if (this.unit === "week") {
+          const fourthOfTheWeek = this.convertedTo("d").plus(3);
+          return newDate.set(fourthOfTheWeek.convertTo("m"));
+        }
+
+        // Day/Year → Month
+        return newDate.set(this.year, this.month ?? defaultMonth);
 
       case "week":
-        let nbOfDays = this.week * 7;
-        nbOfDays -= new Date(Date.UTC(this.year, 0, 4)).getUTCDay();
-        nbOfDays -= 3;
-        return (new JDDate(this.year, 1, 1)).plus(nbOfDays);
+        // Month → Week
+        if (this.unit === "month") {
+          const defaultDayForWeek = options.preferEnd ? 28 : 4;
+          return newDate.set((new JDDate(this.year, this.month, defaultDayForWeek)).convertTo("w"));
+        }
+
+        // Day → Week
+        if (this.unit === "day") {
+          const nearestThu = this.advancedBy(3 - this.dayOfWeek);
+          const nearestThuOrdinal = nearestThu.dayOfYear;
+
+          const isoYear = nearestThu.year;
+
+          const fourthOfYear = new JDDate(isoYear, 1, 4);
+          const nearestThuToFirstOfYear = fourthOfYear.plus(3 - fourthOfYear.dayOfWeek);
+          const nearestThuToFirstOfYearOrdinal = nearestThuToFirstOfYear.dayOfYear;
+
+          const weekOfYear = Math.floor((nearestThuOrdinal - nearestThuToFirstOfYearOrdinal) / 7) + 1;
+
+          return newDate.set(isoYear, "W" + String(weekOfYear).padStart(2, "0"));
+        }
+
+        // Year → Week
+        return newDate.set(this.year, "W" + String(defaultWeek).padStart(2, "0"));
 
       case "day":
-        return new JDDate(this);
+        // Week → Day
+        if (this.unit === "week") {
+          const fourthOfYear = new JDDate(this.year, 1, 4);
+          const nearestThuToFourthOfYear = fourthOfYear.plus(3 - fourthOfYear.dayOfWeek);
+          const firstMondayOfYear = nearestThuToFourthOfYear.minus(3);
+          const preferEndOffset = options.preferEnd ? 6 : 0;
+          return newDate.set(firstMondayOfYear.plus(7 * (newDate.week - 1) + preferEndOffset));
+        }
+
+        // Month/Year → Day
+        return newDate.set(this.year, this.month ?? defaultMonth, defaultDay);
     }
+
+    // return newDate;
   }
 
-  /**
-   * @returns {JDDate} A new JDDate of the canonical last day of the date.
-   */
-  get lastDay() {
-    switch (this.mode) {
-      case "year":
-        return new JDDate(this.year, 12, 31);
-
-      case "month":
-        const lastDayOfMonth = nbOfDaysInMonth(this.year, this.month);
-        return new JDDate(this.year, this.month, lastDayOfMonth);
-
-      case "week":
-        let nbOfDays = this.week * 7 + 6;
-        nbOfDays -= new Date(Date.UTC(this.year, 0, 4)).getUTCDay();
-        nbOfDays -= 3;
-        return (new JDDate(this.year, 1, 1)).plus(nbOfDays);
-
-      case "day":
-        return new JDDate(this);
-    }
-  }
-
-  /**
-   * @returns {number} The first epoch millisecond of the date.
-   */
-  get firstMillisecond() {
-    return (new Date(this.firstDay.shortForm)).getTime();
-  }
-
-  /**
-   * @returns {number} The last epoch millisecond of the date.
-   */
-  get lastMillisecond() {
-    return (new Date(this.lastDay.shortForm)).getTime() + 1000*60*60*24;
-  }
-
-  /**
-   * @returns {number} The length of the date in days.
-   */
-  get length() {
-    switch (this.mode) {
-      case "year":
-        return isLeapYear(this.year) ? 366 : 365;
-      case "month":
-        return nbOfDaysInMonth(this.year, this.month);
-      case "week":
-        return 7;
-      case "day":
-        return 1;
-    }
-  }
-
-  /**
-   * @see JDDateRange#monthRange
-   * @returns {string[]}
-   */
-  monthRange() {
-    return (new JDDateRange(this)).monthRange();
-  }
-
-  /**
-   * @returns {boolean} Whether this date is "current" according to mode.
-   */
-  get isCurrent() {
-    switch (this.mode) {
-      case "year":
-        return this.equals(JDDate.thisYear());
-      case "month":
-        return this.equals(JDDate.thisMonth());
-      case "week":
-        return this.equals(JDDate.thisWeek());
-      case "day":
-        return this.equals(JDDate.today());
-    }
-  }
-
-
-  /**
-   * Formats the date using short-form notation.
-   * Possible formats are:
-   *  - year   2022
-   *  - month  2022-04
-   *  - week   2022-W01
-   *  - day    2022-04-20
-   * @returns {string} The canonical text representation of the date.
-   */
-  get shortForm() {
-    let shortForm = String(this.year);
+  get canonicalForm() {
+    let canonicalForm = Math.sign(this.year) === -1 ? "-" : "";
+    canonicalForm += String(Math.abs(this.year)).padStart(4, "0");
 
     if (this.month) {
-      shortForm += "-" + String(this.month).padStart(2, "0");
+      canonicalForm += "-" + String(this.month).padStart(2, "0");
       if (this.day) {
-        shortForm += "-" + String(this.day).padStart(2, "0");
+        canonicalForm += "-" + String(this.day).padStart(2, "0");
       }
     } else if (this.week) {
-      shortForm += "-W" + String(this.week).padStart(2, "0");
+      canonicalForm += "-W" + String(this.week).padStart(2, "0");
     }
 
-    return shortForm;
+    return canonicalForm;
   }
 
-  /**
-   * Formats the date using a nice human-readable (French) notation.
-   * @returns {string} A nice human-readable string of the date.
-   */
-  get niceForm() {
-    let niceForm;
-
-    switch (this.mode) {
-      case "day":
-        if (this.equals(JDDate.today())) {
-          niceForm = "Aujourd’hui";
-          break;
-        }
-        niceForm = this.day + (daysSuffixDict[this.day - 1] ?? "");
-        niceForm += " " + monthsDict[this.month - 1].toLowerCase();
-        niceForm += " " + this.year;
-        break;
-
-      case "month":
-        if (this.equals(JDDate.thisMonth())) {
-          niceForm = "Ce mois-ci";
-          break;
-        }
-        niceForm = monthsDict[this.month - 1];
-        niceForm += " " + this.year;
-        break;
-
-      case "week":
-        if (this.equals(JDDate.thisWeek())) {
-          niceForm = "Cette semaine";
-          break;
-        }
-        niceForm = this.year;
-        niceForm += " W" + String(this.week).padStart(2, "0");
-        break;
-
-      case "year":
-        if (this.equals(JDDate.thisYear())) {
-          niceForm = "Cette année";
-          break;
-        }
-        niceForm = this.year;
-        break;
-    }
-
-    return niceForm;
-  }
-
-
-  /**
-   * @static
-   * @returns {JDDate} A new JDDate set to today.
-   */
   static today() {
     const now = new Date();
     return new JDDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
   }
 
-  /**
-   * @static
-   * @returns {JDDate} A new JDDate set to this week.
-   */
   static thisWeek() {
     return JDDate.today().convertTo("week");
   }
 
-  /**
-   * @static
-   * @returns {JDDate} A new JDDate set to this month.
-   */
   static thisMonth() {
     const now = new Date();
     return new JDDate(now.getFullYear(), now.getMonth() + 1);
   }
 
-  /**
-   * @static
-   * @returns {JDDate} A new JDDate set to this year.
-   */
   static thisYear() {
     const now = new Date();
     return new JDDate(now.getFullYear());
   }
-}
 
+  static now(unit = "day") {
+    unit = JDDate._normalizeUnit(unit);
+    switch (unit) {
+      case "day":
+        return JDDate.today();
+      case "week":
+        return JDDate.thisWeek();
+      case "month":
+        return JDDate.thisMonth();
+      case "year":
+        return JDDate.thisYear();
+    }
+  }
 
-/**
- * Custom date range object using JDDate bounds.
- * @property {string} mode - Indicates the “precision” (year(s), month(s), week(s), day(s)) of the date.
- * @property {JDDate} from - JDDate start date of the range.
- * @property {JDDate} to - JDDate end date of the range.
- * @see JDDate
- */
-class JDDateRange {
+  static isLongYear = y => {
+    JDDate._validateYear(y);
+    const firstOfJan = (new Date(Date.UTC(0, 0, 1)));
+    firstOfJan.setUTCFullYear(y);
+    const lastOfDec = (new Date(Date.UTC(0, 11, 31)));
+    lastOfDec.setUTCFullYear(y);
+    return firstOfJan.getUTCDay() === 4 || lastOfDec.getUTCDay() === 4;
+  };
 
-  /**
-   * Creates a new JDDateRange. Defaults to this month if no arguments are specified.
-   * @param {string|JDDate|JDDateRange} [arg1=JDDate.thisMonth()] - If a string, the string will be parsed for 2 short-form dates separated by ":". If a JDDateRange, creates a copy.
-   * @param {JDDate} [arg2] - If both arguments are present and JDDates, will use them as the beginning and end of the range.
-   */
-  constructor(arg1 = JDDate.thisMonth(), arg2) {
+  static weeksInYear = y => JDDate.isLongYear(y) ? 53 : 52;
 
-    /** Changes the date after declaration. See constructor for details. */
-    this.set = function(arg1, arg2) {
+  static isLongMonth = (y, m) => {
+    const lastDay = (new JDDate(y, m)).last("d");
+    return lastDay.dayOfWeek === 3 && lastDay.day !== 28
+        || lastDay.dayOfWeek === 4 && lastDay.month !== 2
+        || lastDay.dayOfWeek === 5 && lastDay.day === 31;
+  }
 
-      // Build object from short-form representation.
-      if (typeof arg1 === "string") {
-        const dates = arg1.split(":");
-        this.from = new JDDate(dates[0]);
+  static weeksInMonth = (y, m) => JDDate.isLongMonth(y, m) ? 5 : 4;
 
-        switch (dates.length) {
-          case 1:
-            this.to = this.from;
-            break;
+  static isLeapYear = y => {
+    JDDate._validateYear(y);
+    return y % 400 === 0 || (y % 4 === 0 && y % 100 !== 0);
+  };
 
-          case 2:
-            this.to = new JDDate(dates[1]);
-            if (this.to.mode !== this.from.mode) {
-              throw "malformedRange";
-            }
-            break;
+  static daysInYear = y => JDDate.isLeapYear(y) ? 366 : 365;
 
-          default:
-            throw "malformedRange";
-        }
-
-      // Build object from JDDate objects.
-      } else if (arg1 instanceof JDDate) {
-        this.from = new JDDate(arg1);
-
-        if (arg2 instanceof JDDate) {
-          this.to = new JDDate(arg2);
-        } else {
-          this.to = new JDDate(arg1);
-        }
-
-      // Copy JDDateRange object.
-      } else if (arg1 instanceof JDDateRange) {
-        this.set(arg1.shortForm);
+  static daysInMonth = (y, m) => {
+      JDDate._validateMonth(m);
+      switch (m) {
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+          return 30;
+        case 2:
+          return JDDate.isLeapYear(y) ? 29 : 28;
       }
-
-      // Check bounds. Swap if necessary.
-      if (this.from.laterThan(this.to)) {
-        const toTemp = new JDDate(this.to);
-        this.to = this.from;
-        this.from = toTemp;
-      }
-
-      return this;
+      return 31;
     };
 
-    this.set(arg1, arg2);
-  }
+  static _validateYear = y => {
+    if (y < -200000 || y > 200000) throw new Error("outOfRangeYear");
+    if (y !== undefined && !Number.isInteger(y)) throw new Error("illegalYear");
+  };
 
-
-  /**
-   * @see JDDate.year
-   * @returns {number}
-   */
-  get year() {
-    if (!this.plural) {
-      return this.from.year;
+  static _validateMonth = m => {
+    if (m < 1 || m > 12 || (m !== undefined && !Number.isInteger(m))) {
+      throw new Error("illegalMonth");
     }
-    return undefined;
-  }
+  };
 
-  /**
-   * @see JDDate.month
-   * @returns {number}
-   */
-  get month() {
-    if (!this.plural) {
-      return this.from.month;
+  static _validateWeek = (y, w) => {
+    if (w < 1 || w > JDDate.weeksInYear(y)
+      || (w !== undefined && !Number.isInteger(w))) {
+      throw new Error("illegalWeek");
     }
-    return undefined;
-  }
+  };
 
-  /**
-   * @see JDDate.week
-   * @returns {number}
-   */
-  get week() {
-    if (!this.plural) {
-      return this.from.week;
+  static _validateDay = (y, m, d) => {
+    if (d < 1 || (m !== undefined && d > JDDate.daysInMonth(y, m))
+      || (d !== undefined && !Number.isInteger(d))) {
+      throw new Error("illegalDay");
     }
-    return undefined;
-  }
+  };
 
-  /**
-   * @see JDDate.day
-   * @returns {number}
-   */
-  get day() {
-    if (!this.plural) {
-      return this.from.day;
+  static _normalizeUnit = (u, options = {}) => {
+    if (typeof u !== "string") throw new Error("invalidUnit");
+    switch (u) {
+      case "year":
+      case "y":
+        return "year";
+      case "month":
+      case "m":
+        return "month";
+      case "week":
+      case "w":
+        return "week";
+      case "day":
+      case "d":
+        return "day";
+      case "millisecond":
+      case "ms":
+        if (options.allowMillisecond) { return "millisecond"; }
     }
-    return undefined;
+    throw new Error("undefinedUnit");
+  };
+}
+
+
+class JDDateInterval extends _JDDate {
+  constructor(...args) {
+    super();
+    this.set(...args);
   }
 
+  set(...args) {
+    delete this.start;
+    delete this.end;
 
-  /**
-   * Same as JDDate modes but has an “s” at the end when “plural”.
-   * @see JDDate.mode
-   * @returns {string}
-   */
-  get mode() {
-    return this.from.mode + (this.plural ? "s" : "");
-  }
-
-  /**
-   * Checks if this range actually corresponds to a single JDDate value.
-   * @returns {boolean} Whether this range corresponds to a single JDDate value.
-   */
-  get plural() {
-    return !this.to.equals(this.from);
-  }
-
-  /**
-   * Converts Date to a different mode.
-   * Note: Converting plural modes is currently unimplemented.
-   * @see JDDate.convertTo()
-   * @returns this
-   */
-  convertTo(targetMode, preferEnd = false) {
-    const bound = preferEnd ? "to" : "from";
-    return this.set(this[bound].convertTo(targetMode, preferEnd));
-  }
-
-
-  /**
-   * @see JDDateRange#convertTo
-   * @returns A *new* JDDateRange converted to the given mode.
-   */
-  convertedTo(targetMode, preferEnd = false) {
-    return (new JDDateRange(this)).convertTo(targetMode, preferEnd);
-  }
-
-
-  /**
-   * @see JDDate.equals()
-   * @returns {boolean}
-   */
-  equals(b) {
-    const fromEquals = this.from.shortForm === (b.from?.shortForm ?? b.shortForm);
-    const toEquals = this.to?.shortForm === b.to?.shortform;
-    return fromEquals && toEquals;
-  }
-
-  /**
-   * @see JDDate.earlierThan()
-   * @param {JDDateRange} b
-   * @returns {boolean}
-   */
-  earlierThan(b) {
-    return this.from.earlierThan(b.from ?? b);
-  }
-
-  /**
-   * @see JDDate.laterthan()
-   * @param {JDDateRange} b
-   * @returns {boolean}
-   */
-  laterThan(b) {
-    return this.from.laterThan(b.from ?? b);
-  }
-
-  /**
-   * @see JDDate#contains
-   * @param {JDDate|JDDateRange} b
-   * @returns {boolean}
-   */
-  contains(b) {
-    return !b.earlierThan(this.from) && !b.laterThan(this.to);
-  }
-
-  /**
-   * @see JDDate.plus()
-   * @param {number} n
-   * @returns {JDDateRange} A new JDDateRange object. Undefined if range is plural.
-   */
-  plus(n) {
-    if (this.plural) return undefined;
-    return new JDDateRange(this.from.plus(n));
-  }
-
-  /**
-   * @see JDDate.minus()
-   * @param {number} n
-   * @returns {JDDateRange} A new JDDateRange object. Undefined if range is plural.
-   */
-  minus(n) {
-    if (this.plural) return undefined;
-    return new JDDateRange(this.from.minus(n));
-  }
-
-  /**
-   * @see JDDate.next()
-   * @param {number} [n=1]
-   * @returns this - Undefined if range is plural.
-   */
-  next(n = 1) {
-    if (this.plural) {
-      return this.set(this.from.plus(this.modeLength), this.to.plus(this.modeLength));
+    if (args.length === 0) {
+      args[0] = JDDate.today();
     }
-    return this.set(this.from.plus(n));
+
+    if (typeof args[0] === "string" && args.length === 1) {
+      const bounds = args[0].split(":");
+      this.start = new JDDate(bounds[0]);
+      this.end = new JDDate(bounds[1] ?? bounds[0]);
+
+    } else if (args[0] instanceof JDDateInterval && args.length === 1) {
+      return this.set(args[0].canonicalForm);
+
+    } else if (args.length <= 2) {
+      this.start = new JDDate(args[0]);
+      this.end = new JDDate(args[1] ?? args[0]);
+
+    } else { throw new Error("malformedDate"); }
+
+    if (this.start.unit !== this.end.unit) throw new Error("asymetricUnits");
+    this.unit = this.start.unit;
+
+    if (this.end.isBefore(this.start)) throw new Error("endBoundBeforeStartBound");
+
+    return this;
   }
 
-  /**
-   * @see JDDate.previous()
-   * @param {number} [n=1]
-   * @returns this - Undefined if range is plural.
-   */
-  previous(n = 1) {
-    if (this.plural) {
-      return this.set(this.from.minus(this.modeLength), this.to.minus(this.modeLength));
+  get isSingular() { return this.start.equals(this.end); }
+
+  // Returns a new object.
+  advancedBy(n) {
+    return new JDDateInterval(this.start.advancedBy(n), this.end.advancedBy(n));
+  }
+
+  // Mutates the object
+  // For intervals, these keep the duration fixed.
+  next(n = 1) { return this.set(this.advancedBy(n*(this.duration(this.unit)))); }
+  previous(n = 1) { return this.next(-n); }
+
+  duration(unit = "day") {
+    unit = JDDate._normalizeUnit(unit);
+    const rank = {
+      "year": 0,
+      "month": 1,
+      "week": 2,
+      "day": 3
     }
-    return this.set(this.from.minus(n));
-  }
-
-
-  /**
-   * @see JDDate.firstDay
-   * @returns {JDDate}
-   */
-  get firstDay() {
-    return this.from.firstDay;
-  }
-
-  /**
-   * @see JDDate.lastDay
-   * @returns {JDDate}
-   */
-  get lastDay() {
-    return this.to.lastDay;
-  }
-
-  /**
-   * @see JDDate.lastMillisecond
-   * @returns {number}
-   */
-  get firstMillisecond() {
-    return this.from.firstMillisecond;
-  }
-
-  /**
-   * @see JDDate.lastMillisecond
-   * @returns {number}
-   */
-  get lastMillisecond() {
-    return this.to.lastMillisecond;
-  }
-
-  /**
-   * @see JDDate.length
-   * @returns {number}
-   */
-  get length() {
-    if (this.plural) {
-      let length = 0;
-      const pointer = new JDDate(this.from);
-      while (!pointer.laterThan(this.to)) {
-        length += pointer.length;
-        pointer.next();
+    if (rank[unit] < rank[this.unit]) {
+      const unitDuration = {
+        "month": {
+          "year": 1/12
+        },
+        "week": {
+          "year": 1/52,
+          "month": 1/4
+        },
+        "day": {
+          "year": 1/365,
+          "month": 1/30,
+          "week": 1/7
+        },
       }
-      return length;
+      return this.duration(this.unit) * unitDuration[this.unit][unit];
     }
-    return this.from.length;
+    return this.each().reduce((total, el) => total + el.duration(unit), 0);
   }
 
-  /**
-   * Counts the number of mode units this range spans.
-   * @returns {number}
-   */
-  get modeLength() {
-    if (this.plural) {
-      let length = 0;
-      const pointer = new JDDate(this.from);
-      while (!pointer.laterThan(this.to)) {
-        length++;
-        pointer.next();
-      }
-      return length;
-    }
-    return 1;
-  }
+  first(unit = "day") { return this.start.first(unit); }
 
-  /**
-   * Lists the months that include this range.
-   * @returns {string[]} An array of short-form months that include this range.
-   */
-  monthRange() {
-    const range = [];
+  last(unit = "day") { return this.end.last(unit); }
 
-    const from = this.firstDay;
-    const to = this.lastDay;
+  // Returns a new object.
+  // Note: "preferEnd" has no effect here.
+  convertedTo(unit, options = {}) {
+    unit = JDDate._normalizeUnit(unit);
 
-    for (let year = from.year; year <= to.year; year++) {
-      for (let month = 1; month <= 12; month++) {
-        if (year === from.year && month < from.month) continue;
-        if (year === to.year && month > to.month) break;
+    const newInterval = new JDDateInterval(this);
 
-        range.push(year + "-" + String(month).padStart(2, "0"));
+    if (unit === this.unit) return newInterval;
+
+    // Now → Now
+    if (options.keepNow && this.isNow) return newInterval.set(JDDate.now(unit));
+
+    newInterval.start.convertTo(unit);
+    newInterval.end.convertTo(unit, { preferEnd: true });
+
+    if (options.forceSingular) {
+      if (options.preferEnd) {
+        newInterval.start.set(newInterval.end);
+      } else {
+        newInterval.end.set(newInterval.start);
       }
     }
-    return range;
+
+    return newInterval;
   }
 
-  /**
-   * @see JDDate.isCurrent
-   * @returns {boolean}
-   */
-  get isCurrent() {
-    if (this.plural) return false;
-    return this.from.isCurrent;
+  get canonicalForm() {
+    let canonicalForm = this.start.canonicalForm;
+    canonicalForm += this.isSingular ? "" : ":" + this.end.canonicalForm;
+    return canonicalForm;
   }
 
-
-  /**
-   * @see JDDate.shortForm
-   * @returns {string}
-   */
-  get shortForm() {
-    if (this.plural) {
-      return this.from.shortForm + ":" + this.to.shortForm;
-    }
-    return this.from.shortForm;
-  }
-
-  /**
-   * @see JDDate.niceForm
-   * @returns {string}
-   */
-  get niceForm() {
-    let niceForm;
-
-    if (this.plural) {
-      switch (this.mode) {
-        case "years":
-          niceForm = this.from.year + " à " + this.to.year;
-          break;
-
-        case "months":
-          niceForm = monthsDict[this.from.month - 1];
-          if (this.from.year !== this.to.year) {
-            niceForm += " " + this.from.year;
-          }
-          niceForm += " à " + monthsDict[this.to.month - 1].toLowerCase();
-          niceForm += " " + this.to.year;
-          break;
-
-        case "weeks":
-          niceForm = "";
-          if (this.from.year !== this.to.year) {
-            niceForm += this.from.year + " ";
-          }
-          niceForm += "W" + this.from.week;
-          niceForm += " à ";
-          niceForm += this.to.year + " ";
-          niceForm += "W" + this.to.week;
-          break;
-
-        case "days":
-          niceForm = this.from.day + (daysSuffixDict[this.from.day - 1] ?? "");
-          if (this.from.month !== this.to.month || this.from.year !== this.to.year) {
-            niceForm += " " + monthsDict[this.from.month - 1].toLowerCase();
-          }
-          if (this.from.year !== this.to.year) {
-            niceForm += " " + this.from.year;
-          }
-          niceForm += " au ";
-          niceForm += this.to.day + (daysSuffixDict[this.to.day - 1] ?? "");
-          niceForm += " " + monthsDict[this.to.month - 1].toLowerCase();
-          niceForm += " " + this.to.year;
-          break;
-      }
-
-    } else {
-      niceForm = this.from.niceForm;
-    }
-
-    return niceForm;
-  }
+  static today() { return new JDDateInterval(JDDate.today()); }
+  static thisWeek() { return new JDDateInterval(JDDate.thisWeek()); }
+  static thisMonth() { return new JDDateInterval(JDDate.thisMonth()); }
+  static thisYear() { return new JDDateInterval(JDDate.thisYear()); }
+  static now(unit = "day") { return new JDDateInterval(JDDate.now(unit)); }
 }
-
-
-/**
- * Calculates if a given year is a leap year.
- * @param {number} year - description
- * @returns {boolean} Whether the given integer is a leap year.
- */
-function isLeapYear(year) {
-  if (year % 400 === 0) {
-    return true;
-  }
-  if (year % 4 === 0 && year % 100 !== 0) {
-    return true;
-  }
-  return false;
-}
-
-/**
- * Calculates the number of days in the given month of the given year.
- * @param {number} year - Integer year.
- * @param {number} month - Integer month from 1 to 12.
- * @returns {number} The number of days in the given month of the given year.
- */
-function nbOfDaysInMonth(year, month) {
-  switch (month) {
-    case 4:
-    case 6:
-    case 9:
-    case 11:
-      return 30;
-    case 2:
-      return isLeapYear(year) ? 29 : 28;
-    default:
-      return 31;
-  }
-}
-
-/**
- * Calculates whether the given year is a long (53 weeks) or short (52 weeks) year.
- * @param {number} year - Integer year.
- * @returns {boolean} Whether the given integer is a long year.
- */
-function isLongYear(year) {
-  const firstDay = new Date(Date.UTC(year, 0, 1)).getUTCDay();
-  const lastDay = new Date(Date.UTC(year, 11, 31)).getUTCDay();
-
-  return firstDay === 4 || lastDay === 4;
-}
-
-/**
- * Calculates the number of weeks in the given year.
- * @param {number} year - Integer year.
- * @returns {number} The number of ISO weeks in the given year.
- */
-function nbOfWeeksInYear(year) {
-  return isLongYear(year) ? 53 : 52;
-}
-
-
-const monthsDict = [
-  "Janvier",    "Février",  "Mars",     "Avril",
-  "Mai",        "Juin",     "Juillet",  "Août",
-  "Septembre",  "Octobre",  "Novembre", "Décembre"
-];
-const daysSuffixDict = [ "<sup>er</sup>" ];
 
 
 try {
   global.JDDate = JDDate;
-  global.JDDateRange = JDDateRange;
+  global.JDDateInterval = JDDateInterval;
 } catch (e) {}

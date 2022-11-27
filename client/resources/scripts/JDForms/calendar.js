@@ -1,14 +1,14 @@
 /**
- * Custom element that allows selecting a JDDateRange using a calendar.
+ * Custom element that allows selecting a JDDateInterval using a calendar.
  */
 class JDCalendar extends HTMLElement {
   constructor() {
     super();
 
     this.state = {
-      range: new JDDateRange(JDDate.thisYear()),
-      value: new JDDateRange(JDDate.today()),
-      highlighted: new JDDateRange(JDDate.today()),
+      range: new JDDateInterval(JDDate.thisYear()),
+      value: new JDDateInterval(JDDate.today()),
+      highlighted: new JDDateInterval(JDDate.today()),
       active: 0,
       monthInView: JDDate.thisMonth(),
       scrollLock: true
@@ -67,7 +67,7 @@ class JDCalendar extends HTMLElement {
         locked = true;
         start = new JDDate(e.target.value);
         this.state.active = 0;
-        this.setHighlighted(new JDDateRange(start));
+        this.setHighlighted(new JDDateInterval(start));
       }
     }, { passive: true });
 
@@ -82,10 +82,10 @@ class JDCalendar extends HTMLElement {
           end = new JDDate(start);
         }
 
-        if (end.earlierThan(start)) {
-          this.setValue(new JDDateRange(end, start));
+        if (end.isBefore(start)) {
+          this.setValue(new JDDateInterval(end, start));
         } else {
-          this.setValue(new JDDateRange(start, end));
+          this.setValue(new JDDateInterval(start, end));
         }
         locked = false;
 
@@ -102,11 +102,11 @@ class JDCalendar extends HTMLElement {
         end = new JDDate(e.target.value);
         this.state.active = 1;
 
-        if (end.earlierThan(start)) {
+        if (end.isBefore(start)) {
           this.state.active = 0;
-          this.setHighlighted(new JDDateRange(end, start));
+          this.setHighlighted(new JDDateInterval(end, start));
         } else {
-          this.setHighlighted(new JDDateRange(start, end));
+          this.setHighlighted(new JDDateInterval(start, end));
         }
       }
     }, { passive: true });
@@ -128,7 +128,7 @@ class JDCalendar extends HTMLElement {
 
     // Update on field change
     this.view.fields[0].addEventListener("change", () => {
-      this.setValue(new JDDateRange(this.view.fields[0].value, this.view.fields[1].value));
+      this.setValue(new JDDateInterval(this.view.fields[0].value, this.view.fields[1].value));
       this.view.fields[0].classList.remove("invalid");
       if (!this.state.range.contains(this.view.fields[0].value)) {
         this.view.fields[0].classList.add("invalid");
@@ -136,7 +136,7 @@ class JDCalendar extends HTMLElement {
       this.dispatchEvent(new Event("change"));
     });
     this.view.fields[1].addEventListener("change", () => {
-      this.setValue(new JDDateRange(this.view.fields[0].value, this.view.fields[1].value));
+      this.setValue(new JDDateInterval(this.view.fields[0].value, this.view.fields[1].value));
       this.view.fields[1].classList.remove("invalid");
       if (!this.state.range.contains(this.view.fields[1].value)) {
         this.view.fields[1].classList.add("invalid");
@@ -156,16 +156,16 @@ class JDCalendar extends HTMLElement {
 
   /**
    *
-   * @param {JDDateRange} value
+   * @param {JDDateInterval} value
    */
   setRange(value) {
-    this.state.range = new JDDateRange(value);
+    this.state.range = new JDDateInterval(value);
     this.drawDaysGrid();
     this.drawMonthInView();
   }
 
   /**
-   * @param {JDDateRange} value
+   * @param {JDDateInterval} value
    */
   setValue(value) {
     if (this.previousState.value === undefined ||
@@ -173,20 +173,20 @@ class JDCalendar extends HTMLElement {
       this.state.value.set(value);
       this.setHighlighted(value);
 
-      this.view.fields[0].setValue(new JDDate(value.from), false);
-      this.view.fields[1].setValue(new JDDate(value.to), false);
+      this.view.fields[0].setValue(new JDDate(value.start), false);
+      this.view.fields[1].setValue(new JDDate(value.end), false);
 
       value.convertTo("month");
       if (!value.equals(this.state.monthInView)) {
-        this.setMonthInView(value.from);
+        this.setMonthInView(value.start);
       }
 
-      this.previousState.value = new JDDateRange(value);
+      this.previousState.value = new JDDateInterval(value);
     }
   }
 
   /**
-   * @param {JDDateRange} value
+   * @param {JDDateInterval} value
    */
   setHighlighted(value) {
     this.state.highlighted.set(value);
@@ -206,16 +206,16 @@ class JDCalendar extends HTMLElement {
     this.view.days = [];
 
     // Draw main range
-    for (let month of this.state.range.monthRange()) {
+    for (let month of this.state.range.each("month")) {
       month = new JDDate(month);
 
-      for (let i = 1; i <= nbOfDaysInMonth(month.year, month.month); i++) {
+      for (let i = 1; i <= JDDate.daysInMonth(month.year, month.month); i++) {
         const date = new JDDate(month.year, month.month, i);
 
         const day = document.createElement("button");
         day.innerText = i;
         day.tabIndex = -1;
-        day.value = date.shortForm;
+        day.value = date.canonicalForm;
 
         if (!this.state.range.contains(date)) {
           day.disabled = true;
@@ -228,7 +228,7 @@ class JDCalendar extends HTMLElement {
 
         this.view.grid.append(day);
 
-        this.view.days[date.shortForm] = day;
+        this.view.days[date.canonicalForm] = day;
       }
     }
 
@@ -241,10 +241,10 @@ class JDCalendar extends HTMLElement {
       const day = document.createElement("button");
       day.innerText = pointer.day;
       day.tabIndex = -1;
-      day.value = pointer.shortForm;
+      day.value = pointer.canonicalForm;
       day.disabled = true;
       this.view.grid.prepend(day);
-      this.view.days[pointer.shortForm] = day;
+      this.view.days[pointer.canonicalForm] = day;
     }
 
     // Overdraw 2 weeks after range.
@@ -256,13 +256,13 @@ class JDCalendar extends HTMLElement {
       const day = document.createElement("button");
       day.innerText = pointer.day;
       day.tabIndex = -1;
-      day.value = pointer.shortForm;
+      day.value = pointer.canonicalForm;
       day.disabled = true;
       this.view.grid.append(day);
-      this.view.days[pointer.shortForm] = day;
+      this.view.days[pointer.canonicalForm] = day;
     }
 
-    this.view.grid.scrollTop = this.view.days[this.state.value.from.shortForm].offsetTop;
+    this.view.grid.scrollTop = this.view.days[this.state.value.start.canonicalForm].offsetTop;
   }
 
   drawHighlight() {
@@ -277,7 +277,7 @@ class JDCalendar extends HTMLElement {
       day.classList.remove("active");
 
       day.classList.remove("start");
-      if (date.equals(this.state.highlighted.firstDay)) {
+      if (date.equals(this.state.highlighted.first("day"))) {
         day.classList.add("start");
         if (this.state.active === 0) {
           day.classList.add("active");
@@ -285,7 +285,7 @@ class JDCalendar extends HTMLElement {
       }
 
       day.classList.remove("end");
-      if (date.equals(this.state.highlighted.lastDay)) {
+      if (date.equals(this.state.highlighted.last("day"))) {
         day.classList.add("end");
         if (this.state.active === 1) {
           day.classList.add("active");
@@ -295,6 +295,7 @@ class JDCalendar extends HTMLElement {
   }
 
   drawMonthInView() {
+    const monthsDict = [ "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
     // Draw title
     this.view.label.innerHTML = monthsDict[this.state.monthInView.month - 1] +
       " <small>" + this.state.monthInView.year + "</small>";
@@ -316,8 +317,8 @@ class JDCalendar extends HTMLElement {
       }, 500);
       const tileSize = parseInt(getComputedStyle(this).getPropertyValue('--day-size'));
       const tileGap = parseInt(getComputedStyle(this).getPropertyValue('--day-gap'));
-      const firstOfMonth = new JDDate(this.state.monthInView.shortForm + "-01");
-      const yOffset = this.view.days[firstOfMonth.shortForm].offsetTop;
+      const firstOfMonth = this.state.monthInView.convertedTo("d");
+      const yOffset = this.view.days[firstOfMonth.canonicalForm].offsetTop;
       this.view.grid.scrollTo({
         top: yOffset - tileSize - tileGap,
         behavior: "smooth"

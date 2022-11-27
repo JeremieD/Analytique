@@ -2,15 +2,15 @@
  * Current state of the app.
  * @property {Promise<array>} availableOrigins - List of available origins.
  * @property {string} origin - The current origin.
- * @property {Promise<JDDateRange>} availableRange - The available range of stats data.
- * @property {JDDateRange} range - The current range.
+ * @property {Promise<JDDateInterval>} availableRange - The available range of stats data.
+ * @property {JDDateInterval} range - The current range.
  * @property {object} filter - An object containing a "key" and "value" property for the filter.
  */
 const state = {
   availableOrigins: httpGet("/api/origins").then(JSON.parse),
   origin: "",
   availableRange: undefined,
-  range: new JDDateRange(),
+  range: new JDDateInterval(),
   filter: {
     key: "",
     value: ""
@@ -18,7 +18,7 @@ const state = {
 };
 let previousState = {
   origin: "",
-  range: new JDDateRange(),
+  range: new JDDateInterval(),
   filter: {}
 };
 
@@ -292,19 +292,21 @@ function switchToOrigin(origin) {
     bounds = JSON.parse(bounds);
     if (bounds.error !== undefined) return bounds;
 
-    bounds = new JDDateRange(bounds);
+    bounds = new JDDateInterval(bounds);
 
     view.hud.calendar.setRange(bounds);
 
     // Check range bounds and move range accordingly.
-    if (state.range.earlierThan(bounds.from)) {
-      state.range.set(bounds.from.convertedTo(state.range.mode));
-      view.hud.calendar.setValue(new JDDateRange(bounds.from));
+    if (state.range.isBefore(bounds.start)) {
+      view.hud.rangeMode.select("custom");
+      state.range.set(bounds.start.convertedTo(state.range.unit));
+      view.hud.calendar.setValue(new JDDateInterval(bounds.start));
       update();
     }
-    if (state.range.laterThan(bounds.to)) {
-      state.range.set(bounds.to.convertedTo(state.range.mode));
-      view.hud.calendar.setValue(new JDDateRange(bounds.to));
+    if (state.range.isAfter(bounds.end)) {
+      view.hud.rangeMode.select("custom");
+      state.range.set(bounds.end.convertedTo(state.range.unit));
+      view.hud.calendar.setValue(new JDDateInterval(bounds.end));
       update();
     }
 
@@ -314,37 +316,37 @@ function switchToOrigin(origin) {
 
 
 /**
- * Changes state to specified range mode, converting the date as best as it can.
- * @param {string} mode - The mode to switch to.
+ * Changes state to specified range unit, converting the date as best as it can.
+ * @param {string} unit - The mode to switch to.
  */
-function switchRangeMode(mode) {
-  if (state.range.mode === mode) return;
+function switchRangeMode(unit) {
+  if (state.range.unit === unit) return;
 
-  switch (mode) {
+  switch (unit) {
     case "year":
     case "month":
     case "week":
-      state.range.convertTo(mode);
+      state.range.convertTo(unit, { keepNow: true, forceSingular: true });
       break;
     default:
-      if (state.range.mode !== "day" && state.range.mode !== "days") {
-        state.range.convertTo("day");
+      if (state.range.unit !== "day") {
+        state.range.convertTo("day", { keepNow: true });
       } else {
         state.range.set(view.hud.calendar.state.value);
       }
-      view.hud.calendar.setValue(new JDDateRange(state.range));
+      view.hud.calendar.setValue(new JDDateInterval(state.range));
   }
 }
 
 
 /**
  * Changes state to specified range.
- * @param {JDDateRange} range - The range to move to.
+ * @param {JDDateInterval} range - The range to move to.
  */
 function setRange(range) {
   state.range.set(range);
-  if (state.range.mode === "day" || state.range.mode === "days") {
-    view.hud.calendar.setValue(new JDDateRange(state.range));
+  if (state.range.unit === "day") {
+    view.hud.calendar.setValue(new JDDateInterval(state.range));
   }
 }
 
@@ -353,8 +355,8 @@ function setRange(range) {
  * Advances range in state.
  */
 function nextRange() {
-  const newRange = new JDDateRange(state.range);
-  setRange(newRange.next());
+  const newRange = state.range.advancedBy(1);
+  setRange(newRange);
 }
 
 
@@ -362,8 +364,8 @@ function nextRange() {
  * Rewinds range in state.
  */
 function previousRange() {
-  const newRange = new JDDateRange(state.range);
-  setRange(newRange.previous());
+  const newRange = state.range.advancedBy(-1);
+  setRange(newRange);
 }
 
 
@@ -407,7 +409,7 @@ function update() {
   // Write previousState before update.
   previousState = {
     origin: state.origin,
-    range: new JDDateRange(state.range),
+    range: new JDDateInterval(state.range),
     filter: {
       key: state.filter.key,
       value: state.filter.value
@@ -415,15 +417,15 @@ function update() {
   };
 
   // Update HUD
-  view.hud.range.innerHTML = state.range.niceForm;
+  view.hud.range.innerHTML = state.range.formatted("long", { capitalize: true, outputSUPTag: true, useNowForms: true });
 
   state.availableRange?.then(bounds => {
     let isFirstRange = true;
     let isLastRange = true;
 
     if (bounds.error === undefined) {
-      isFirstRange = state.range.firstDay.minus(1).earlierThan(bounds.from);
-      isLastRange = state.range.lastDay.plus(1).laterThan(bounds.to);
+      isFirstRange = state.range.advancedBy(-1).isBefore(bounds);
+      isLastRange = state.range.advancedBy(1).isAfter(bounds);
     }
 
     if (isFirstRange) view.hud.previousRange.blur();
@@ -457,7 +459,7 @@ function update() {
  * Updates the main model according to current state.
  */
 function refreshMainModel() {
-  model.main = getModel(state.origin, state.range.shortForm, serializeFilter(state.filter));
+  model.main = getModel(state.origin, state.range.canonicalForm, serializeFilter(state.filter));
   return model.main;
 }
 
@@ -468,47 +470,46 @@ function refreshMainModel() {
 function refreshComplementaryModel() {
   // Determine required model ranges.
   const ranges = [];
-  switch (state.range.mode) {
+  const pointer = new JDDateInterval(state.range);
+  ranges.push(pointer.canonicalForm);
+  switch (state.range.unit) {
     case "year":
       // Load 10 previous years (?!) in year mode.
       for (let i = 0; i < 10; i++) {
-        ranges.push(state.range.minus(i).shortForm);
+        ranges.push(pointer.canonicalForm);
       }
       break;
 
     case "month":
       // Load 12 previous months in month mode.
       for (let i = 0; i < 12; i++) {
-        ranges.push(state.range.minus(i).shortForm);
+        ranges.push(pointer.previous().canonicalForm);
       }
       break;
 
     case "week":
       // Load 12 previous weeks in week mode.
       for (let i = 0; i < 12; i++) {
-        ranges.push(state.range.minus(i).shortForm);
+        ranges.push(pointer.previous().canonicalForm);
       }
       break;
 
     default:
-      const pointer = new JDDate(state.range.to);
-
       // If range is 7 days or less, display the 14 previous days.
-      if (state.range.length <= 7) {
-        pointer.convertTo("day", true);
+      if (state.range.duration() <= 7) {
+        pointer.convertTo("day", { preferEnd: true });
         for (let i = 0; i < 14; i++) {
-          ranges.push(pointer.shortForm);
-          pointer.previous();
+          ranges.push(pointer.previous().canonicalForm);
         }
         break;
       }
 
       // If range is 21 days (3 weeks) or less, display each day.
-      if (state.range.length <= 21) {
+      if (state.range.duration() <= 21) {
         pointer.convertTo("day");
 
       // If range is 112 days (4 months) or less, display each week.
-      } else if (state.range.length <= 112) {
+    } else if (state.range.duration() <= 112) {
         pointer.convertTo("week");
 
       // Otherwise, display each month.
@@ -516,8 +517,8 @@ function refreshComplementaryModel() {
         pointer.convertTo("month");
       }
 
-      while (!pointer.earlierThan(state.range.from)) {
-        ranges.push(pointer.shortForm);
+      while (!pointer.isBefore(state.range.start)) {
+        ranges.push(pointer.canonicalForm);
         pointer.previous();
       }
   }
@@ -677,7 +678,7 @@ function drawMainView() {
  * Updates the view with data from the complementary model.
  */
 function drawComplementaryView() {
-  const complementaryRanges = []; // Keys (short-form ranges)
+  const complementaryRanges = []; // Keys (canonical forms)
   const complementaryModels = []; // Values (promises)
 
   for (const range of Object.keys(model.complementary).sort()) {
@@ -686,7 +687,7 @@ function drawComplementaryView() {
   }
 
   let xAxisLabel, maxPointCount;
-  switch (state.range.mode) {
+  switch (state.range.unit) {
     case "year":
       xAxisLabel = "Années précédentes";
       maxPointCount = 10;
@@ -704,9 +705,9 @@ function drawComplementaryView() {
       maxPointCount = 14;
       break;
     default:
-      if (state.range.length <= 21) {
+      if (state.range.duration() <= 21) {
         xAxisLabel = "Par jour";
-      } else if (state.range.length <= 112) {
+      } else if (state.range.duration() <= 112) {
         xAxisLabel = "Par semaine";
       } else {
         xAxisLabel = "Par mois";
@@ -740,22 +741,9 @@ function drawComplementaryView() {
         noDataCount++;
       }
 
-      const rangeObject = new JDDateRange(complementaryRanges[i]);
+      const rangeObject = new JDDateInterval(complementaryRanges[i]);
 
-      let label = "";
-      switch (rangeObject.mode) {
-        case "year":
-          label = String(rangeObject.year);
-          break;
-        case "month":
-          label = monthsDict[rangeObject.month - 1] + " " + rangeObject.year;
-          break;
-        case "week":
-          label = rangeObject.year + " " + "W" + String(rangeObject.week).padStart(2, "0");
-          break;
-        default:
-          label = rangeObject.niceForm;
-      }
+      let label = rangeObject.formatted();
 
       // Draw point as 0 if there is no *matching sessions*,
       // but don’t draw point if there is no *data*.
@@ -772,21 +760,20 @@ function drawComplementaryView() {
       };
 
       // Calculate wheter data point is for a "complete" range or not.
-      const today = JDDate.today();
-      const estimated = rangeObject.lastDay.equals(today) || rangeObject.laterThan(today);
+      const isEstimate = rangeObject.isAfterOrIntersects(JDDate.today());
 
       sessionTotalData.points.push({
         label: label,
         y: sessionTotalValue,
         onClick: onClickHandler,
-        style: estimated ? "dashed" : ""
+        style: isEstimate ? "dashed" : ""
       });
 
       sessionLengthData.points.push({
         label: label,
         y: avgSessionLengthValue,
         onClick: onClickHandler,
-        style: estimated ? "dashed" : ""
+        style: isEstimate ? "dashed" : ""
       });
     }
 
@@ -803,7 +790,7 @@ function drawComplementaryView() {
 
 
 /**
- * Sets all element to display a placeholder animation.
+ * Sets all elements to display a placeholder animation.
  */
 function setAllLoading() {
   for (const key of Object.keys(view.main)) {
