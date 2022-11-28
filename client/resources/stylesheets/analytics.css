@@ -148,6 +148,7 @@ h1 {
   font-size: 4em;
   line-height: 1;
   letter-spacing: -0.025em;
+  min-height: 1em;
 }
 
 .analytics-group>h2 {

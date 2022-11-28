@@ -10,7 +10,7 @@ const state = {
   availableOrigins: httpGet("/api/origins").then(JSON.parse),
   origin: "",
   availableRange: undefined,
-  range: new JDDateInterval(),
+  range: new JDDateInterval(JDDate.thisMonth()),
   filter: {
     key: "",
     value: ""
