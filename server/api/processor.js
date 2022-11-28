@@ -374,12 +374,10 @@ async function buildStats(origin, range, filter) {
       stats.sessionTotal++;
     }
 
-    if (stats.sessionTotal === 0) {
-      return { error: "noMatchingSessions" };
-    }
-
     // Average number of page views per session.
-    stats.avgSessionLength = viewTotal / stats.sessionTotal;
+    if (stats.sessionTotal > 0) {
+      stats.avgSessionLength = viewTotal / stats.sessionTotal;
+    }
 
     // For sorting, convert "associative arrays" (objects) to flat arrays.
     // The result is an array of objects, each containing the key and value

@@ -598,7 +598,7 @@ function drawMainView() {
 
           // Update just the numbers. Keys that don’t apply are set to 0.
           let value = 0;
-          const basis = data[listView.basis] || 100;
+          const basis = data[listView.basis] || 1;
           for (const point of data[listView.model]) {
             if (point.key === listItem.dataset.filterValue) {
               value = point.value;
@@ -642,7 +642,7 @@ function drawMainView() {
 
         const dataPoint3 = document.createElement("data");
         dataPoint3.classList.add("numerical");
-        const basis = data[listView.basis];
+        const basis = data[listView.basis] || 1;
         dataPoint3.innerHTML = (dataPoint.value / basis * 100).round() + "%";
 
         newListItem.append(dataPoint1, dataPoint2, dataPoint3);
