@@ -537,6 +537,12 @@ async function buildSessions(origin, range) {
         continue;
       }
 
+      // Filter out local network traffic.
+      if (aggregate[0][11].startsWith("192.168.")) {
+        sessions.excludedTraffic.tests += aggregate.length;
+        continue;
+      }
+
       // Filter out bots.
       if (heuristics.inferIfBot(aggregate[0][10])) {
         sessions.excludedTraffic.bots += aggregate.length;
