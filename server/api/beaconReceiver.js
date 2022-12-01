@@ -45,6 +45,10 @@ function receive(req, res) {
     beacon[11] = encodeURI(req.headers["x-forwarded-for"] ?? req.connection.remoteAddress);
 
     // Write the beacon data to file.
+    // NOTE: It's very important for the system time to be set correctly for the
+    // beacon to go in the right file. The rest of Analytique expects all views
+    // of a given month to be in that month's file, and we can't trust the time
+    // from the beacon for ordering and security reasons.
     const date = new Date();
     const currentYear = date.getFullYear();
     const currentMonth = (date.getMonth() + 1).toString().padStart(2, "0");
