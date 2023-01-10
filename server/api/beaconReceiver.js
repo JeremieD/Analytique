@@ -50,8 +50,8 @@ function receive(req, res) {
     // of a given month to be in that month's file, and we can't trust the time
     // from the beacon for ordering and security reasons.
     const date = new Date();
-    const currentYear = date.getFullYear();
-    const currentMonth = (date.getMonth() + 1).toString().padStart(2, "0");
+    const currentYear = date.getUTCFullYear();
+    const currentMonth = (date.getUTCMonth() + 1).toString().padStart(2, "0");
     const viewsFile = currentYear + "-" + currentMonth + ".tsv";
 
     fs.mkdir("./data/" + origin + "/views", { recursive: true }).then(() => {
