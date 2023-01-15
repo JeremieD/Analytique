@@ -139,7 +139,7 @@ async function getStats(origin, range, filter) {
     return buildStats(origin, range, filter);
   }
 
-  const lastMonth = range.end.canonicalForm;
+  const lastMonth = range.last("month").canonicalForm;
   const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
   const viewsFileMetadata = fs.stat(viewsFilePath);
 
@@ -415,7 +415,7 @@ async function buildStats(origin, range, filter) {
  * Returns data from cache, or calls buildSessions(range) and returns that.
  */
 async function getSessions(origin, range) {
-  const lastMonth = range.end.canonicalForm;
+  const lastMonth = range.last("month").canonicalForm;
   const viewsFilePath = viewsRoot(origin) + lastMonth + ".tsv";
   const viewsFileMetadata = fs.stat(viewsFilePath);
 
