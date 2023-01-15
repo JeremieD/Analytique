@@ -66,15 +66,17 @@ function processRequest(req, res) {
         return;
       }
 
-      const earliestMonth = new JDDate(files[0].split(".")[0]);
+      const earliestMonth = new JDDate(files[0].substring(0, 7));
       const lowerBound = getBeacons(origin, earliestMonth).then(views => {
+        if (views.hasOwnProperty("error")) return views;
         const firstView = views[0];
         const viewTime = parseInt(firstView[1]) - parseInt(firstView[2]) * 60 * 1000;
         return new JDDate(new Date(viewTime));
       });
 
-      const latestMonth = new JDDate(files.at(-1).split(".")[0]);
+      const latestMonth = new JDDate(files.at(-1).substring(0, 7));
       const upperBound = getBeacons(origin, latestMonth).then(views => {
+        if (views.hasOwnProperty("error")) return views;
         const lastView = views.at(-1);
         const viewTime = parseInt(lastView[1]) - parseInt(lastView[2]) * 60 * 1000;
         return new JDDate(new Date(viewTime));
@@ -147,11 +149,11 @@ async function getStats(origin, range, filter) {
   const statsFileMetadata = fs.stat(statsFilePath);
 
   return Promise.all([statsFileMetadata, viewsFileMetadata]).then(metadata => {
-    statsMetadata = metadata[0];
-    viewsMetadata = metadata[1];
+    const statsMetadata = metadata[0];
+    const viewsMetadata = metadata[1];
 
     if (viewsMetadata.mtimeMs > statsMetadata.mtimeMs ||
-      Date.now() - 3600000 * 24 * 30 > statsMetadata.mtimeMs) {
+      Date.now() - 3600000*24*30 > statsMetadata.mtimeMs) {
       return buildStats(origin, range);
 
     } else {
@@ -423,8 +425,8 @@ async function getSessions(origin, range) {
   const sessionsFileMetadata = fs.stat(sessionsFilePath);
 
   return Promise.all([sessionsFileMetadata, viewsFileMetadata]).then(metadata => {
-    sessionsMetadata = metadata[0];
-    viewsMetadata = metadata[1];
+    const sessionsMetadata = metadata[0];
+    const viewsMetadata = metadata[1];
 
     if (viewsMetadata.mtimeMs > sessionsMetadata.mtimeMs ||
       Date.now() - 3600000*24*30 > sessionsMetadata.mtimeMs) {
@@ -465,7 +467,7 @@ async function getSessions(origin, range) {
  *    url               Page URL.
  *    error             Whether title matches an error pattern in origin’s config.
  *
- * → See the View documentation for more detais.
+ * → See the View documentation for more details.
  * Timestamps are in milliseconds since 1 January 1970 UTC.
  */
 async function buildSessions(origin, range) {

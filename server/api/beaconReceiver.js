@@ -23,7 +23,7 @@ function receive(req, res) {
     }
   });
 
-  // When done receiving data.
+  // When done receiving data...
   req.on("end", () => {
     const beacon = body.split("\t");
 

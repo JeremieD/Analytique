@@ -517,9 +517,9 @@ function refreshComplementaryModel() {
         pointer.convertTo("month");
       }
 
-      while (!pointer.isBefore(state.range.start)) {
+      while (pointer.isAfter(state.range.start)) {
+        pointer.set(pointer.advancedBy(-1));
         ranges.push(pointer.canonicalForm);
-        pointer.previous();
       }
   }
 
@@ -759,7 +759,7 @@ function drawComplementaryView() {
         update();
       };
 
-      // Calculate wheter data point is for a "complete" range or not.
+      // Calculate whether data point is for a "complete" range or not.
       const isEstimate = rangeObject.isAfterOrIntersects(JDDate.today());
 
       sessionTotalData.points.push({

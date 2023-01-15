@@ -369,8 +369,6 @@ function niceExcludedTrafficName(input) {
  * @returns {string}
  */
 function niceErrorName(input) {
-  if (errorsDict[input]) {
-    return errorsDict[input];
-  }
+  if (errorsDict[input]) return errorsDict[input];
   return input;
 }
