@@ -122,6 +122,24 @@ whenDOMReady(() => {
       transform: niceScreenBreakpointsName,
       basis: "sessionTotal"
     },
+    preferDarkTheme: {
+      el: document.getElementById("prefer-dark-theme"),
+      model: "preferDarkTheme",
+      transform: niceThemePreferenceName,
+      basis: "sessionTotal"
+    },
+    preferReducedMotion: {
+      el: document.getElementById("prefer-reduced-motion"),
+      model: "preferReducedMotion",
+      transform: niceMovementPreferenceName,
+      basis: "sessionTotal"
+    },
+    preferMoreContrast: {
+      el: document.getElementById("prefer-more-contrast"),
+      model: "preferMoreContrast",
+      transform: niceContrastPreferenceName,
+      basis: "sessionTotal"
+    },
     errorPages: {
       el: document.getElementById("error-pages"),
       model: "errorViews",
@@ -146,6 +164,9 @@ whenDOMReady(() => {
     view.main.oses,
     view.main.renderingEngines,
     view.main.screenBreakpoints,
+    view.main.preferDarkTheme,
+    view.main.preferReducedMotion,
+    view.main.preferMoreContrast,
     view.main.errorPages,
     view.main.excludedTraffic
   ];
@@ -627,7 +648,8 @@ function drawMainView() {
         const transformedKey = listView.transform(dataPoint.key);
 
         // Style empty and “Autre” data points differently.
-        if (dataPoint.key === "" || transformedKey.includes("Autre")) {
+        if (dataPoint.key === "" || dataPoint.key === "false" ||
+            transformedKey.includes("Autre")) {
           newListItem.classList.add("last");
         }
 

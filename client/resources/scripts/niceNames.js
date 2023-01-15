@@ -274,12 +274,24 @@ const excludedTrafficDict = {
   "bots":  "Robots",
   "spam":  "Spam",
 };
+const themePreferenceDict = {
+  "true": "Sombre",
+  "false": "Clair/indéterminé"
+};
+const movementPreferenceDict = {
+  "true": "Moins de mouvement",
+  "false": "Normal/indéterminé"
+};
+const contrastPreferenceDict = {
+  "true": "Plus de contraste",
+  "false": "Normal/indéterminé"
+};
 const errorsDict = {
   "noData": "Aucune donnée disponible.",
   "noMatchingSessions": "Aucune session ne correspond à la requête.",
   "noOrigins": "Aucune origine disponible.",
   "ipGeoUnavailable": "Le serveur n’arrive pas à se connecter à ipinfo.io.",
-  "malformedBeacon": "Il y a une erreur dans les données de vues."
+  "unknownBeaconVersion": "Il y a une erreur dans les données de vues."
 };
 
 
@@ -360,6 +372,19 @@ function niceScreenBreakpointsName(input) {
  */
 function niceExcludedTrafficName(input) {
   return excludedTrafficDict[input];
+}
+
+
+function niceThemePreferenceName(input) {
+  return themePreferenceDict[input];
+}
+
+function niceMovementPreferenceName(input) {
+  return movementPreferenceDict[input];
+}
+
+function niceContrastPreferenceName(input) {
+  return contrastPreferenceDict[input];
 }
 
 

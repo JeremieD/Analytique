@@ -163,11 +163,9 @@ function inferRenderingEngine(userAgent) {
  *  - desktop  Wider than 1080 pixels wide.
  */
 function inferScreenBreakpoint(screenSize) {
-  const width = parseInt(screenSize.split("x")[0]);
-
-  if (width <= 360) return "xsmall";
-  if (width <= 800) return "mobile";
-  if (width <= 1080) return "tablet";
+  if (screenSize.width <= 360) return "xsmall";
+  if (screenSize.width <= 800) return "mobile";
+  if (screenSize.width <= 1080) return "tablet";
 
   return "desktop";
 }

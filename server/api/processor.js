@@ -5,6 +5,7 @@ const uri = require("../utilities/uri.js");
 const heuristics = require("../utilities/heuristics.js");
 require("../../common/JDDate.js");
 require("../utilities/misc.js");
+require("./beacon.js");
 
 const config = require("../config.js").origins;
 
@@ -70,7 +71,7 @@ function processRequest(req, res) {
       const lowerBound = getBeacons(origin, earliestMonth).then(views => {
         if (views.hasOwnProperty("error")) return views;
         const firstView = views[0];
-        const viewTime = parseInt(firstView[1]) - parseInt(firstView[2]) * 60 * 1000;
+        const viewTime = parseInt(firstView.time) - parseInt(firstView.timezoneOffset) * 60*1000;
         return new JDDate(new Date(viewTime));
       });
 
@@ -78,15 +79,21 @@ function processRequest(req, res) {
       const upperBound = getBeacons(origin, latestMonth).then(views => {
         if (views.hasOwnProperty("error")) return views;
         const lastView = views.at(-1);
-        const viewTime = parseInt(lastView[1]) - parseInt(lastView[2]) * 60 * 1000;
+        const viewTime = parseInt(lastView.time) - parseInt(lastView.timezoneOffset) * 60*1000;
         return new JDDate(new Date(viewTime));
       });
 
       Promise.all([lowerBound, upperBound]).then(bounds => {
-        const range = new JDDateInterval(bounds[0], bounds[1]);
-        const rangeCanonicalForm = range.canonicalForm;
-        const eTag = static.getETagFrom(rangeCanonicalForm + origin + user);
-        static.serve(req, res, `"${rangeCanonicalForm}"`,
+        if (bounds[0].hasOwnProperty("error")) {
+          static.serve(req, res, bounds[0], "application/json");
+          return;
+        } else if (bounds[1].hasOwnProperty("error")) {
+          static.serve(req, res, bounds[1], "application/json");
+          return;
+        }
+        const range = (new JDDateInterval(bounds[0], bounds[1])).canonicalForm;
+        const eTag = static.getETagFrom(range + origin + user);
+        static.serve(req, res, `"${range}"`,
           "application/json", "auto", "private", eTag);
         return;
       });
@@ -99,18 +106,43 @@ function processRequest(req, res) {
     return;
   }
 
+  try {
+    if (path.parameters.range) {
+      range = new JDDateInterval(path.parameters.range);
+    }
+  } catch (e) {
+    static.serve(req, res, { error: e },
+      "application/json", "auto", "private");
+    return;
+  }
+
+  // Respond with the event list for that origin.
+  if (path.filename === "events") {
+    fs.readFile(dataRoot + origin + "/events.json", "utf8").then(data => {
+      let events = JSON.parse(data).events;
+
+      if (range) {
+        let inRangeEvents = [];
+        for (const event of events) {
+          if (range.intersects(new JDDateInterval(event.range))) {
+            inRangeEvents.push(event);
+          }
+        }
+        events = inRangeEvents;
+      }
+
+      const eTag = static.getETagFrom(JSON.stringify(events) + (path.parameters.range ?? "") + user);
+      static.serve(req, res, events, "application/json", "auto", "private", eTag);
+      return;
+    })
+    .catch(console.log);
+    return;
+  }
+
   // Respond with stats for the given origin and range.
   if (path.filename === "stats") {
     if (!("range" in path.parameters) || path.parameters.range === undefined) {
       static.serve(req, res, { error: "missingRange" },
-        "application/json", "auto", "private");
-      return;
-    }
-
-    try {
-      range = new JDDateInterval(path.parameters.range);
-    } catch (e) {
-      static.serve(req, res, { error: e },
         "application/json", "auto", "private");
       return;
     }
@@ -184,6 +216,9 @@ async function getStats(origin, range, filter) {
  * oses                 Number of sessions per OS.
  * renderingEngines     Number of sessions per rendering engine.
  * screenBreakpoints    Number of sessions per breakpoint.
+ * preferDarkTheme      Number of sessions per theme preference.
+ * preferReducedMotion  Number of sessions per motion preference.
+ * preferMoreContrast   Number of sessions per contrast preference.
  * excludedTraffic      Number of views per exclusion motive.
  *
  * Most of these data fields use a sort of associative array solution that uses
@@ -211,6 +246,9 @@ async function buildStats(origin, range, filter) {
       oses: {},
       renderingEngines: {},
       screenBreakpoints: {},
+      preferDarkTheme: {},
+      preferReducedMotion: {},
+      preferMoreContrast: {},
       excludedTraffic: sessions.excludedTraffic
     };
 
@@ -293,6 +331,18 @@ async function buildStats(origin, range, filter) {
             filterValue !== session.screenBreakpoint) {
             continue;
           }
+          if (filterKey === "preferDarkTheme" &&
+            !!filterValue !== session.prefersDarkTheme) {
+            continue;
+          }
+          if (filterKey === "preferReducedMotion" &&
+            !!filterValue !== session.prefersReducedMotion) {
+            continue;
+          }
+          if (filterKey === "preferMoreContrast" &&
+            !!filterValue !== session.prefersMoreContrast) {
+            continue;
+          }
         }
 
       for (const url of views.pageViews) {
@@ -372,6 +422,24 @@ async function buildStats(origin, range, filter) {
       }
       stats.screenBreakpoints[session.screenBreakpoint]++;
 
+      // Theme Preference
+      if (stats.preferDarkTheme[session.prefersDarkTheme] === undefined) {
+        stats.preferDarkTheme[session.prefersDarkTheme] = 0;
+      }
+      stats.preferDarkTheme[session.prefersDarkTheme]++;
+
+      // Motion Preference
+      if (stats.preferReducedMotion[session.prefersReducedMotion] === undefined) {
+        stats.preferReducedMotion[session.prefersReducedMotion] = 0;
+      }
+      stats.preferReducedMotion[session.prefersReducedMotion]++;
+
+      // Contrast Preference
+      if (stats.preferMoreContrast[session.prefersMoreContrast] === undefined) {
+        stats.preferMoreContrast[session.prefersMoreContrast] = 0;
+      }
+      stats.preferMoreContrast[session.prefersMoreContrast]++;
+
       // Increment number of sessions.
       stats.sessionTotal++;
     }
@@ -396,6 +464,9 @@ async function buildStats(origin, range, filter) {
     stats.oses = stats.oses.sortedAssociativeArray();
     stats.renderingEngines = stats.renderingEngines.sortedAssociativeArray();
     stats.screenBreakpoints = stats.screenBreakpoints.sortedAssociativeArray();
+    stats.preferDarkTheme = stats.preferDarkTheme.sortedAssociativeArray();
+    stats.preferReducedMotion = stats.preferReducedMotion.sortedAssociativeArray();
+    stats.preferMoreContrast = stats.preferMoreContrast.sortedAssociativeArray();
     stats.excludedTraffic = stats.excludedTraffic.sortedAssociativeArray();
 
     // Save stats to cache, except for filtered data, and some range modes.
@@ -462,6 +533,9 @@ async function getSessions(origin, range) {
  *   os
  *   renderingEngine
  *   screenBreakpoint
+ *   prefersDarkTheme
+ *   prefersReducedMotion
+ *   prefersMoreContrast
  *   views              Array of view objects.
  *    title             Page title.
  *    url               Page URL.
@@ -499,16 +573,17 @@ async function buildSessions(origin, range) {
         const lastView = aggregates[i].at(-1);
 
         // Continue if lastView was more than an hour before this view.
-        if (view[1] - lastView[1] > 1000*60*60) continue;
+        if (view.time - lastView.time > 1000*60*60) continue;
 
         // Continue if lastView doesn't have the same IP address.
-        if (view[11] !== lastView[11]) continue;
+        if (view.ipAddress !== lastView.ipAddress) continue;
 
         // Continue if lastView doesn't have the same user-agent string.
-        if (view[10] !== lastView[10]) continue;
+        if (view.userAgent !== lastView.userAgent) continue;
 
         // Skip identical page views (most likely page refreshes).
-        if (view[4] === lastView[4] && view[5] === lastView[5]) {
+        if (view.pageURL === lastView.pageURL &&
+            view.pageReferrer === lastView.pageReferrer) {
           sessionFound = true;
           break;
         }
@@ -531,41 +606,39 @@ async function buildSessions(origin, range) {
       const currentSession = { views: [] };
 
       // Filter out some IP addresses.
-      if (config[origin].excludeClientIPs.includes(aggregate[0][11])) {
+      if (config[origin].excludeClientIPs.includes(aggregate[0].ipAddress)) {
         sessions.excludedTraffic.tests += aggregate.length;
         continue;
       }
 
       // Filter out local network traffic.
-      if (aggregate[0][11].startsWith("192.168.")) {
+      if (aggregate[0].ipAddress.startsWith("192.168.")) {
         sessions.excludedTraffic.tests += aggregate.length;
         continue;
       }
 
       // Filter out bots.
-      if (heuristics.inferIfBot(aggregate[0][10])) {
+      if (heuristics.inferIfBot(aggregate[0].userAgent)) {
         sessions.excludedTraffic.bots += aggregate.length;
         continue;
       }
 
       // Compile basic session info from the first view.
 
-      currentSession.earliestTime = aggregate[0][1];
+      currentSession.earliestTime = aggregate[0].time;
 
-      currentSession.referrerOrigin = aggregate[0][5];
-      currentSession.acquisitionChannel = heuristics.inferAcquisitionChannel(aggregate[0][5]);
+      currentSession.referrerOrigin = aggregate[0].pageReferrer;
+      currentSession.acquisitionChannel = heuristics.inferAcquisitionChannel(currentSession.referrerOrigin);
 
       currentSession.languages = [];
-      if (aggregate[0][6] !== "") {
-        currentSession.languages.push(aggregate[0][6]);
+      if (aggregate[0].language !== "") {
+        currentSession.languages.push(aggregate[0].language);
       }
-      if (aggregate[0][7] !== "") {
-        currentSession.languages.push(...aggregate[0][7].split(","));
-      }
+      currentSession.languages.push(...aggregate[0].languages);
       currentSession.languages = currentSession.languages.unique();
 
       // Get location info.
-      const location = await heuristics.inferLocation(aggregate[0][11]);
+      const location = await heuristics.inferLocation(aggregate[0].ipAddress);
       if (location.error) {
         return { error: "ipGeoUnavailable" };
       }
@@ -579,21 +652,25 @@ async function buildSessions(origin, range) {
         continue;
       }
 
-      currentSession.os = heuristics.inferOS(aggregate[0][10]);
-      currentSession.renderingEngine = heuristics.inferRenderingEngine(aggregate[0][10]);
-      currentSession.screenBreakpoint = heuristics.inferScreenBreakpoint(aggregate[0][8]);
+      currentSession.os = heuristics.inferOS(aggregate[0].userAgent);
+      currentSession.renderingEngine = heuristics.inferRenderingEngine(aggregate[0].userAgent);
+      currentSession.screenBreakpoint = heuristics.inferScreenBreakpoint(aggregate[0].innerWindowSize);
 
-      currentSession.userAgent = aggregate[0][10];
-      currentSession.ipAddress = aggregate[0][11];
+      currentSession.prefersDarkTheme = aggregate[0].prefersDarkTheme;
+      currentSession.prefersReducedMotion = aggregate[0].prefersReducedMotion;
+      currentSession.prefersMoreContrast = aggregate[0].prefersMoreContrast;
+
+      currentSession.userAgent = aggregate[0].userAgent;
+      currentSession.ipAddress = aggregate[0].ipAddress;
 
       // Push the rest of the views with minimal data.
       for (const view of aggregate) {
         // True if the view is on an error page.
-        const isErrorView = view[3].includesAny(config[origin].errorPagePatterns);
+        const isErrorView = view.pageTitle.includesAny(config[origin].errorPagePatterns);
 
         currentSession.views.push({
-          title: view[3],
-          url: view[4].replace(/https?:\/\//, "").substr(origin.length),
+          title: view.pageTitle,
+          url: view.pageURL.replace(/https?:\/\//, "").substr(origin.length),
           error: isErrorView
         });
       }
@@ -616,23 +693,7 @@ async function buildSessions(origin, range) {
 
 
 /*
- * Returns the view beacons as an array of arrays.
- *
- * Each view consists of the following fields:
- * [0]  version         The integer version of the analytics format.
- * [1]  earliestTime    The first time collected for that page.
- * [2]  timezoneOffset  Offset from UTC in minutes of the client’s time.
- * [3]  pageTitle       Title of the viewed page.
- * [4]  pageURL         URL of the viewed page.
- * [5]  referrerURL     Referrer URL or “” if empty.
- * [6]  language        Single language code of preference.
- * [7]  languages       Ordered list of language codes.
- * [8]  windowInnerSize Inner size of the page in the format “WxH”.
- * [9]  windowOuterSize Outer size of the page in the format “WxH”.
- * [10] userAgent       The browser user-agent string of the request.
- * [11] ipAddress       The IP address of the client.
- *
- * Timestamps are in milliseconds since 1 January 1970 UTC.
+ * Returns the view beacons as an array of objects.
  */
 async function getBeacons(origin, range) {
   const fileReadPromises = [];
@@ -647,14 +708,14 @@ async function getBeacons(origin, range) {
       const beacons = [];
 
       for (const rawBeacon of rawBeacons.trim().split("\n")) {
-        // Format the view.
-        const beacon = rawBeacon.split("\t").map(decodeURI);
-
-        if (beacon.length !== 12) {
-          return { error: "malformedBeacon" };
+        let beacon;
+        try {
+          beacon = new Beacon(rawBeacon);
+        } catch (e) {
+          return { error: e.message };
         }
 
-        const beaconTime = parseInt(beacon[1]) - parseInt(beacon[2]*60*1000);
+        const beaconTime = parseInt(beacon.time) - parseInt(beacon.timezoneOffset * 60*1000);
         if (beaconTime < firstMillisecond) continue;
         if (beaconTime > lastMillisecond) break;
 

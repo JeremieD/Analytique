@@ -1,6 +1,6 @@
 let collectedData = [];
 
-collectedData[0] = 1;
+collectedData[0] = "b";
 
 collectedData[1] = Date.now();
 collectedData[2] = (new Date()).getTimezoneOffset();
@@ -14,6 +14,10 @@ collectedData[7] = navigator.languages.join(",");
 
 collectedData[8] = innerWidth + "x" + innerHeight;
 collectedData[9] = outerWidth + "x" + outerHeight;
+
+collectedData[10] = +!!matchMedia("(prefers-color-scheme: dark)").matches;
+collectedData[11] = +!!matchMedia("(prefers-contrast: more)").matches;
+collectedData[12] = +!!matchMedia("(prefers-reduced-motion)").matches;
 
 collectedData = collectedData.map(encodeURI);
 
