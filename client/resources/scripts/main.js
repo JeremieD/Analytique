@@ -475,21 +475,21 @@ function refreshComplementaryModel() {
   switch (state.range.unit) {
     case "year":
       // Load 10 previous years (?!) in year mode.
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 9; i++) {
         ranges.push(pointer.canonicalForm);
       }
       break;
 
     case "month":
       // Load 12 previous months in month mode.
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 11; i++) {
         ranges.push(pointer.previous().canonicalForm);
       }
       break;
 
     case "week":
       // Load 12 previous weeks in week mode.
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 11; i++) {
         ranges.push(pointer.previous().canonicalForm);
       }
       break;
@@ -498,7 +498,7 @@ function refreshComplementaryModel() {
       // If range is 7 days or less, display the 14 previous days.
       if (state.range.duration() <= 7) {
         pointer.convertTo("day", { preferEnd: true });
-        for (let i = 0; i < 14; i++) {
+        for (let i = 0; i < 13; i++) {
           ranges.push(pointer.previous().canonicalForm);
         }
         break;
@@ -509,7 +509,7 @@ function refreshComplementaryModel() {
         pointer.convertTo("day");
 
       // If range is 112 days (4 months) or less, display each week.
-    } else if (state.range.duration() <= 112) {
+      } else if (state.range.duration() <= 112) {
         pointer.convertTo("week");
 
       // Otherwise, display each month.
