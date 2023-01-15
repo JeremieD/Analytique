@@ -290,7 +290,7 @@ function switchToOrigin(origin) {
   // Fetch available data range.
   state.availableRange = httpGet(`/api/available?origin=${origin}`).then(bounds => {
     bounds = JSON.parse(bounds);
-    if (bounds.error !== undefined) return bounds;
+    if (bounds.hasOwnProperty("error")) return bounds;
 
     bounds = new JDDateInterval(bounds);
 
@@ -545,13 +545,13 @@ function drawMainView() {
 
     // Check for and draw errors.
     await Promise.all([state.availableOrigins]).then(errors => {
-      if (errors[0].error !== undefined) {
+      if (errors[0].hasOwnProperty("error")) {
         view.hud.errorCollapse.classList.add("shown");
         view.hud.errorDisplay.innerText = niceErrorName(errors[0].error);
         view.hud.origin.parentElement.classList.add("transparent");
         errorShown = true;
 
-      } else if (data.error !== undefined) {
+      } else if (data.hasOwnProperty("error")) {
         view.hud.errorCollapse.classList.add("shown");
         view.hud.errorDisplay.innerText = niceErrorName(data.error);
         errorShown = true;

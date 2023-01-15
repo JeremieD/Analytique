@@ -18,6 +18,7 @@ function receive(req, res) {
 
     // Too much POST data
     if (body.length > 1e5) {
+      console.error("Connection closed. Received too much data.");
       req.connection.destroy();
     }
   });

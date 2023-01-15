@@ -662,9 +662,7 @@ async function getBeacons(origin, range) {
 
       return beacons;
 
-    }).catch(() => {
-      return { error: "noData" };
-    });
+    }).catch(() => { return { error: "noData" }; });
 
     fileReadPromises.push(promise);
   }
@@ -682,9 +680,7 @@ async function getBeacons(origin, range) {
       }
     }
 
-    if (errors.length === beacons.length) {
-      return { error: errors[0] };
-    }
+    if (errors.length === beacons.length) return { error: errors[0] };
 
     return flatBeacons;
   });
