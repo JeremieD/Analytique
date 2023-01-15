@@ -2,6 +2,8 @@
  * Date object based on the proleptic Gregorian calendar, with astronomical year
  * numbering (1 BC = 0, 2 BC = -1), months 1-12, (ISO) weeks 1-53, days 1-31,
  * and days of the week 0-6, where 0 is Monday.
+ *
+ * Version: 0.9
 */
 class _JDDate {
   constructor() {
