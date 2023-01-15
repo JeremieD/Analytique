@@ -397,8 +397,7 @@ async function buildStats(origin, range, filter) {
     stats.excludedTraffic = stats.excludedTraffic.sortedAssociativeArray();
 
     // Save stats to cache, except for filtered data, and some range modes.
-    if (filter === undefined && (range.unit === "year" ||
-        range.unit === "month" || range.unit === "week")) {
+    if (filter === undefined && range.isSingular && range.unit !== "day") {
       const dirPath = statsRoot(origin) + range.unit;
       const filePath = dirPath + "/" + range.canonicalForm + ".json";
       fs.mkdir(dirPath, { recursive: true }).then(() => {
@@ -601,7 +600,7 @@ async function buildSessions(origin, range) {
     }
 
     // Save data to cache, except if empty or range mode is plural.
-    if (sessions.sessions.length > 0 && range.isSingular) {
+    if (sessions.sessions.length > 0 && range.isSingular && range.unit !== "day") {
       const folder = sessionsRoot(origin) + range.unit;
       const filePath = folder + "/" + range.canonicalForm + ".json";
       fs.mkdir(folder, { recursive: true }).then(() => {
