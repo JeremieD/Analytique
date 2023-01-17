@@ -11,6 +11,7 @@ const state = {
   origin: "",
   availableRange: undefined,
   range: new JDDateInterval(JDDate.thisMonth()),
+  events: [],
   filter: {
     key: "",
     value: ""
@@ -333,6 +334,8 @@ function switchToOrigin(origin) {
 
     return bounds;
   });
+
+  state.events = httpGet(`/api/events?origin=${origin}`).then(JSON.parse);
 }
 
 
@@ -737,7 +740,7 @@ function drawComplementaryView() {
   }
 
   // Wait for models to be loaded.
-  Promise.all(complementaryModels).then(data => {
+  Promise.all([state.events, ...complementaryModels]).then(([events, ...data]) => {
     // Data for graphs
     const sessionTotalData = {
       points: [],
@@ -784,18 +787,28 @@ function drawComplementaryView() {
       // Calculate whether data point is for a "complete" range or not.
       const isEstimate = rangeObject.isAfterOrIntersects(JDDate.today());
 
+      // Draw events.
+      let eventTooltip;
+      for (const event of events) {
+        if (rangeObject.intersects((new JDDateInterval(event.date)))) {
+          eventTooltip = `<h4>${event.name}</h4><p>${event.desc}</p>`;
+        }
+      }
+
       sessionTotalData.points.push({
         label: label,
         y: sessionTotalValue,
         onClick: onClickHandler,
-        style: isEstimate ? "dashed" : ""
+        style: isEstimate ? "dashed" : "",
+        annotation: eventTooltip
       });
 
       sessionLengthData.points.push({
         label: label,
         y: avgSessionLengthValue,
         onClick: onClickHandler,
-        style: isEstimate ? "dashed" : ""
+        style: isEstimate ? "dashed" : "",
+        annotation: eventTooltip
       });
     }
 

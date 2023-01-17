@@ -145,3 +145,36 @@ jd-graph>graph>point.selected>label {
   transform: translateY(-50%);
   opacity: 1;
 }
+
+jd-graph .annotation {
+  position: absolute;
+  top: -.333rem;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-grey);
+  transition: .2s ease all;
+}
+
+jd-graph>graph>point.selected .annotation::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 66%;
+  position: absolute;
+  top: 15%;
+  z-index: -1;
+  background-color: var(--color-background);
+}
+
+jd-graph .annotation>svg {
+  width: 6px;
+}
+
+jd-graph>graph>point.selected .annotation {
+  color: var(--color-accent);
+}
+
+jd-graph>graph>point:not(.selected):hover .annotation {
+  opacity: 0;
+  transform: translate(-50%, -100%);
+}

@@ -117,6 +117,13 @@ class JDGraph extends HTMLElement {
       }
       point.append(label);
 
+      // Add annotation
+      if (dataPoint.annotation !== undefined) {
+          const annotation = new JDIcon("lightning");
+          annotation.classList.add("annotation");
+          point.append(annotation);
+      }
+
       points.push(point);
     }
 
