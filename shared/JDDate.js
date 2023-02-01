@@ -3,7 +3,8 @@
  * numbering (1 BC = 0, 2 BC = -1), months 1-12, (ISO) weeks 1-53, days 1-31,
  * and days of the week 0-6, where 0 is Monday.
  *
- * Version: 0.9
+ * Version: 0.9.1
+ *
 */
 class _JDDate {
   constructor() {
@@ -87,15 +88,15 @@ class _JDDate {
     switch (style) {
       case "long":
         // Options for long style.
-        options.language = options.language ?? "fr";
-        options.useNowForms = options.useNowForms ?? false;
-        options.capitalize = options.capitalize ?? false;
-        options.outputNBSPs = options.outputNBSPs ?? true;
-        options.outputSUPTag = options.outputSUPTag ?? false;
-        options.omitSameValues = options.omitSameValues ?? true;
-        options.monthStyle = options.monthStyle ?? "full";
-        options.outputDayOfWeek = options.outputDayOfWeek ?? false;
-        options.dayOfWeekStyle = options.dayOfWeekStyle ?? "full";
+        options.language ??= "fr";
+        options.useNowForms ??= false;
+        options.capitalize ??= false;
+        options.outputNBSPs ??= true;
+        options.outputSUPTag ??= false;
+        options.omitSameValues ??= true;
+        options.monthStyle ??= "full";
+        options.outputDayOfWeek ??= false;
+        options.dayOfWeekStyle ??= "full";
 
         const dictionary = {
           fr: {
@@ -148,7 +149,8 @@ class _JDDate {
               formatted += dict.now.month;
             } else {
               formatted += dict.month(start.month);
-              if (!options.omitSameValues || !isInterval || start.year !== end.year) {
+              if (!options.omitSameValues || end.isNow || !isInterval ||
+                  start.year !== end.year) {
                 formatted += " " + start.year;
               }
             }
@@ -166,7 +168,8 @@ class _JDDate {
               formatted += dict.now.week;
             } else {
               formatted += "S" + start.week;
-              if (!options.omitSameValues || !isInterval || start.year !== end.year) {
+              if (!options.omitSameValues || end.isNow || !isInterval ||
+                  start.year !== end.year) {
                 formatted += " " + start.year;
               }
             }
@@ -189,10 +192,12 @@ class _JDDate {
               }
               formatted += start.day;
               formatted += dict.daySuffix(start.day);
-              if (!options.omitSameValues || !isInterval || start.month !== end.month || start.year !== end.year) {
+              if (!options.omitSameValues || end.isNow || !isInterval ||
+                  start.month !== end.month || start.year !== end.year) {
                 formatted += " " + dict.month(start.month);
               }
-              if (!options.omitSameValues || !isInterval || start.year !== end.year) {
+              if (!options.omitSameValues || end.isNow || !isInterval ||
+                  start.year !== end.year) {
                 formatted += " " + start.year;
               }
             }
@@ -219,11 +224,11 @@ class _JDDate {
 
       case "short":
         // Options for short style.
-        options.unitsSeparator = options.unitsSeparator ?? "-";
-        options.boundsSeparator = options.boundsSeparator ?? "—";
-        options.unitsOrder = options.unitsOrder ?? ">";
-        options.fixedLengthValues = options.fixedLengthValues ?? true;
-        options.truncateYear = options.truncateYear ?? false;
+        options.unitSeparator ??= "-";
+        options.boundSeparator ??= "—";
+        options.unitsOrder ??= ">";
+        options.fixedLengthValues ??= true;
+        options.truncateYear ??= false;
 
         const year = d => {
           return options.truncateYear ? String(d.year).slice(-2) : d.year;
@@ -260,7 +265,7 @@ class _JDDate {
           }
         }
 
-        return tokens.map(t => t.join(options.unitsSeparator)).join(options.boundsSeparator);
+        return tokens.map(t => t.join(options.unitSeparator)).join(options.boundSeparator);
 
       default:
         throw new Error("undefinedFormatStyle");

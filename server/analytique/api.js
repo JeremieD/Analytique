@@ -380,7 +380,7 @@ async function buildStats(origin, range, filter) {
 async function getSessions(origin, range) {
   const promises = [];
   for (date of range.each("day")) {
-    const dayDir = `${sessionsRoot(origin)}${date.formatted("short", { unitsSeparator:"/" })}/`;
+    const dayDir = `${sessionsRoot(origin)}${date.formatted("short", { unitSeparator:"/" })}/`;
     sessionFiles = [];
     try {
       sessionFiles = fs.readdirSync(dayDir);
