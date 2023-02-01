@@ -32,19 +32,12 @@ function encode(data, encoding = "identity") {
  * @returns {string} Supported values are "gzip", "deflate", and "br".
  */
 function getBestEncoding(acceptedEncodings, contentLength) {
-  let encoding = "identity";
-
   if (compressionEnabled && contentLength > 512) {
-    if (acceptedEncodings.includes("br")) {
-      encoding = "br";
-    } else if (acceptedEncodings.includes("deflate")) {
-      encoding = "deflate";
-    } else if (acceptedEncodings.includes("gzip")) {
-      encoding = "gzip";
-    }
+    if (acceptedEncodings.includes("br")) return "br";
+    if (acceptedEncodings.includes("deflate")) return "deflate";
+    if (acceptedEncodings.includes("gzip")) return "gzip";
   }
-
-  return encoding;
+  return "identity";
 }
 
 
