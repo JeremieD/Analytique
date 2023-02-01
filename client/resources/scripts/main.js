@@ -436,7 +436,7 @@ function update() {
   const filterEnabled = state.filter.length > 0;
   view.hud.filterReset.disabled = !filterEnabled;
   if (filterEnabled) {
-    view.hud.filterReset.title = `Filtre appliqué: ${state.filter[0].key} = "${state.filter[0].value}". Cliquez pour remettre à zéro.`;
+    view.hud.filterReset.title = `Filtre appliqué: ${state.filter[0].key} = "${state.filter[0].val}". Cliquez pour remettre à zéro.`;
   } else {
     view.hud.filterReset.title = "";
     view.hud.filterReset.blur();
@@ -583,7 +583,7 @@ function drawMainView() {
       // If range and filter key have not changed, keep selected list view intact.
       if (isFilterKey) {
         for (const listItem of listView.el.children) {
-          const isSelected = listItem.dataset.filterValue === state.filter[0]?.value;
+          const isSelected = listItem.dataset.filterValue === state.filter[0]?.val;
 
           if (isSelected) {
             listItem.classList.add("selected");
@@ -652,11 +652,11 @@ function drawMainView() {
 
           newListItem.addEventListener("click", () => {
             if (state.filter[0]?.key !== listView.model ||
-              state.filter[0]?.value !== dataPoint.key) {
+                state.filter[0]?.val !== dataPoint.key) {
               setFilter({
                 negated: false,
                 key: listView.model,
-                value: dataPoint.key
+                val: dataPoint.key
               });
             } else {
               clearFilter();
@@ -864,7 +864,7 @@ function getModel(origin, range, serializedFilter) {
 
 /**
  * Takes a filter object and stringifies it for use in a request.
- * @param {object} filter - An array of objects each containing "negated", "key" and "value".
+ * @param {object} filter - An array of objects each containing "negated", "key" and "val".
  * @returns {string} The formatted filter. Empty string if filter is disabled.
  */
 function serializeFilter(filter) {
@@ -872,7 +872,7 @@ function serializeFilter(filter) {
   for (const item of filter) {
     serializedFilter += item.negated ? "!" : "";
     serializedFilter += encodeURIComponent(item.key) + ":";
-    serializedFilter += encodeURIComponent(item.value) + ";";
+    serializedFilter += encodeURIComponent(item.val) + ";";
   }
   if (serializedFilter.endsWith(";")) serializedFilter = serializedFilter.slice(0, -1);
   return serializedFilter;

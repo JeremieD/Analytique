@@ -141,7 +141,7 @@ function processRequest(req, res) {
         return {
           negated: negated,
           key: key,
-          value: item[1]
+          val: item[1]
         };
       });
     }
@@ -245,7 +245,7 @@ async function buildStats(origin, range, filter) {
         lessMotion: !!session.lessMotion
       };
 
-      for (const event of session.events) {
+      for (const event of session.e) {
         if (event.e === "pageView") {
           sessionStats.viewTotal++;
           const url = (new URL(event.pu)).pathname;
@@ -270,10 +270,10 @@ async function buildStats(origin, range, filter) {
           case "pageViews":
           case "errorViews":
           case "languages":
-            if (sessionStats[item.key].includes(item.value) === !item.negated) score++;
+            if (sessionStats[item.key].includes(item.val) === !item.negated) score++;
             break;
           case "preferences":
-            if (sessionStats[item.value] === !item.negated) score++;
+            if (sessionStats[item.val] === !item.negated) score++;
             break;
           case "referralChannel":
           case "referralOrigin":
@@ -287,7 +287,7 @@ async function buildStats(origin, range, filter) {
           case "renderingEngine":
           case "screenBreakpoint":
           case "touchScreen":
-            if ((sessionStats[item.key] === item.value) === !item.negated) score++;
+            if ((sessionStats[item.key] === item.val) === !item.negated) score++;
             break;
         }
       }

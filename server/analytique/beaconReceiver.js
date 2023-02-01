@@ -78,7 +78,7 @@ function receive(req, res) {
           delete event[field];
         }
       }
-      sessionObj.events.push(event);
+      sessionObj.e.push(event);
       if (!sessionPopulated) sessionObj.startT = event.t;
       sessionObj.endT = event.t;
     }
