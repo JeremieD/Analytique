@@ -457,9 +457,10 @@ const screenBreakpointsDict = {
   "xsmall":  "Mini <small>(≤360px)</small>"
 };
 const excludedTrafficDict = {
-  "dev": "Développement",
+  "dev": "Développeurs",
   "bots": "Robots",
   "spam": "Spam",
+  "filtered": "Filtré"
 };
 const preferencesDict = {
   "darkMode": "Thème sombre",

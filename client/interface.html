@@ -98,20 +98,20 @@
       <div class="card">
         <hgroup>
           <h3>Sessions</h3>
-          <jd-icon icon="help" tooltip="Total des sessions pour cette période."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> pour cette période."></jd-icon>
         </hgroup>
 
-        <data class="big" id="session-total"></data>
+        <data class="big" id="session-count"></data>
 
         <figure>
-          <jd-graph id="session-total-graph"></jd-graph>
+          <jd-graph id="session-count-graph"></jd-graph>
         </figure>
       </div>
 
       <div class="card">
         <hgroup>
           <h3>Engagement</h3>
-          <jd-icon icon="help" tooltip="Nombre de vues moyen par session."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>vues</em> moyen par session."></jd-icon>
         </hgroup>
 
         <data class="big" id="avg-session-length"><small></small></data>
@@ -124,7 +124,7 @@
       <div class="card">
         <hgroup>
           <h3>Pages populaires</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par pages."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>vues</em> par page. Les pourcentages sont par rapport au nombre de <em>sessions</em>."></jd-icon>
         </hgroup>
 
         <ol id="page-views">
@@ -144,7 +144,7 @@
       <div class="card">
         <hgroup>
           <h3>Canaux</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par canal d’acquisition."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par canal d’acquisition."></jd-icon>
         </hgroup>
 
         <ol id="referral-channel">
@@ -158,7 +158,7 @@
       <div class="card">
         <hgroup>
           <h3>Origines</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis."></jd-icon>
         </hgroup>
 
         <ol id="referral-origin">
@@ -174,7 +174,7 @@
       <div class="card">
         <hgroup>
           <h3>Points d’entrée</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par page d’atterissage."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par page d’atterissage."></jd-icon>
         </hgroup>
 
         <ol id="entry-page">
@@ -193,7 +193,7 @@
       <div class="card">
         <hgroup>
           <h3>Bilinguisme</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par classe de bilinguisme."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par niveau de bilinguisme."></jd-icon>
         </hgroup>
 
         <ol id="bilingualism">
@@ -208,7 +208,7 @@
       <div class="card">
         <hgroup>
           <h3>Pays</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par pays."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par pays."></jd-icon>
         </hgroup>
 
         <ol id="country">
@@ -224,7 +224,7 @@
       <div class="card">
         <hgroup>
           <h3>Villes</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par ville."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par ville."></jd-icon>
         </hgroup>
 
         <ol id="city">
@@ -240,7 +240,7 @@
       <div class="card">
         <hgroup>
           <h3>Systèmes d’exploitation</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par système d’exploitation."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par système d’exploitation."></jd-icon>
         </hgroup>
 
         <ol id="os">
@@ -256,7 +256,7 @@
       <div class="card">
         <hgroup>
           <h3>Moteurs de rendu</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par moteur de rendu."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par moteur de rendu."></jd-icon>
         </hgroup>
 
         <ol id="rendering-engine">
@@ -269,7 +269,7 @@
       <div class="card">
         <hgroup>
           <h3>Tailles d’écran</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par taille d’écran. Ces points d’arrêt correspondent à ceux utiliser dans les feuilles de style du site. Ils indiquent donc quels styles s’appliquaient pour cet utilisateur."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par taille d’écran, selon les points charnière définies pour le site."></jd-icon>
         </hgroup>
 
         <ol id="screen-breakpoint">
@@ -283,7 +283,7 @@
       <div class="card">
         <hgroup>
           <h3>Préférences</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par préférence de l’utilisateur."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> par préférence de l’utilisateur."></jd-icon>
         </hgroup>
 
         <ol id="preferences">
@@ -315,7 +315,7 @@
       <div class="card">
         <hgroup>
           <h3>Traffic exclu</h3>
-          <jd-icon icon="help" tooltip="Nombre de <em>vues</em> exclues du traffic selon la cause. Les pourcentages sont sur le nombre de vue total <em>avant</em> filtrage."></jd-icon>
+          <jd-icon icon="help" tooltip="Nombre de <em>sessions</em> exclues du traffic selon la cause. Les pourcentages sont par rapport au nombre de sessions <em>avant exclusion</em>."></jd-icon>
         </hgroup>
 
         <ol id="excluded-traffic">

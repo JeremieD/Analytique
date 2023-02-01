@@ -174,9 +174,18 @@ async function buildStats(origin, range, filter) {
     if (sessions.error !== undefined) return sessions;
 
     const stats = {
-      viewTotal: 0,
-      sessionTotal: 0,
+      sessionCountBeforeExlusion: sessions.length,
+      bouncedSessionCount: 0,
       avgSessionLength: 0,
+      avgSessionDuration: 0,
+      sessionCount: 0,
+      viewCount: 0,
+      excludedTraffic: {
+        spam: 0,
+        bots: 0,
+        dev: 0,
+        filtered: 0
+      },
       pageViews: {},
       errorViews: {},
       referralChannel: {},
@@ -192,12 +201,7 @@ async function buildStats(origin, range, filter) {
       renderingEngine: {},
       screenBreakpoint: {},
       touchScreen: 0,
-      preferences: {},
-      excludedTraffic: {
-        spam: 0,
-        bots: 0,
-        dev: 0
-      }
+      preferences: {}
     };
 
     for (const session of sessions) {
@@ -214,21 +218,26 @@ async function buildStats(origin, range, filter) {
         continue;
       }
 
-      // Exclude spam
+      // Fetch location.
       const location = await Heuristics.inferLocation(session.ip);
       if (location.error) return { error: "ipGeoUnavailable" };
+
+      // Exclude spam
       if (config[origin].excludeIPsAsSpam.includes(session.ip) ||
           config[origin].excludeCountriesAsSpam.includes(session.country)) {
         stats.excludedTraffic.spam++;
         continue;
       }
 
+      // Intermediate object to hold the stats of one session.
       const sessionStats = {
-        viewTotal: 0,
+        viewCount: 0,
+        duration: session.endT - session.startT,
         pageViews: [],
         errorViews: [],
         entryPage: undefined,
         exitPage: undefined,
+        bounced: undefined,
         referralChannel: undefined,
         referralOrigin: undefined,
         languages: session.l,
@@ -247,7 +256,7 @@ async function buildStats(origin, range, filter) {
 
       for (const event of session.e) {
         if (event.e === "pageView") {
-          sessionStats.viewTotal++;
+          sessionStats.viewCount++;
           const url = (new URL(event.pu)).pathname;
           if (sessionStats.entryPage === undefined) {
             sessionStats.entryPage = url;
@@ -263,6 +272,9 @@ async function buildStats(origin, range, filter) {
         } // @TODO: custom events
       }
 
+      sessionStats.bounced = sessionStats.duration < time("10s")
+                          || sessionStats.viewCount < 2;
+
       // Filter
       let score = 0;
       for (const item of filter) {
@@ -271,6 +283,9 @@ async function buildStats(origin, range, filter) {
           case "errorViews":
           case "languages":
             if (sessionStats[item.key].includes(item.val) === !item.negated) score++;
+            break;
+          case "bounced":
+            if (sessionStats[item.key] === !item.negated) score++;
             break;
           case "preferences":
             if (sessionStats[item.val] === !item.negated) score++;
@@ -291,11 +306,19 @@ async function buildStats(origin, range, filter) {
             break;
         }
       }
-      if (score !== filter.length) continue;
+      if (score !== filter.length) {
+        stats.excludedTraffic.filtered++
+        continue;
+      }
 
       // Dissolve session into aggregate stats
-      stats.viewTotal += sessionStats.viewTotal;
-      stats.sessionTotal++;
+      stats.viewCount += sessionStats.viewCount;
+      stats.sessionCount++;
+      if (sessionStats.bounced) {
+        stats.bouncedSessionCount++;
+      } else {
+        stats.avgSessionDuration += sessionStats.duration;
+      }
 
       for (const pageView of sessionStats.pageViews) {
         stats.pageViews[pageView] ??= 0;
@@ -345,10 +368,15 @@ async function buildStats(origin, range, filter) {
       }
     }
 
-    if (stats.sessionTotal === 0) return { error: "noMatchingSessions" };
+    if (stats.sessionCount === 0) return { error: "noMatchingSessions" };
 
-    if (stats.sessionTotal > 0) {
-      stats.avgSessionLength = stats.viewTotal / stats.sessionTotal;
+    if (stats.sessionCount > 0) {
+      stats.avgSessionLength = stats.viewCount / stats.sessionCount;
+    }
+
+    const sessionCountExceptBounced = stats.sessionCount - stats.bouncedSessionCount;
+    if (sessionCountExceptBounced > 0) {
+      stats.avgSessionDuration /= sessionCountExceptBounced;
     }
 
     // For sorting, convert "associative arrays" (objects) to flat arrays.

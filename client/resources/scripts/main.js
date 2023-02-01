@@ -54,8 +54,8 @@ whenDOMReady(() => {
     errorDisplay: document.getElementById("error-display")
   };
   view.main = {
-    sessionTotal: {
-      el: document.getElementById("session-total")
+    sessionCount: {
+      el: document.getElementById("session-count")
     },
     avgSessionLength: {
       el: document.getElementById("avg-session-length")
@@ -64,79 +64,79 @@ whenDOMReady(() => {
       el: document.getElementById("page-views"),
       model: "pageViews",
       transform: _identity,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     referralChannel: {
       el: document.getElementById("referral-channel"),
       model: "referralChannel",
       transform: niceReferralChannelName,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     referralOrigin: {
       el: document.getElementById("referral-origin"),
       model: "referralOrigin",
       transform: niceOriginName,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     entryPage: {
       el: document.getElementById("entry-page"),
       model: "entryPage",
       transform: _identity,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     bilingualism: {
       el: document.getElementById("bilingualism"),
       model: "bilingualism",
       transform: niceBilingualismName,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     country: {
       el: document.getElementById("country"),
       model: "country",
       transform: niceCountryName,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     city: {
       el: document.getElementById("city"),
       model: "city",
       transform: _identity,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     os: {
       el: document.getElementById("os"),
       model: "os",
       transform: _identity,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     renderingEngine: {
       el: document.getElementById("rendering-engine"),
       model: "renderingEngine",
       transform: _identity,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     screenBreakpoint: {
       el: document.getElementById("screen-breakpoint"),
       model: "screenBreakpoint",
       transform: niceScreenBreakpointName,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     preferences: {
       el: document.getElementById("preferences"),
       model: "preferences",
       transform: nicePreferenceName,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     errorViews: {
       el: document.getElementById("error-views"),
       model: "errorViews",
       transform: _identity,
-      basis: "sessionTotal"
+      basis: "sessionCount"
     },
     excludedTraffic: {
       el: document.getElementById("excluded-traffic"),
       model: "excludedTraffic",
       transform: niceExcludedTrafficName,
-      basis: "viewTotal"
+      basis: "sessionCountBeforeExlusion"
     }
   };
   view.listViews = [
@@ -155,9 +155,9 @@ whenDOMReady(() => {
     view.main.excludedTraffic
   ];
   view.complementary = {
-    sessionTotal: {
-      el: document.getElementById("session-total-graph"),
-      model: "sessionTotal"
+    sessionCount: {
+      el: document.getElementById("session-count-graph"),
+      model: "sessionCount"
     },
     avgSessionLength: {
       el: document.getElementById("avg-session-length-graph"),
@@ -559,9 +559,9 @@ function drawMainView() {
       }
     });
 
-    // Session total.
-    view.main.sessionTotal.el.innerText = data.sessionTotal ?? 0;
-    view.main.sessionTotal.el.classList.remove("loading");
+    // Session count.
+    view.main.sessionCount.el.innerText = data.sessionCount ?? 0;
+    view.main.sessionCount.el.classList.remove("loading");
 
     // Stop drawing here if an error was detected.
     if (errorShown) return;
@@ -646,7 +646,7 @@ function drawMainView() {
         newListItem.append(dataPoint1, dataPoint2, dataPoint3);
 
         // Handle click on list item that can be filtered.
-        if (listView.basis === "sessionTotal") {
+        if (listView.basis === "sessionCount") {
           newListItem.dataset.filterKey = listView.model;
           newListItem.dataset.filterValue = dataPoint.key;
 
@@ -716,7 +716,7 @@ function drawComplementaryView() {
   // Wait for models to be loaded.
   Promise.all([state.annotations, ...complementaryModels]).then(([annotations, ...data]) => {
     // Data for graphs
-    const sessionTotalData = {
+    const sessionCountData = {
       points: [],
       xAxisLabel: xAxisLabel,
       maxPointCount: maxPointCount,
@@ -746,10 +746,10 @@ function drawComplementaryView() {
 
       // Draw point as 0 if there is no *matching sessions*,
       // but don’t draw point if there is no *data*.
-      let sessionTotalValue = 0;
+      let sessionCountValue = 0;
       let avgSessionLengthValue = 0;
       if (data[i].error !== "noMatchingSessions") {
-        sessionTotalValue = data[i].sessionTotal;
+        sessionCountValue = data[i].sessionCount;
         avgSessionLengthValue = data[i].avgSessionLength;
       }
 
@@ -769,9 +769,9 @@ function drawComplementaryView() {
         }
       }
 
-      sessionTotalData.points.push({
+      sessionCountData.points.push({
         label: label,
-        y: sessionTotalValue,
+        y: sessionCountValue,
         onClick: onClickHandler,
         style: isEstimate ? "dashed" : "",
         annotation: annotationTooltip
@@ -790,8 +790,8 @@ function drawComplementaryView() {
     if (noDataCount === data.length) return;
 
     // Draw graphs
-    view.complementary.sessionTotal.el.draw(sessionTotalData);
-    view.complementary.sessionTotal.el.classList.remove("loading");
+    view.complementary.sessionCount.el.draw(sessionCountData);
+    view.complementary.sessionCount.el.classList.remove("loading");
     view.complementary.avgSessionLength.el.draw(sessionLengthData);
     view.complementary.avgSessionLength.el.classList.remove("loading");
   });
