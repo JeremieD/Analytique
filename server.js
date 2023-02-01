@@ -6,9 +6,7 @@ const account = require("./server/web/account.js");
 
 const beaconReceiver = require("./server/analytique/beaconReceiver.js");
 const api = require("./server/analytique/api.js");
-const config = require("./server/util/config.js").server;
-const hostname = config.hostname;
-const port = config.port;
+const config = require("./server/util/config.js");
 
 const requestListener = (req, res) => {
   const pathname = new uri.URIPath(req.url).pathname;
@@ -67,6 +65,6 @@ const requestListener = (req, res) => {
 
 const server = http.createServer(requestListener);
 
-server.listen(port, hostname, () => {
-  console.log(`Server is running on http://${hostname}:${port}`);
+server.listen(config.server.localPort, config.server.localHostname, () => {
+  console.log(`Server is running on http://${config.server.localHostname}:${config.server.localPort}`);
 });
