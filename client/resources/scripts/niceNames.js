@@ -26,7 +26,7 @@ const countriesDict = {
   "AT": "Autriche",
   "AU": "Australie",
   "AW": "Aruba",
-  "AX": "Åland(les Îles)",
+  "AX": "Åland",
   "AZ": "Azerbaïdjan",
   "BA": "Bosnie-Herzégovine",
   "BB": "Barbade",
@@ -55,7 +55,7 @@ const countriesDict = {
   "CF": "République centrafricaine",
   "CG": "Congo",
   "CH": "Suisse",
-  "CI": "Côte d'Ivoire",
+  "CI": "Côte d’Ivoire",
   "CK": "Îles Cook",
   "CL": "Chili",
   "CM": "Cameroun",
@@ -117,7 +117,7 @@ const countriesDict = {
   "IL": "Israël",
   "IM": "Île de Man",
   "IN": "Inde",
-  "IO": "Territoire britannique de l'océan Indien",
+  "IO": "Territoire britannique de l’océan Indien",
   "IQ": "Iraq",
   "IR": "Iran",
   "IS": "Islande",
@@ -194,7 +194,7 @@ const countriesDict = {
   "PM": "Saint-Pierre-et-Miquelon",
   "PN": "Pitcairn",
   "PR": "Porto Rico",
-  "PS": "Palestine, État de",
+  "PS": "Palestine",
   "PT": "Portugal",
   "PW": "Palaos",
   "PY": "Paraguay",
@@ -293,9 +293,7 @@ const errorsDict = {
  * @returns {string}
  */
 function _identity(input) {
-  if (input === "") {
-    return "Indéterminé";
-  }
+  if (input === "") return "Indéterminé";
   return input;
 }
 
@@ -318,9 +316,7 @@ function niceReferralChannelName(input) {
 function niceOriginName(input) {
   // Don’t touch variants of the current origin.
   if (input.includes(origin)) return input;
-
-  return input.replace("https://", "")
-              .replace("www.", "");
+  return input.replace("https://", "").replace("www.", "");
 }
 
 
@@ -340,10 +336,8 @@ function niceBilingualismName(input) {
  * @returns {string}
  */
 function niceCountryName(input) {
-  if (countriesDict[input]) {
-    return countriesDict[input];
-  }
-  return input;
+  return countriesDict[input] ?? input;
+}
 }
 
 
@@ -378,6 +372,5 @@ function nicePreferenceName(input) {
  * @returns {string}
  */
 function niceErrorName(input) {
-  if (errorsDict[input]) return errorsDict[input];
-  return input;
+  return errorsDict[input] ?? input;
 }
