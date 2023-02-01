@@ -1,25 +1,32 @@
-let collectedData = [];
+const homebase = "https://analytique.jeremiedupuis.com";
+function sendTelemetry(...events) {
+  const beacon = {
+    o: "jeremiedupuis.com",
+    e: events
+  };
+  navigator.sendBeacon(homebase, JSON.stringify(beacon));
+}
 
-collectedData[0] = "b";
+const pageView = {
+  e: "pageView",
+  t: Date.now(),
+  tz: (new Date()).getTimezoneOffset(),
+  pt: document.title,
+  pu: location.href,
+  pr: document.referrer,
+  l: [navigator.language, ...navigator.languages],
+  inS: innerWidth + "x" + innerHeight,
+  outS: outerWidth + "x" + outerHeight,
+  theme: +!!matchMedia("(prefers-color-scheme: dark)").matches,
+  contrast: +!!matchMedia("(prefers-contrast: more)").matches,
+  motion: +!!matchMedia("(prefers-reduced-motion)").matches,
+  ptrHovr: +!!matchMedia("(hover: hover)").matches,
+  ptrPrec: 0
+};
+if (matchMedia("(pointer: fine)").matches) {
+  pageView.ptrPrec = 2;
+} else if (matchMedia("(pointer: coarse)").matches) {
+  pageView.ptrPrec = 1;
+}
 
-collectedData[1] = Date.now();
-collectedData[2] = (new Date()).getTimezoneOffset();
-
-collectedData[3] = document.title;
-collectedData[4] = location.href;
-collectedData[5] = document.referrer;
-
-collectedData[6] = navigator.language;
-collectedData[7] = navigator.languages.join(",");
-
-collectedData[8] = innerWidth + "x" + innerHeight;
-collectedData[9] = outerWidth + "x" + outerHeight;
-
-collectedData[10] = +!!matchMedia("(prefers-color-scheme: dark)").matches;
-collectedData[11] = +!!matchMedia("(prefers-contrast: more)").matches;
-collectedData[12] = +!!matchMedia("(prefers-reduced-motion)").matches;
-
-collectedData = collectedData.map(encodeURI);
-
-const analyticsHomebase = "https://analytique.jeremiedupuis.com";
-navigator.sendBeacon(analyticsHomebase, collectedData.join("\t"));
+sendTelemetry(pageView);

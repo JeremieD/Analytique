@@ -1,4 +1,4 @@
-const acquisitionChannelsDict = {
+const referralChannelsDict = {
   "direct": "Direct/inconnu",
   "organic": "Organique",
   "social": "Social",
@@ -270,28 +270,20 @@ const screenBreakpointsDict = {
   "xsmall":  "Mini <small>(≤360px)</small>"
 };
 const excludedTrafficDict = {
-  "tests": "Moi",
-  "bots":  "Robots",
-  "spam":  "Spam",
+  "dev": "Développement",
+  "bots": "Robots",
+  "spam": "Spam",
 };
-const themePreferenceDict = {
-  "true": "Sombre",
-  "false": "Clair/indéterminé"
-};
-const movementPreferenceDict = {
-  "true": "Moins de mouvement",
-  "false": "Normal/indéterminé"
-};
-const contrastPreferenceDict = {
-  "true": "Plus de contraste",
-  "false": "Normal/indéterminé"
+const preferencesDict = {
+  "darkMode": "Thème sombre",
+  "moreContrast": "Plus de contraste",
+  "lessMotion": "Moins de mouvement"
 };
 const errorsDict = {
   "noData": "Aucune donnée disponible.",
   "noMatchingSessions": "Aucune session ne correspond à la requête.",
   "noOrigins": "Aucune origine disponible.",
   "ipGeoUnavailable": "Le serveur n’arrive pas à se connecter à ipinfo.io.",
-  "unknownBeaconVersion": "Il y a une erreur dans les données de vues."
 };
 
 
@@ -309,12 +301,12 @@ function _identity(input) {
 
 
 /**
- * Converts the acquisition channel code to a French string.
+ * Converts the referral channel code to a French string.
  * @param {string} input
  * @returns {string}
  */
-function niceAcquisitionChannelName(input) {
-  return acquisitionChannelsDict[input];
+function niceReferralChannelName(input) {
+  return referralChannelsDict[input];
 }
 
 
@@ -337,7 +329,7 @@ function niceOriginName(input) {
  * @param {string} input
  * @returns {string}
  */
-function niceBilingualismClassName(input) {
+function niceBilingualismName(input) {
   return bilingualismClassesDict[input];
 }
 
@@ -360,7 +352,7 @@ function niceCountryName(input) {
  * @param {string} input
  * @returns {string}
  */
-function niceScreenBreakpointsName(input) {
+function niceScreenBreakpointName(input) {
   return screenBreakpointsDict[input];
 }
 
@@ -375,16 +367,8 @@ function niceExcludedTrafficName(input) {
 }
 
 
-function niceThemePreferenceName(input) {
-  return themePreferenceDict[input];
-}
-
-function niceMovementPreferenceName(input) {
-  return movementPreferenceDict[input];
-}
-
-function niceContrastPreferenceName(input) {
-  return contrastPreferenceDict[input];
+function nicePreferenceName(input) {
+  return preferencesDict[input];
 }
 
 

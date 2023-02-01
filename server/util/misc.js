@@ -1,3 +1,12 @@
+function hash(value) {
+  let hash;
+  for (let i = 0; i < value.length; i++) {
+    hash = Math.imul(31, hash) + value.charCodeAt(i) | 0;
+  }
+  return Math.abs(hash).toString(36);
+}
+global.hash = hash;
+
 /**
  * Checks if any of the needles are in this string.
  * @param {string[]} needles - Array of strings to look for.
@@ -5,9 +14,7 @@
  */
 String.prototype.includesAny = function(needles = [""]) {
   for (const needle of needles) {
-    if (this.indexOf(needle) !== -1) {
-      return true;
-    }
+    if (this.indexOf(needle) !== -1) return true;
   }
   return false;
 }
@@ -33,7 +40,7 @@ Array.prototype.unique = function() {
  * @param {string} [valueLabel="value"] - Label to use for values.
  * @returns {object[]} An array of length-2 objects, sorted by value.
  */
-Object.prototype.sortedAssociativeArray = function(keyLabel = "key", valueLabel = "value") {
+Object.prototype.sortedAssociativeArray = function(keyLabel = "key", valueLabel = "val") {
   let array = [];
 
   const keys = Object.keys(this);

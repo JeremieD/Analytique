@@ -12,10 +12,7 @@ const state = {
   availableRange: undefined,
   range: new JDDateInterval(JDDate.thisMonth()),
   events: [],
-  filter: {
-    key: "",
-    value: ""
-  },
+  filter: [],
 };
 let previousState = {
   origin: "",
@@ -69,80 +66,68 @@ whenDOMReady(() => {
       transform: _identity,
       basis: "sessionTotal"
     },
-    acquisitionChannels: {
-      el: document.getElementById("acquisition-channels"),
-      model: "acquisitionChannels",
-      transform: niceAcquisitionChannelName,
+    referralChannel: {
+      el: document.getElementById("referral-channel"),
+      model: "referralChannel",
+      transform: niceReferralChannelName,
       basis: "sessionTotal"
     },
-    referrerOrigins: {
-      el: document.getElementById("referrer-origins"),
-      model: "referrerOrigins",
+    referralOrigin: {
+      el: document.getElementById("referral-origin"),
+      model: "referralOrigin",
       transform: niceOriginName,
       basis: "sessionTotal"
     },
-    landings: {
-      el: document.getElementById("landings"),
-      model: "landings",
+    entryPage: {
+      el: document.getElementById("entry-page"),
+      model: "entryPage",
       transform: _identity,
       basis: "sessionTotal"
     },
-    bilingualismClasses: {
-      el: document.getElementById("bilingualism-classes"),
-      model: "bilingualismClasses",
-      transform: niceBilingualismClassName,
+    bilingualism: {
+      el: document.getElementById("bilingualism"),
+      model: "bilingualism",
+      transform: niceBilingualismName,
       basis: "sessionTotal"
     },
-    countries: {
-      el: document.getElementById("countries"),
-      model: "countries",
+    country: {
+      el: document.getElementById("country"),
+      model: "country",
       transform: niceCountryName,
       basis: "sessionTotal"
     },
-    cities: {
-      el: document.getElementById("cities"),
-      model: "cities",
+    city: {
+      el: document.getElementById("city"),
+      model: "city",
       transform: _identity,
       basis: "sessionTotal"
     },
-    oses: {
-      el: document.getElementById("oses"),
-      model: "oses",
+    os: {
+      el: document.getElementById("os"),
+      model: "os",
       transform: _identity,
       basis: "sessionTotal"
     },
-    renderingEngines: {
-      el: document.getElementById("renderingEngines"),
-      model: "renderingEngines",
+    renderingEngine: {
+      el: document.getElementById("rendering-engine"),
+      model: "renderingEngine",
       transform: _identity,
       basis: "sessionTotal"
     },
-    screenBreakpoints: {
-      el: document.getElementById("screen-breakpoints"),
-      model: "screenBreakpoints",
-      transform: niceScreenBreakpointsName,
+    screenBreakpoint: {
+      el: document.getElementById("screen-breakpoint"),
+      model: "screenBreakpoint",
+      transform: niceScreenBreakpointName,
       basis: "sessionTotal"
     },
-    preferDarkTheme: {
-      el: document.getElementById("prefer-dark-theme"),
-      model: "preferDarkTheme",
-      transform: niceThemePreferenceName,
+    preferences: {
+      el: document.getElementById("preferences"),
+      model: "preferences",
+      transform: nicePreferenceName,
       basis: "sessionTotal"
     },
-    preferReducedMotion: {
-      el: document.getElementById("prefer-reduced-motion"),
-      model: "preferReducedMotion",
-      transform: niceMovementPreferenceName,
-      basis: "sessionTotal"
-    },
-    preferMoreContrast: {
-      el: document.getElementById("prefer-more-contrast"),
-      model: "preferMoreContrast",
-      transform: niceContrastPreferenceName,
-      basis: "sessionTotal"
-    },
-    errorPages: {
-      el: document.getElementById("error-pages"),
+    errorViews: {
+      el: document.getElementById("error-views"),
       model: "errorViews",
       transform: _identity,
       basis: "sessionTotal"
@@ -156,19 +141,17 @@ whenDOMReady(() => {
   };
   view.listViews = [
     view.main.pageViews,
-    view.main.acquisitionChannels,
-    view.main.referrerOrigins,
-    view.main.landings,
-    view.main.bilingualismClasses,
-    view.main.countries,
-    view.main.cities,
-    view.main.oses,
-    view.main.renderingEngines,
-    view.main.screenBreakpoints,
-    view.main.preferDarkTheme,
-    view.main.preferReducedMotion,
-    view.main.preferMoreContrast,
-    view.main.errorPages,
+    view.main.referralChannel,
+    view.main.referralOrigin,
+    view.main.entryPage,
+    view.main.bilingualism,
+    view.main.country,
+    view.main.city,
+    view.main.os,
+    view.main.renderingEngine,
+    view.main.screenBreakpoint,
+    view.main.preferences,
+    view.main.errorViews,
     view.main.excludedTraffic
   ];
   view.complementary = {
@@ -335,7 +318,7 @@ function switchToOrigin(origin) {
     return bounds;
   });
 
-  state.events = httpGet(`/api/events?origin=${origin}`).then(JSON.parse);
+  state.annotations = httpGet(`/api/annotations?origin=${origin}`).then(JSON.parse);
 }
 
 
@@ -395,12 +378,10 @@ function previousRange() {
 
 /**
  * Changes state to specified filter.
- * @param {object} filter - The filter to switch to.
- *     This object contains a "key" property, containing the stats field to filter by,
- *     and a "value" property, containing the value to filter.
  */
 function setFilter(filter) {
-  state.filter = filter;
+  clearFilter();
+  state.filter.push(filter);
 }
 
 
@@ -408,10 +389,7 @@ function setFilter(filter) {
  * Clear filter state.
  */
 function clearFilter() {
-  state.filter = {
-    key: "",
-    value: ""
-  };
+  state.filter = [];
 }
 
 
@@ -421,11 +399,9 @@ function clearFilter() {
 function update() {
   const originChanged = state.origin !== previousState.origin;
   const rangeChanged = !state.range.equals(previousState.range);
-  const filterKeyChanged = previousState.filter.key !== "" && state.filter.key !== previousState.filter.key;
-  const filterValueChanged = state.filter.value !== previousState.filter.value;
+  const filterChanged = JSON.stringify(previousState.filter) !== JSON.stringify(state.filter);
 
-  const stateChanged = originChanged || rangeChanged ||
-                    filterKeyChanged || filterValueChanged;
+  const stateChanged = originChanged || rangeChanged || filterChanged;
 
   // If state has not changed, skip update.
   if (!stateChanged) return;
@@ -434,10 +410,7 @@ function update() {
   previousState = {
     origin: state.origin,
     range: new JDDateInterval(state.range),
-    filter: {
-      key: state.filter.key,
-      value: state.filter.value
-    }
+    filter: JSON.parse(JSON.stringify(state.filter))
   };
 
   // Update HUD
@@ -460,10 +433,10 @@ function update() {
   });
 
   // Update filter HUD.
-  const filterEnabled = state.filter.key !== "";
+  const filterEnabled = state.filter.length > 0;
   view.hud.filterReset.disabled = !filterEnabled;
   if (filterEnabled) {
-    view.hud.filterReset.title = `Filtre appliqué: ${state.filter.key} = "${state.filter.value}". Cliquez pour remettre à zéro.`;
+    view.hud.filterReset.title = `Filtre appliqué: ${state.filter[0].key} = "${state.filter[0].value}". Cliquez pour remettre à zéro.`;
   } else {
     view.hud.filterReset.title = "";
     view.hud.filterReset.blur();
@@ -605,12 +578,12 @@ function drawMainView() {
       listView.el.classList.remove("loading");
 
       // Whether this list view is selected for filtering.
-      const isFilterKey = listView.model === state.filter.key;
+      const isFilterKey = listView.model === state.filter[0]?.key;
 
       // If range and filter key have not changed, keep selected list view intact.
       if (isFilterKey) {
         for (const listItem of listView.el.children) {
-          const isSelected = listItem.dataset.filterValue === state.filter.value;
+          const isSelected = listItem.dataset.filterValue === state.filter[0]?.value;
 
           if (isSelected) {
             listItem.classList.add("selected");
@@ -625,7 +598,7 @@ function drawMainView() {
           const basis = data[listView.basis] || 1;
           for (const point of data[listView.model]) {
             if (point.key === listItem.dataset.filterValue) {
-              value = point.value;
+              value = point.val;
               break;
             }
           }
@@ -663,12 +636,12 @@ function drawMainView() {
 
         const dataPoint2 = document.createElement("data");
         dataPoint2.classList.add("numerical", "secondary");
-        dataPoint2.innerHTML = dataPoint.value;
+        dataPoint2.innerHTML = dataPoint.val;
 
         const dataPoint3 = document.createElement("data");
         dataPoint3.classList.add("numerical");
         const basis = data[listView.basis] || 1;
-        dataPoint3.innerHTML = (dataPoint.value / basis * 100).round() + "%";
+        dataPoint3.innerHTML = (dataPoint.val / basis * 100).round() + "%";
 
         newListItem.append(dataPoint1, dataPoint2, dataPoint3);
 
@@ -678,9 +651,10 @@ function drawMainView() {
           newListItem.dataset.filterValue = dataPoint.key;
 
           newListItem.addEventListener("click", () => {
-            if (state.filter.key !== listView.model ||
-              state.filter.value !== dataPoint.key) {
+            if (state.filter[0]?.key !== listView.model ||
+              state.filter[0]?.value !== dataPoint.key) {
               setFilter({
+                negated: false,
                 key: listView.model,
                 value: dataPoint.key
               });
@@ -890,14 +864,16 @@ function getModel(origin, range, serializedFilter) {
 
 /**
  * Takes a filter object and stringifies it for use in a request.
- * @param {object} filter - A filter object with a "key" and "value" property.
+ * @param {object} filter - An array of objects each containing "negated", "key" and "value".
  * @returns {string} The formatted filter. Empty string if filter is disabled.
  */
 function serializeFilter(filter) {
-  const key = encodeURIComponent(filter.key);
-  const value = encodeURIComponent(filter.value);
-
-  if (key === "" && value === "") return "";
-
-  return `${key}:${value}`;
+  let serializedFilter = "";
+  for (const item of filter) {
+    serializedFilter += item.negated ? "!" : "";
+    serializedFilter += encodeURIComponent(item.key) + ":";
+    serializedFilter += encodeURIComponent(item.value) + ";";
+  }
+  if (serializedFilter.endsWith(";")) serializedFilter = serializedFilter.slice(0, -1);
+  return serializedFilter;
 }

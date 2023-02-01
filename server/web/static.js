@@ -1,21 +1,11 @@
 const fs = require("fs").promises;
-const uri = require("./utilities/uri.js");
-const compress = require("./utilities/compress.js");
+const uri = require("../util/uri.js");
+const config = require("../util/config.js").server;
+const compress = require("./compress.js");
+require("../util/misc.js");
 
-const mimeTypes = {
-  html: "text/html",
-  css: "text/css",
-  js: "application/javascript",
-  svg: "image/svg+xml",
-  woff2: "font/woff2"
-}
-const cachePolicies = {
-  html: "no-cache, private",
-  css: "no-cache",
-  js: "no-cache",
-  svg: "no-cache",
-  woff2: "no-cache"
-}
+const mimeTypes = config.mimeTypes;
+const cachePolicies = config.cachePolicies;
 
 /*
  * Structure for fileCache:
@@ -49,7 +39,7 @@ function serveFile(req, res, urlOverride) {
 
   // Determine real path on disk.
   let realPath = "." + pathname;
-  if (!pathname.startsWith("/common/")) {
+  if (!pathname.startsWith("/shared/")) {
     realPath = "./client" + pathname;
   }
 
@@ -91,7 +81,7 @@ function serveFile(req, res, urlOverride) {
     // If the cache is stale, reset cache.
     if (fileCacheIsStale) {
       fileCache[pathname].modTime = stats.mtimeMs;
-      fileCache[pathname].eTag = getETagFrom(pathname + stats.mtimeMs);
+      fileCache[pathname].eTag = hash(pathname + stats.mtimeMs);
       fileCache[pathname].encodings = {};
     }
 
@@ -109,7 +99,8 @@ function serveFile(req, res, urlOverride) {
       serveError(res, "Could not read file: " + e);
     });
 
-  }).catch(() => {
+  }).catch(e => {
+    console.log(e);
     serveError(res, "Can’t find file “" + pathname + "”");
   });
 }
@@ -191,21 +182,4 @@ function eTagMatches(req, res, eTag = "") {
   return false;
 }
 
-
-/**
- * Generates an ETag based on a simple hash of the passed value.
- * @param {string} value - The data to hash into an ETag.
- * @returns {string} The ETag for the given value.
- */
-function getETagFrom(value) {
-  let hash;
-
-  for (let i = 0; i < value.length; i++) {
-    hash = Math.imul(31, hash) + value.charCodeAt(i) | 0;
-  }
-
-  return Math.abs(hash).toString(36);
-}
-
-
-module.exports = { serveFile, serve, serveError, getETagFrom };
+module.exports = { serveFile, serve, serveError };

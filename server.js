@@ -1,16 +1,14 @@
 const http = require("http");
 const fs = require("fs").promises;
-const uri = require("./server/utilities/uri.js");
+const uri = require("./server/util/uri.js");
+const static = require("./server/web/static.js");
+const account = require("./server/web/account.js");
 
-const beaconReceiver = require("./server/api/beaconReceiver.js");
-const api = require("./server/api/processor.js");
-const static = require("./server/static.js");
-const account = require("./server/account.js");
-
-const config = require("./server/config.js").server;
+const beaconReceiver = require("./server/analytique/beaconReceiver.js");
+const api = require("./server/analytique/api.js");
+const config = require("./server/util/config.js").server;
 const hostname = config.hostname;
 const port = config.port;
-
 
 const requestListener = (req, res) => {
   const pathname = new uri.URIPath(req.url).pathname;
@@ -24,7 +22,7 @@ const requestListener = (req, res) => {
         }
 
       // Front-end requests files
-      } else if (req.url.startsWith("/resources/") || req.url.startsWith("/common/")) {
+      } else if (req.url.startsWith("/resources/") || req.url.startsWith("/shared/")) {
         static.serveFile(req, res);
 
       // An origin is trying to send a beacon

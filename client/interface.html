@@ -35,7 +35,7 @@
   <!-- Scripts -->
   <script src="/resources/scripts/utilities.js"></script>
   <script src="/resources/scripts/niceNames.js"></script>
-  <script src="/common/JDDate.js"></script>
+  <script src="/shared/JDDate.js"></script>
   <script src="/resources/scripts/JDIcon.js"></script>
   <script src="/resources/scripts/JDGraph.js"></script>
   <script src="/resources/scripts/main.js" async></script>
@@ -147,7 +147,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par canal d’acquisition."></jd-icon>
         </hgroup>
 
-        <ol id="acquisition-channels">
+        <ol id="referral-channel">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -161,7 +161,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par origine, lorsque l’acquisition s’est faite par référence. Le&nbsp;protocole HTTPS et le «&nbsp;www&nbsp;» sont omis."></jd-icon>
         </hgroup>
 
-        <ol id="referrer-origins">
+        <ol id="referral-origin">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -177,7 +177,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par page d’atterissage."></jd-icon>
         </hgroup>
 
-        <ol id="landings">
+        <ol id="entry-page">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -196,7 +196,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par classe de bilinguisme."></jd-icon>
         </hgroup>
 
-        <ol id="bilingualism-classes">
+        <ol id="bilingualism">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -211,7 +211,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par pays."></jd-icon>
         </hgroup>
 
-        <ol id="countries">
+        <ol id="country">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -227,7 +227,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par ville."></jd-icon>
         </hgroup>
 
-        <ol id="cities">
+        <ol id="city">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -243,7 +243,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par système d’exploitation."></jd-icon>
         </hgroup>
 
-        <ol id="oses">
+        <ol id="os">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -259,7 +259,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par moteur de rendu."></jd-icon>
         </hgroup>
 
-        <ol id="renderingEngines">
+        <ol id="rendering-engine">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -272,7 +272,7 @@
           <jd-icon icon="help" tooltip="Nombre de sessions par taille d’écran. Ces points d’arrêt correspondent à ceux utiliser dans les feuilles de style du site. Ils indiquent donc quels styles s’appliquaient pour cet utilisateur."></jd-icon>
         </hgroup>
 
-        <ol id="screen-breakpoints">
+        <ol id="screen-breakpoint">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -282,39 +282,11 @@
 
       <div class="card">
         <hgroup>
-          <h3>Préférence de thème</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par thème."></jd-icon>
+          <h3>Préférences</h3>
+          <jd-icon icon="help" tooltip="Nombre de sessions par préférence de l’utilisateur."></jd-icon>
         </hgroup>
 
-        <ol id="prefer-dark-theme">
-          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-        </ol>
-      </div>
-
-      <div class="card">
-        <hgroup>
-          <h3>Préférence de mouvement</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par préférence de&nbsp;mouvement."></jd-icon>
-        </hgroup>
-
-        <ol id="prefer-reduced-motion">
-          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-          <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
-        </ol>
-      </div>
-
-      <div class="card">
-        <hgroup>
-          <h3>Préférence de contraste</h3>
-          <jd-icon icon="help" tooltip="Nombre de sessions par préférence de&nbsp;contraste."></jd-icon>
-        </hgroup>
-
-        <ol id="prefer-more-contrast">
+        <ol id="preferences">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -332,7 +304,7 @@
           <jd-icon icon="help" tooltip="Nombre de <em>vues</em> sur des pages d’erreurs."></jd-icon>
         </hgroup>
 
-        <ol id="error-pages">
+        <ol id="error-views">
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
           <li><data></data><data class="numerical secondary"></data><data class="numerical"></data></li>
@@ -358,7 +330,7 @@
 
   <footer>
     <p>© 2023 Jérémie Dupuis</p>
-    <p>v0.6.0 / <a href="https://github.com/JeremieD/Analytique" target="_blank">GitHub</a></p>
+    <p>v0.7.0 / <a href="https://github.com/JeremieD/Analytique" target="_blank">GitHub</a></p>
   </footer>
 
 </body>

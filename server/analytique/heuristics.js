@@ -1,14 +1,15 @@
 const http = require("http");
-require("./misc.js");
+require("../util/misc.js");
+require("../../shared/time.js");
 
-const config = require("../config.js").analytics;
+const config = require("../util/config.js").analytique.global;
 
 const ipGeoCache = {};
-const ipGeoCacheTTL = 3600000*24*7; // 7 days.
+const ipGeoCacheTTL = time("7d");
 const ipGeoAddress = "http://ipinfo.io/";
 const ipGeoParameters = "/json?token=" + config.ipGeoToken;
 
-const botPatterns = [ "bot", "Bot", "spider", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver", "Dataprovider.com" ];
+const botPatterns = [ "bot", "Bot", "spider", "crawler", "BingPreview", "Slurp", "facebookexternalhit", "ia_archiver", "Dataprovider.com" ];
 const socialNetworkDomains = [
   "12seconds.tv", "t.163.com", "4travel.jp", "advogato.org", "ameba.jp", "anobii.com", "asmallworld.net", "avforums.com", "backtype.com", "badoo.com", "bebo.com", "bigadda.com", "bigtent.com", "biip.no", "blackplanet.com", "blogspot.com", "blogster.com", "blomotion.jp", "bolt.com", "brightkite.com", "buzznet.com", "cafemom.com", "care2.com", "classmates.com", "cloob.com", "collegeblender.com", "cyworld.co.kr", "cyworld.com.cn", "dailymotion.com", "yozm.daum.net", "delicious.com", "deviantart.com", "digg.com", "diigo.com", "disqus.com", "draugiem.lv", "facebook.com", "faceparty.com", "fc2.com", "flickr.com", "flixster.com", "fotolog.com", "foursquare.com", "friendfeed.com", "friendsreunited.com", "friendsreunited.co.uk", "friendster.com", "fubar.com", "gaiaonline.com", "geni.com", "goodreads.com", "plus.google.com", "plus.url.google.com", "grono.net", "habbo.com", "hatena.ne.jp", "t.hexun.com", "hi5.com", "hyves.nl", "ibibo.com", "identi.ca", "t.ifeng.com", "imeem.com", "hotnews.infoseek.co.jp", "instagram.com", "intensedebate.com", "irc-galleria.net", "iwiw.hu", "jaiku.com", "kaixin001.com", "kaixin002.com", "kakaku.com", "kanshin.com", "kozocom.com", "last.fm", "linkedin.com", "livejournal.com", "lnkd.in", "me2day.net", "meetup.com", "mister-wong.com", "mixi.jp", "mixx.com", "mouthshut.com", "multiply.com", "mumsnet.com", "myheritage.com", "mylife.com", "myspace.com", "myyearbook.com", "nasza-klasa.pl", "matome.naver.jp", "netlog.com", "nettby.no", "netvibes.com", "nextdoor.com", "nicovideo.jp", "ning.com", "odnoklassniki.ru", "ok.ru", "orkut.com", "pakila.jp", "t.people.com.cn", "photobucket.com", "pinterest.com", "pinterest.de", "pinterest.ca", "pinterest.co.uk", "pinterest.pt", "pinterest.jp", "pinterest.co.kr", "pinterest.se", "pinterest.fr", "pinterest.au", "pinterest.ch", "pinterest.be", "pinterest.it", "pinterest.nz", "pinterest.ru", "pinterest.es", "plaxo.com", "plurk.com", "po.st", "t.qq.com", "mp.weixin.qq.com", "boards.qwant.com", "reddit.com", "renren.com", "blog.seesaa.jp", "t.sina.com.cn", "skyrock.com", "slideshare.net", "smcb.jp", "smugmug.com", "t.sohu.com", "sonico.com", "studivz.net", "stumbleupon.com", "t.co", "tabelog.com", "tagged.com", "taringa.net", "thefancy.com", "toutiao.com", "tripit.com", "trombi.com", "trytrend.jp", "tuenti.com", "tumblr.com", "twine.com", "twitter.com", "uhuru.jp", "viadeo.com", "vimeo.com", "vk.com", "wayn.com", "weibo.com", "weourfamily.com", "wer-kennt-wen.de", "wordpress.com", "xanga.com", "xing.com", "answers.yahoo.com", "yammer.com", "yaplog.jp", "yelp.com", "yelp.co.uk", "youku.com", "youtube.com", "yuku.com", "zooomr.com", "zhihu.com"
 ];
@@ -17,12 +18,14 @@ const searchEnginesDomains = [
 ];
 const oses = {
   "Android": [ "Android" ],
-  "Linux": [ "linux", "Linux" ],
-  "iOS": [ "like Mac OS X" ],
+  "Linux": [ "linux", "Linux", "Fedora", "debian", "Debian", "ubuntu" ],
+  "iPadOS": [ "iPad" ],
+  "iOS": [ "iPhone", "like Mac OS X" ],
   "macOS": [ "Macintosh", "Mac OS X" ],
   "Windows": [ "Windows NT", "win32" ],
   "Windows Phone": [ "Windows Phone" ],
-  "Chrome OS": [ "CrOS"]
+  "Chrome OS": [ "CrOS" ],
+  "BSD": [ "BSD", "DragonFly", "PlayStation" ]
 };
 const renderingEngines = {
   "Goanna": [ "Goanna/" ],
@@ -31,7 +34,8 @@ const renderingEngines = {
   "WebKit": [ "AppleWebKit/" ],
   "Presto": [ "Opera/" ],
   "Trident": [ "Trident/" ],
-  "EdgeHTML": [ "Edge/ "]
+  "EdgeHTML": [ "Edge/ "],
+  "KHTML": [ "KHTML/" ]
 };
 
 
@@ -96,19 +100,18 @@ function inferIfBot(userAgent) {
 
 /**
  * Infers the acquisition channel from a URL.
- * @param {string} referrerURL
+ * @param {string} url - Referrer URL.
  * @returns {string} One of the following:
  *  - direct   User typed in the address manually, or the browser did not include a referrer.
  *  - social   User comes from a social media website.
  *  - organic  User comes from a search engine.
  *  - other    User comes from another website.
  */
-function inferAcquisitionChannel(referrerURL) {
-  if (referrerURL === "") return "direct";
-  if (referrerURL.includesAny(socialNetworkDomains)) return "social";
-  if (referrerURL.includesAny(searchEnginesDomains)) return "organic";
-
-  // console.log(referrerURL);
+function inferReferralChannel(url) {
+  if (url === "") return "direct";
+  if (url.includesAny(socialNetworkDomains)) return "social";
+  if (url.includesAny(searchEnginesDomains)) return "organic";
+  // console.log(url);
   return "other";
 }
 
@@ -124,7 +127,6 @@ function inferOS(userAgent) {
       return os;
     }
   }
-
   // console.log(userAgent);
   return "";
 }
@@ -141,7 +143,6 @@ function inferRenderingEngine(userAgent) {
       return renderingEngine;
     }
   }
-
   // console.log(userAgent);
   return "";
 }
@@ -154,6 +155,7 @@ function inferRenderingEngine(userAgent) {
  * and are not meant to be a good approximation of the physical form factor.
  * Note that the "laptop" breakpoint is treated as part of "desktop" since
  * the styles are almost the same.
+ * TODO: Generalize to read breakpoints from origin config
  *
  * @param {string} screenSize - A screen size in the format "WxH".
  * @returns {string} One of the following:
@@ -162,17 +164,17 @@ function inferRenderingEngine(userAgent) {
  *  - tablet   Less than or equal to 1080 pixels wide.
  *  - desktop  Wider than 1080 pixels wide.
  */
-function inferScreenBreakpoint(screenSize) {
-  if (screenSize.width <= 360) return "xsmall";
-  if (screenSize.width <= 800) return "mobile";
-  if (screenSize.width <= 1080) return "tablet";
-
+function inferScreenBreakpoint(size) {
+  if (size.width <= 360) return "xsmall";
+  if (size.width <= 800) return "mobile";
+  if (size.width <= 1080) return "tablet";
   return "desktop";
 }
 
 
 /**
  * Infers the bilingualism class from an array of language codes.
+ * TODO: Generalize to use any two language from origin config.
  * @param {string[]} languages - List of language codes.
  * @returns {string} One of the following:
  *  - fr+  Bilingual, French before English.
@@ -214,6 +216,11 @@ function inferBilingualismClass(languages) {
 }
 
 
+function inferIfTouchScreen(canHover, ptrPrecision) {
+  return !canHover && ptrPrecision === 1;
+}
+
+
 /**
  * Simplifies referrer URLs.
  * @param {string} rawURL
@@ -227,10 +234,11 @@ function normalizeOriginURL(rawURL) {
 module.exports = {
   inferLocation,
   inferIfBot,
-  inferAcquisitionChannel,
+  inferReferralChannel,
   inferOS,
   inferRenderingEngine,
   inferScreenBreakpoint,
   inferBilingualismClass,
+  inferIfTouchScreen,
   normalizeOriginURL
 };

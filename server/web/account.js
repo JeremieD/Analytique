@@ -1,9 +1,10 @@
 const fs = require("fs").promises;
 const subtle = require('crypto').webcrypto.subtle;
 const static = require("./static.js");
-const cookies = require("./utilities/cookies.js");
+const cookies = require("../util/cookies.js");
+require("../../shared/time.js");
 
-const users = require("./config.js").users;
+const accounts = require("../util/config.js").accounts;
 
 // Holds the active sessions IDs and their expiration time
 // in milliseconds since 1 January 1970 UTC.
@@ -62,14 +63,14 @@ function login(req, res) {
     }
 
     // If a matching user/password pair is found...
-    hash(login.p).then(hashedP => {
-      if (users[login.u] === hashedP) {
+    sha512(login.p).then(hashedP => {
+      if (accounts[login.u] === hashedP) {
         // Get a new session ID and add it to the active sessions list.
         const newID = "_" + Math.random().toString(36).substr(2, 9);
 
         const newSession = {
           username: login.u,
-          expiration: Date.now() + 3600000*24*30
+          expiration: Date.now() + time("30d")
         };
 
         activeSessions[newID] = newSession;
@@ -110,7 +111,7 @@ function getUser(req) {
  * @param {string} message - The message to hash.
  * @returns {Promise<string>} A promise that represents a string of hex digits.
  */
-async function hash(message) {
+async function sha512(message) {
   const encoder = new TextEncoder();
   const data = encoder.encode(message);
   return subtle.digest("SHA-512", data).then(value => {
