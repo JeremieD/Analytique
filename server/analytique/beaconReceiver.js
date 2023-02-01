@@ -45,7 +45,7 @@ function receive(req, res) {
     let sessionObj = {
       ip: ipAddress,
       ua: userAgent,
-      events: []
+      e: []
     };
 
     const now = new Date();
