@@ -74,9 +74,7 @@ function serveFile(req, res, urlOverride) {
     }
 
     // Ensure safe access.
-    if (fileCache[pathname] === undefined) {
-      fileCache[pathname] = {};
-    }
+    fileCache[pathname] ??= {};
 
     // If the cache is stale, reset cache.
     if (fileCacheIsStale) {
@@ -92,7 +90,7 @@ function serveFile(req, res, urlOverride) {
       fileCache[pathname].encodings[encoding] = compress.encode(contents, encoding);
 
       serve(req, res, fileCache[pathname].encodings[encoding],
-        mimeTypes[extension], encoding, fileCache[pathname].eTag);
+        mimeTypes[extension], encoding, cachePolicies[extension], fileCache[pathname].eTag);
       return;
 
     }).catch(e => {
@@ -116,14 +114,14 @@ function serveFile(req, res, urlOverride) {
  * @param {string} [cachePolicy] - The cache policy to serve the content with.
  * @param {string} [eTag] - The pre-generated ETag of the content.
  */
-function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, eTag) {
+function serve(req, res, content, mimeType, encoding = "identity", cachePolicy = "no-cache, private", eTag) {
   if (eTagMatches(req, res, eTag)) return;
 
   if (mimeType === "application/json" && typeof content === "object") {
     content = JSON.stringify(content);
   }
 
-  if (cachePolicy !== undefined) {
+  if (cachePolicy !== "") {
     res.setHeader("Cache-Control", cachePolicy);
   }
 
@@ -135,7 +133,7 @@ function serve(req, res, content, mimeType, encoding = "identity", cachePolicy, 
   if (encoding !== "identity") {
     res.setHeader("Content-Encoding", encoding);
   }
-  res.setHeader("Content-Type", mimeType);
+  res.setHeader("Content-Type", mimeType + "; charset=utf-8");
 
   if (eTag !== undefined) {
     res.setHeader("ETag", eTag);

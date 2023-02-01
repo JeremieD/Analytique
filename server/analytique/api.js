@@ -47,8 +47,7 @@ function processRequest(req, res) {
   origin = path.parameters?.origin;
   if (origin === undefined || !config.hasOwnProperty(origin) ||
     !config[origin].allowedUsers.includes(user)) {
-    static.serve(req, res, { error: "unknownOrigin" },
-      "application/json", "auto", "private");
+    static.serve(req, res, { error: "unknownOrigin" }, "application/json", "auto");
     return;
   }
 
@@ -59,7 +58,7 @@ function processRequest(req, res) {
     years = years.filter(name => name[0] !== ".").sort();
 
     if (years.length === 0) {
-      static.serve(req, res, { error: "noData" }, "application/json", "auto", "private");
+      static.serve(req, res, { error: "noData" }, "application/json", "auto");
       return;
     }
 
@@ -90,8 +89,7 @@ function processRequest(req, res) {
     Promise.all([startBound, endBound]).then(([start, end]) => {
       const range = (new JDDateInterval(start, end)).canonicalForm;
       const eTag = hash(range + origin + user);
-      static.serve(req, res, `"${range}"`,
-        "application/json", "auto", "private", eTag);
+      static.serve(req, res, `"${range}"`, "application/json", "auto", "private", eTag);
       return;
     }).catch(console.error);
 
@@ -105,8 +103,7 @@ function processRequest(req, res) {
     }
   } catch (e) {
 
-    static.serve(req, res, { error: e },
-      "application/json", "auto", "private");
+    static.serve(req, res, { error: e }, "application/json", "auto");
     return;
   }
 
@@ -132,8 +129,7 @@ function processRequest(req, res) {
   // Calls for stats for the given origin and range.
   if (path.filename === "stats") {
     if (!("range" in path.parameters) || path.parameters.range === undefined) {
-      static.serve(req, res, { error: "missingRange" },
-        "application/json", "auto", "private");
+      static.serve(req, res, { error: "missingRange" }, "application/json", "auto");
       return;
     }
 
