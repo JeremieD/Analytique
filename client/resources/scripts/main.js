@@ -11,7 +11,7 @@ const state = {
   origin: "",
   availableRange: undefined,
   range: new JDDateInterval(JDDate.thisMonth()),
-  events: [],
+  annotations: [],
   filter: [],
 };
 let previousState = {
@@ -714,7 +714,7 @@ function drawComplementaryView() {
   }
 
   // Wait for models to be loaded.
-  Promise.all([state.events, ...complementaryModels]).then(([events, ...data]) => {
+  Promise.all([state.annotations, ...complementaryModels]).then(([annotations, ...data]) => {
     // Data for graphs
     const sessionTotalData = {
       points: [],
@@ -761,11 +761,11 @@ function drawComplementaryView() {
       // Calculate whether data point is for a "complete" range or not.
       const isEstimate = rangeObject.isAfterOrIntersects(JDDate.today());
 
-      // Draw events.
-      let eventTooltip;
-      for (const event of events) {
-        if (rangeObject.intersects((new JDDateInterval(event.date)))) {
-          eventTooltip = `<h4>${event.name}</h4><p>${event.desc}</p>`;
+      // Draw annotations.
+      let annotationTooltip;
+      for (const annotation of annotations) {
+        if (rangeObject.intersects((new JDDateInterval(annotation.date)))) {
+          annotationTooltip = `<h4>${annotation.name}</h4><p>${annotation.desc}</p>`;
         }
       }
 
@@ -774,7 +774,7 @@ function drawComplementaryView() {
         y: sessionTotalValue,
         onClick: onClickHandler,
         style: isEstimate ? "dashed" : "",
-        annotation: eventTooltip
+        annotation: annotationTooltip
       });
 
       sessionLengthData.points.push({
@@ -782,7 +782,7 @@ function drawComplementaryView() {
         y: avgSessionLengthValue,
         onClick: onClickHandler,
         style: isEstimate ? "dashed" : "",
-        annotation: eventTooltip
+        annotation: annotationTooltip
       });
     }
 
