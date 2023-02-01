@@ -1,10 +1,9 @@
-const homebase = "https://analytique.jeremiedupuis.com";
 function sendTelemetry(...events) {
   const beacon = {
-    o: "jeremiedupuis.com",
+    o: "§{originID}",
     e: events
   };
-  navigator.sendBeacon(homebase, JSON.stringify(beacon));
+  navigator.sendBeacon("https://§{homebase}", JSON.stringify(beacon));
 }
 
 const pageView = {

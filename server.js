@@ -1,7 +1,9 @@
 const http = require("http");
 const fs = require("fs").promises;
+fs.readFileSync = require("fs").readFileSync;
 const uri = require("./server/util/uri.js");
 const static = require("./server/web/static.js");
+const DJS = require("./server/web/dynamic.js");
 const account = require("./server/web/account.js");
 
 const beaconReceiver = require("./server/analytique/beaconReceiver.js");
@@ -9,7 +11,9 @@ const api = require("./server/analytique/api.js");
 const config = require("./server/util/config.js");
 
 const requestListener = (req, res) => {
-  const pathname = new uri.URIPath(req.url).pathname;
+  const path = new uri.URIPath(req.url);
+  const pathname = path.pathname;
+  const parameters = path.parameters;
 
   switch (req.method) {
     case "GET":
@@ -25,8 +29,17 @@ const requestListener = (req, res) => {
 
       // An origin is trying to send a beacon
       } else if (pathname === "/collect") {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        static.serveFile(req, res, "/beaconSender.js");
+        const originID = path.parameters?.o
+        if (config.analytique.origins.hasOwnProperty(originID)) {
+          const params = { homebase: config.server.publicHostname, originID: originID };
+          const rawDJS = fs.readFileSync("./server/analytique/beaconSender.djs", "utf8");
+          const beaconSender = DJS.compile(rawDJS, params);
+          res.setHeader("Access-Control-Allow-Origin", originID);
+          static.serve(req, res, beaconSender, config.server.mimeTypes["js"],
+                       "auto", "no-cache, private");
+        } else {
+          static.serveError(res, "", 400);
+        }
 
       // Request for data
       } else if (req.url.startsWith("/api/")) {
