@@ -4,7 +4,13 @@ fs.readFileSync = require("fs").readFileSync;
 fs.mkdirSync = require("fs").mkdirSync;
 const static = require("../web/static.js");
 const config = require("../util/config.js").analytique;
+require("../util/misc.js");
 require("../../shared/time.js");
+
+// Stores [dir], [path] and latest [t]ime) to open sessions per origin.
+// Access using openSessions[originID][userHash].
+const openSessions = {};
+const lastCleanup = {};
 
 function receive(req, res) {
   let rawBeacon = "";
@@ -14,7 +20,7 @@ function receive(req, res) {
     rawBeacon += data;
 
     // Too much POST data
-    if (rawBeacon.length > 1e5) {
+    if (rawBeacon.length > 1e4) {
       console.error("Connection closed. Received too much data.");
       req.connection.destroy();
     }
@@ -35,12 +41,17 @@ function receive(req, res) {
       static.serveError(res, `A beacon was received from unknown origin “${originID}”`, 400);
       return;
     }
+
+    // Beacon seems OK. Close connection.
+    res.writeHead(200);
+    res.end();
+
     const originConfig = config.origins[originID];
-    const sessionsRoot = `./data/${originID}/sessions`;
+    const sessionsRoot = `./data/${originID}/sessions/`;
 
     const ipAddress = req.headers["x-forwarded-for"] ?? req.connection.remoteAddress;
     const userAgent = req.headers["user-agent"];
-    const sessionHash = hash(ipAddress + userAgent);
+    const userHash = hash(ipAddress + userAgent);
 
     let sessionObj = {
       ip: ipAddress,
@@ -48,27 +59,38 @@ function receive(req, res) {
       e: []
     };
 
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = (now.getUTCMonth() + 1).toString().padStart(2, "0");
-    const date = now.getUTCDate().toString().padStart(2, "0");
+    let sessionDir, sessionFile;
 
-    const sessionDir = `${sessionsRoot}/${year}/${month}/${date}`;
-    let sessionFile = `${sessionDir}/${sessionHash}.json`;
-    let i = 0;
-    while (fs.existsSync(sessionFile)) {
-      const candidate = JSON.parse(fs.readFileSync(sessionFile, "utf8"));
-      if (candidate.endT + time(originConfig.sessionMaxAge) > Date.now()) {
-        // Found matching session.
-        sessionObj = candidate;
-        break;
+    // Check open session index for file path.
+    openSessions[originID] ??= {};
+    if (openSessions[originID].hasOwnProperty(userHash)) {
+      const session = openSessions[originID][userHash];
+      if (session.t + time(originConfig.sessionMaxAge) > Date.now()) {
+        // Found open session
+        sessionDir = session.dir;
+        sessionFile = session.file;
+        sessionObj = JSON.parse(fs.readFileSync(sessionDir + sessionFile, "utf8"));
+      } else {
+        delete openSessions[originID][userHash];
       }
-      sessionFile = `${sessionDir}/${sessionHash}-${i++}.json`;
     }
 
-    // Here, sessionFile should be the target file and sessionObj should either
-    // contain the session data or the empty template for a new session.
+    if (sessionFile === undefined) {
+      // No open session: determine the file path.
+      const now = new Date(beacon.e[0].t);
+      const year = now.getUTCFullYear();
+      const month = (now.getUTCMonth() + 1).toString().padStart(2, "0");
+      const date = now.getUTCDate().toString().padStart(2, "0");
 
+      sessionDir = `${sessionsRoot}${year}/${month}/${date}/`;
+      sessionFile = `${userHash}.json`;
+      let i = 0;
+      while (fs.existsSync(sessionDir + sessionFile)) {
+        sessionFile = `${userHash}-${i++}.json`;
+      }
+    }
+
+    // Process beacon into session object.
     const sessionFields = [ "tz", "l", "inS", "outS", "theme", "contrast", "motion", "ptrHovr", "ptrPrec" ];
     for (const event of beacon.e) {
       const sessionPopulated = sessionObj.hasOwnProperty("startT");
@@ -84,11 +106,28 @@ function receive(req, res) {
     }
     sessionObj.l = sessionObj.l.unique();
 
+    // Write to file.
     fs.mkdirSync(sessionDir, { recursive: true });
-    fs.writeFile(sessionFile, JSON.stringify(sessionObj)).then(() => {
-      res.writeHead(200);
-      res.end();
+    fs.writeFile(sessionDir + sessionFile, JSON.stringify(sessionObj)).then(() => {
+      // Store pointer to file.
+      openSessions[originID][userHash] = {
+        dir: sessionDir,
+        file: sessionFile,
+        t: Date.now()
+      };
     }).catch(console.error);
+
+    // Clean up open sessions if not done recently.
+    if ((lastCleanup[originID] ?? 0) + time(originConfig.sessionMaxAge) < Date.now()) {
+      for (hash of Object.keys(openSessions[originID])) {
+        const session = openSessions[originID][hash];
+        if (session.t + time(originConfig.sessionMaxAge) < Date.now()) {
+          delete openSessions[originID][hash];
+        }
+      }
+      lastCleanup[originID] = Date.now();
+    }
+
     return;
   });
 }
