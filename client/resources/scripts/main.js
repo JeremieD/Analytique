@@ -1,10 +1,12 @@
+const config = httpGet("/config/user").then(JSON.parse);
 /**
  * Current state of the app.
  * @property {Promise<array>} availableOrigins - List of available origins.
  * @property {string} origin - The current origin.
  * @property {Promise<JDDateInterval>} availableRange - The available range of stats data.
  * @property {JDDateInterval} range - The current range.
- * @property {object} filter - An object containing a "key" and "value" property for the filter.
+ * @property {array} annotations - Array of annotations to the analytic data.
+ * @property {array} filter - An array of objects containing "key", "val" and "negated" properties.
  */
 const state = {
   availableOrigins: httpGet("/api/origins").then(JSON.parse),
@@ -165,18 +167,35 @@ whenDOMReady(() => {
     }
   };
 
-  // Wait for list of available origins.
+  // Prepare view according to user config.
+  config.then(config => {
+    let initialOrigin = config.defaultView.origin;
+    let initialRangeMode = config.defaultView.rangeMode;
+
+    if (initialOrigin === "lastViewed") {
+      initialOrigin = config._lastView.origin;
+    }
+    if (initialRangeMode === "lastViewed") {
+      initialRangeMode = config._lastView.rangeMode;
+    }
+
+    switchToOrigin(initialOrigin);
+    view.hud.origin.value = state.origin;
+
+    view.hud.rangeMode.select(initialRangeMode);
+    switchRangeMode(initialRangeMode);
+    update();
+  });
+
   state.availableOrigins.then(origins => {
     if (origins.error === undefined) {
-      switchToOrigin(origins[0]);
-      view.hud.origin.value = state.origin;
-
       // Load available origins in origin selector.
       for (const origin of origins) {
         view.hud.origin.addOption(origin);
       }
+      if (state.origin === "") switchToOrigin(origins[0]);
+      view.hud.origin.value = state.origin;
     }
-
     // Initial view update.
     update();
   });
@@ -276,6 +295,15 @@ whenDOMReady(() => {
       clearFilter();
       update();
     }
+  });
+
+  // Save view before unload.
+  addEventListener("beforeunload", () => {
+    config.then(config => {
+      config._lastView.origin = state.origin;
+      config._lastView.rangeMode = state.range.unit;
+      navigator.sendBeacon("/config/user", JSON.stringify(config));
+    });
   });
 });
 

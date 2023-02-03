@@ -9,6 +9,7 @@ const account = require("./server/web/account.js");
 const beaconReceiver = require("./server/analytique/beaconReceiver.js");
 const api = require("./server/analytique/api.js");
 const config = require("./server/util/config.js");
+const configHandler = require("./server/web/configInterface.js");
 
 const requestListener = (req, res) => {
   const path = new uri.URIPath(req.url);
@@ -47,6 +48,12 @@ const requestListener = (req, res) => {
           api.processRequest(req, res);
         }
 
+      // Request for config
+      } else if (req.url.startsWith("/config/")) {
+        if (account.sessionIsValid(req, res)) {
+          configHandler.processGetRequest(req, res);
+        }
+
       // Serve 404 error
       } else {
         static.serveError(res);
@@ -62,6 +69,10 @@ const requestListener = (req, res) => {
       // Login attempt
       } else if (req.url === "/login") {
         account.login(req, res);
+
+      // Attempt to update config
+      } else if (req.url.startsWith("/config")) {
+        configHandler.processPostRequest(req, res);
 
       // Serve 404 error
       } else {
