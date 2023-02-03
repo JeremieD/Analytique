@@ -5,7 +5,9 @@ function hash(value) {
   }
   return Math.abs(hash).toString(36);
 }
-global.hash = hash;
+// try {
+  global.hash = hash;
+// } catch (e) {}
 
 /**
  * Checks if any of the needles are in this string.

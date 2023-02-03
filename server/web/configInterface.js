@@ -3,13 +3,15 @@ const static = require("../web/static.js");
 const account = require("../web/account.js");
 const uri = require("../util/uri.js");
 const config = require("../util/config.js");
+require("../util/misc.js");
 
 function processGetRequest(req, res) {
   const path = new uri.URIPath(req.url);
   const user = account.getUser(req);
 
   if (path.filename === "user") {
-    static.serve(req, res, config.users[user], "application/json", "auto", "private", hash(JSON.stringify(config.users[user]) + user));
+    static.serve(req, res, config.users[user], "application/json", "auto",
+                 "private", hash(JSON.stringify(config.users[user]) + user));
   }
 
   if (path.filename === "analytique") {}
