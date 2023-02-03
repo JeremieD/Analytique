@@ -12,7 +12,7 @@ const state = {
   availableRange: undefined,
   range: new JDDateInterval(JDDate.thisMonth()),
   annotations: [],
-  filter: [],
+  filter: []
 };
 let previousState = {
   origin: "",
@@ -245,7 +245,7 @@ whenDOMReady(() => {
   });
 
   // Handler for app-wide keyboard shortcuts
-  window.addEventListener("keydown", e => {
+  addEventListener("keydown", e => {
     if (e.key === "ArrowLeft" && !view.hud.previousRange.disabled) {
       previousRange();
       update();

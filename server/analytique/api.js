@@ -46,7 +46,7 @@ function processRequest(req, res) {
   // Check origin permissions and existence.
   origin = path.parameters?.origin;
   if (origin === undefined || !config.hasOwnProperty(origin) ||
-    !config[origin].allowedUsers.includes(user)) {
+      !config[origin].allowedUsers.includes(user)) {
     static.serve(req, res, { error: "unknownOrigin" }, "application/json", "auto");
     return;
   }
