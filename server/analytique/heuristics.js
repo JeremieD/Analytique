@@ -56,6 +56,36 @@ const oses = {
   },
   "OS/2": "OS/2"
 };
+const browsers = {
+  "Edge": {
+    "Edge Legacy": "Edge/",
+    "Edge": "Edg/",
+    "Edge Mobile": [ "EdgA/", "EdgiOS" ]
+  },
+  "Internet Explorer": [ "msie", "Trident/" ],
+  "Yandex Browser": "YaBrowser/",
+  "Konqueror": "konqueror/",
+  "Lynx": "Lynx/",
+  "Epiphany": "Epiphany/",
+  "Vivaldi": "Vivaldi/",
+  "K-Ninja": "K-Ninja/",
+  "Opera": {
+    "Opera": "OPR/",
+    "Opera Touch": "OPT/"
+  },
+  "Firefox": {
+   "Firefox": "Firefox/",
+   "Firefox iOS": "FxiOS"
+  },
+  "Chrome": {
+    "Chrome": "Chrome/",
+    "Chromium": "Chromium/"
+  },
+  "Safari": {
+    "Safari": "Safari/",
+    "iOS In-App Browser": [ "iPhone", "iPad" ]
+  }
+}
 const renderingEngines = {
   "Goanna": "Goanna/",
   "Gecko": "Gecko/",
@@ -171,6 +201,19 @@ function inferOS(userAgent) {
   return match;
 }
 
+/**
+ * Infers the browser name from a user-agent string.
+ * @param {string} userAgent - A user-agent string.
+ * @returns {string} The proper name of the browser. An empty string if the browser could not be determined.
+ */
+function inferBrowser(userAgent) {
+  const match = categoryMatch(userAgent, browsers);
+  if (match === undefined) {
+    Logs.log("heuristics", `Could not infer browser from user-agent: “${userAgent}”`);
+  }
+  return match;
+}
+
 
 /**
  * Infers rendering engine name from a user-agent string.
@@ -273,6 +316,7 @@ module.exports = {
   inferIfBot,
   inferReferralChannel,
   inferOS,
+  inferBrowser,
   inferRenderingEngine,
   inferScreenBreakpoint,
   inferBilingualismClass,

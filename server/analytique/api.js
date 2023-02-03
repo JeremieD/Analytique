@@ -198,6 +198,7 @@ async function buildStats(origin, range, filter) {
       region: {},
       city: {},
       os: {},
+      browser: {},
       renderingEngine: {},
       screenBreakpoint: {},
       touchScreen: 0,
@@ -246,6 +247,7 @@ async function buildStats(origin, range, filter) {
         region: location.region,
         city: location.city,
         os: Heuristics.inferOS(session.ua),
+        browser: Heuristics.inferBrowser(session.ua),
         renderingEngine: Heuristics.inferRenderingEngine(session.ua),
         screenBreakpoint: Heuristics.inferScreenBreakpoint(session.inS),
         touchScreen: Heuristics.inferIfTouchScreen(session.ptrHover, session.ptrPrec),
@@ -362,6 +364,16 @@ async function buildStats(origin, range, filter) {
       } else {
         stats.os[sessionStats.os.val] ??= 0;
         stats.os[sessionStats.os.val]++;
+      }
+      if (sessionStats.browser.hasOwnProperty("grp")) {
+        stats.browser[sessionStats.browser.grp] ??= {};
+        stats.browser[sessionStats.browser.grp].val ??= 0;
+        stats.browser[sessionStats.browser.grp].val++;
+        stats.browser[sessionStats.browser.grp][sessionStats.browser.val] ??= 0;
+        stats.browser[sessionStats.browser.grp][sessionStats.browser.val]++;
+      } else {
+        stats.browser[sessionStats.browser.val] ??= 0;
+        stats.browser[sessionStats.browser.val]++;
       }
       if (sessionStats.renderingEngine.hasOwnProperty("grp")) {
         stats.renderingEngine[sessionStats.renderingEngine.grp] ??= {};
