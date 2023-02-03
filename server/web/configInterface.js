@@ -9,7 +9,7 @@ function processGetRequest(req, res) {
   const user = account.getUser(req);
 
   if (path.filename === "user") {
-    static.serve(req, res, config.users[user], "application/json", "auto");
+    static.serve(req, res, config.users[user], "application/json", "auto", "private", hash(JSON.stringify(config.users[user]) + user));
   }
 
   if (path.filename === "analytique") {}
