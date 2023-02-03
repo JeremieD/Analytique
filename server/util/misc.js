@@ -12,9 +12,12 @@ global.hash = hash;
  * @param {string[]} needles - Array of strings to look for.
  * @returns {boolean} Whether *any* of the needles is included in this string.
  */
-String.prototype.includesAny = function(needles = [""]) {
-  for (const needle of needles) {
-    if (this.indexOf(needle) !== -1) return true;
+String.prototype.includesAny = function(needles = [""], caseSensitive = false) {
+  if (typeof needles === "string") needles = [ needles ];
+  const haystack = caseSensitive ? this : this.toLowerCase();
+  for (let needle of needles) {
+    if (!caseSensitive) needle = needle.toLowerCase();
+    if (haystack.indexOf(needle) !== -1) return true;
   }
   return false;
 }
@@ -40,7 +43,7 @@ Array.prototype.unique = function() {
  * @param {string} [valueLabel="value"] - Label to use for values.
  * @returns {object[]} An array of length-2 objects, sorted by value.
  */
-Object.prototype.sortedAssociativeArray = function(keyLabel = "key", valueLabel = "val") {
+Object.prototype.sortedAssociativeArray = function(keyLabel = "key", valueLabel = "val", subGroupLabel = "sub") {
   let array = [];
 
   const keys = Object.keys(this);
@@ -49,7 +52,13 @@ Object.prototype.sortedAssociativeArray = function(keyLabel = "key", valueLabel 
   for (let i = 0; i < keys.length; i++) {
     const newElement = {};
     newElement[keyLabel] = keys[i];
-    newElement[valueLabel] = values[i];
+    if (typeof values[i] === "object" && values[i].hasOwnProperty("val")) {
+      newElement[valueLabel] = values[i].val;
+      delete values[i].val;
+      newElement[subGroupLabel] = values[i].sortedAssociativeArray();
+    } else {
+      newElement[valueLabel] = values[i];
+    }
     array.push(newElement);
   }
 

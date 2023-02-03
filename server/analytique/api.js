@@ -353,10 +353,26 @@ async function buildStats(origin, range, filter) {
       stats.city[sessionStats.city] ??= 0;
       stats.city[sessionStats.city]++;
 
-      stats.os[sessionStats.os] ??= 0;
-      stats.os[sessionStats.os]++;
-      stats.renderingEngine[sessionStats.renderingEngine] ??= 0;
-      stats.renderingEngine[sessionStats.renderingEngine]++;
+      if (sessionStats.os.hasOwnProperty("grp")) {
+        stats.os[sessionStats.os.grp] ??= {};
+        stats.os[sessionStats.os.grp].val ??= 0;
+        stats.os[sessionStats.os.grp].val++;
+        stats.os[sessionStats.os.grp][sessionStats.os.val] ??= 0;
+        stats.os[sessionStats.os.grp][sessionStats.os.val]++;
+      } else {
+        stats.os[sessionStats.os.val] ??= 0;
+        stats.os[sessionStats.os.val]++;
+      }
+      if (sessionStats.renderingEngine.hasOwnProperty("grp")) {
+        stats.renderingEngine[sessionStats.renderingEngine.grp] ??= {};
+        stats.renderingEngine[sessionStats.renderingEngine.grp].val ??= 0;
+        stats.browrenderingEngineser[sessionStats.renderingEngine.grp].val++;
+        stats.renderingEngine[sessionStats.renderingEngine.grp][sessionStats.renderingEngine.val] ??= 0;
+        stats.renderingEngine[sessionStats.renderingEngine.grp][sessionStats.renderingEngine.val]++;
+      } else {
+        stats.renderingEngine[sessionStats.renderingEngine.val] ??= 0;
+        stats.renderingEngine[sessionStats.renderingEngine.val]++;
+      }
       stats.screenBreakpoint[sessionStats.screenBreakpoint] ??= 0;
       stats.screenBreakpoint[sessionStats.screenBreakpoint]++;
 
@@ -382,7 +398,7 @@ async function buildStats(origin, range, filter) {
     // For sorting, convert "associative arrays" (objects) to flat arrays.
     // The result is an array of objects, each containing the key and value
     // of what was previously a single object field.
-    const associativeArrayFields = [ "pageViews", "errorViews", "referralChannel", "referralOrigin", "entryPage", "exitPage", "languages", "bilingualism", "country", "region", "city", "os", "renderingEngine", "screenBreakpoint", "preferences", "excludedTraffic" ];
+    const associativeArrayFields = [ "pageViews", "errorViews", "referralChannel", "referralOrigin", "entryPage", "exitPage", "languages", "bilingualism", "country", "region", "city", "os", "browser", "renderingEngine", "screenBreakpoint", "preferences", "excludedTraffic" ];
     for (field of associativeArrayFields) {
       stats[field] = stats[field].sortedAssociativeArray();
     }
