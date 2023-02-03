@@ -1,6 +1,7 @@
 const http = require("http");
 require("../util/misc.js");
 require("../../shared/time.js");
+const Logs = require("../util/log.js");
 
 const config = require("../util/config.js").analytique.global;
 
@@ -111,7 +112,7 @@ function inferReferralChannel(url) {
   if (url === "") return "direct";
   if (url.includesAny(socialNetworkDomains)) return "social";
   if (url.includesAny(searchEnginesDomains)) return "organic";
-  // console.log(url);
+  Logs.log("heuristics", `Could not infer referral channel from url: “${url}”`);
   return "other";
 }
 
@@ -127,7 +128,7 @@ function inferOS(userAgent) {
       return os;
     }
   }
-  // console.log(userAgent);
+  Logs.log("heuristics", `Could not infer OS from user-agent: “${userAgent}”`);
   return "";
 }
 
@@ -143,7 +144,7 @@ function inferRenderingEngine(userAgent) {
       return renderingEngine;
     }
   }
-  // console.log(userAgent);
+  Logs.log("heuristics", `Could not infer rendering engine from user-agent: “${userAgent}”`);
   return "";
 }
 
@@ -211,7 +212,6 @@ function inferBilingualismClass(languages) {
   if (hasFR) return "fr";
   if (hasEN) return "en";
 
-  // console.log(languages);
   return "al";
 }
 
