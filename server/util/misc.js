@@ -5,21 +5,40 @@ function hash(value) {
   }
   return Math.abs(hash).toString(36);
 }
-// try {
-  global.hash = hash;
-// } catch (e) {}
 
 /**
  * Checks if any of the needles are in this string.
  * @param {string[]} needles - Array of strings to look for.
  * @returns {boolean} Whether *any* of the needles is included in this string.
  */
-String.prototype.includesAny = function(needles = [""], caseSensitive = false) {
+String.prototype.includesAny = function(needles = [""], options = {}) {
+  options.caseSensitive ??= false;
+
   if (typeof needles === "string") needles = [ needles ];
-  const haystack = caseSensitive ? this : this.toLowerCase();
+  const haystack = options.caseSensitive ? this : this.toLowerCase();
   for (let needle of needles) {
-    if (!caseSensitive) needle = needle.toLowerCase();
-    if (haystack.indexOf(needle) !== -1) return true;
+    if (needle instanceof Array) {
+      if (haystack.includesAny(needle, options)) return true;
+    } else {
+      if (!options.caseSensitive) needle = needle.toLowerCase();
+      if (haystack.indexOf(needle) !== -1) return true;
+    }
+  }
+  return false;
+}
+
+
+// Two level pattern matching. Returns an object with a "val" property, and
+// optionally a "grp" group property. Returns false if no match is found.
+function categoryMatch(string, patterns) {
+  for (const a of Object.keys(patterns)) {
+    if (typeof patterns[a] === "string" || patterns[a] instanceof Array) {
+      if (string.includesAny(patterns[a])) return { val: a };
+    } else if (typeof patterns[a] === "object") {
+      for (const b of Object.keys(patterns[a])) {
+        if (string.includesAny(patterns[a][b])) return { grp: a, val: b };
+      }
+    }
   }
   return false;
 }
@@ -70,3 +89,9 @@ Object.prototype.sortedAssociativeArray = function(keyLabel = "key", valueLabel 
 
   return sortedArray;
 };
+
+
+try {
+  global.hash = hash;
+  global.categoryMatch = categoryMatch;
+} catch (e) {}

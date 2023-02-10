@@ -262,8 +262,8 @@ async function buildStats(origin, range, filter) {
           const url = (new URL(event.pu)).pathname;
           if (sessionStats.entryPage === undefined) {
             sessionStats.entryPage = url;
-            sessionStats.referralOrigin = Heuristics.normalizeOriginURL(event.pr);
             sessionStats.referralChannel = Heuristics.inferReferralChannel(event.pr);
+            sessionStats.referralOrigin = Heuristics.normalizeOriginURL(event.pr);
           }
           sessionStats.exitPage = url;
           if (event.pt.includesAny(config[origin].errorPagePatterns)) {
@@ -333,8 +333,18 @@ async function buildStats(origin, range, filter) {
 
       stats.referralChannel[sessionStats.referralChannel] ??= 0;
       stats.referralChannel[sessionStats.referralChannel]++;
-      stats.referralOrigin[sessionStats.referralOrigin] ??= 0;
-      stats.referralOrigin[sessionStats.referralOrigin]++;
+      if (sessionStats.referralOrigin.val !== "") {
+        if (sessionStats.referralOrigin.hasOwnProperty("grp")) {
+          stats.referralOrigin[sessionStats.referralOrigin.grp] ??= {};
+          stats.referralOrigin[sessionStats.referralOrigin.grp].val ??= 0;
+          stats.referralOrigin[sessionStats.referralOrigin.grp].val++;
+          stats.referralOrigin[sessionStats.referralOrigin.grp][sessionStats.referralOrigin.val] ??= 0;
+          stats.referralOrigin[sessionStats.referralOrigin.grp][sessionStats.referralOrigin.val]++;
+        } else {
+          stats.referralOrigin[sessionStats.referralOrigin.val] ??= 0;
+          stats.referralOrigin[sessionStats.referralOrigin.val]++;
+        }
+      }
 
       stats.entryPage[sessionStats.entryPage] ??= 0;
       stats.entryPage[sessionStats.entryPage]++;
