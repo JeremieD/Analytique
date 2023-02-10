@@ -246,9 +246,10 @@ function inferRenderingEngine(userAgent) {
  *  - desktop  Wider than 1080 pixels wide.
  */
 function inferScreenBreakpoint(size) {
-  if (size.width <= 360) return "xsmall";
-  if (size.width <= 800) return "mobile";
-  if (size.width <= 1080) return "tablet";
+  size = size.split("x");
+  if (size[0] <= 360) return "xsmall";
+  if (size[0] <= 800) return "mobile";
+  if (size[0] <= 1080) return "tablet";
   return "desktop";
 }
 

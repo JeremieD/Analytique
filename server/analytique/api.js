@@ -225,7 +225,7 @@ async function buildStats(origin, range, filter) {
 
       // Exclude spam
       if (config[origin].excludeIPsAsSpam.includes(session.ip) ||
-          config[origin].excludeCountriesAsSpam.includes(session.country)) {
+          config[origin].excludeCountriesAsSpam.includes(location.country)) {
         stats.excludedTraffic.spam++;
         continue;
       }
@@ -251,9 +251,9 @@ async function buildStats(origin, range, filter) {
         renderingEngine: Heuristics.inferRenderingEngine(session.ua),
         screenBreakpoint: Heuristics.inferScreenBreakpoint(session.inS),
         touchScreen: Heuristics.inferIfTouchScreen(session.ptrHover, session.ptrPrec),
-        darkMode: !!session.darkMode,
-        moreContrast: !!session.moreContrast,
-        lessMotion: !!session.lessMotion
+        darkMode: !!session.theme,
+        moreContrast: !!session.contrast,
+        lessMotion: !!session.motion
       };
 
       for (const event of session.e) {
