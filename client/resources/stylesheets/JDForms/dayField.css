@@ -2,7 +2,7 @@ jd-day-field {
   display: flex !important;
   min-width: 0 !important;
   align-items: center;
-  font-feature-settings: "tnum" on;
+  font-variant-numeric: tabular-nums;
 }
 
 jd-day-field>input {

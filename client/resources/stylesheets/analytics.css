@@ -267,7 +267,7 @@ data {
 data.numerical {
   text-align: right;
   font-weight: bold;
-  font-feature-settings: "tnum" on;
+  font-variant-numeric: tabular-nums;
   letter-spacing: .025em;
 }
 
