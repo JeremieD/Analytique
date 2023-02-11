@@ -69,7 +69,9 @@ function receive(req, res) {
         // Found open session
         sessionDir = session.dir;
         sessionFile = session.file;
-        sessionObj = JSON.parse(fs.readFileSync(sessionDir + sessionFile, "utf8"));
+        try {
+          sessionObj = JSON.parse(fs.readFileSync(sessionDir + sessionFile, "utf8"));
+        } catch (e) { console.error(e); }
       } else {
         delete openSessions[originID][userHash];
       }
