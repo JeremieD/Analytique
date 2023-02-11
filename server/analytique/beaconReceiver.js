@@ -95,7 +95,7 @@ function receive(req, res) {
     for (const event of beacon.e) {
       const sessionPopulated = sessionObj.hasOwnProperty("startT");
       if (event.e === "pageView") {
-        for (field of sessionFields) {
+        for (const field of sessionFields) {
           if (!sessionPopulated) sessionObj[field] = event[field];
           delete event[field];
         }
@@ -119,7 +119,7 @@ function receive(req, res) {
 
     // Clean up open sessions if not done recently.
     if ((lastCleanup[originID] ?? 0) + time(originConfig.sessionMaxAge) < Date.now()) {
-      for (hash of Object.keys(openSessions[originID])) {
+      for (const hash of Object.keys(openSessions[originID])) {
         const session = openSessions[originID][hash];
         if (session.t + time(originConfig.sessionMaxAge) < Date.now()) {
           delete openSessions[originID][hash];

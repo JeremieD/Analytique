@@ -17,7 +17,7 @@ function time(input) {
   value = parseFloat(value);
 
   let symbolMatchesKnownUnit = false;
-  for (unit of units) {
+  for (const unit of units) {
     value *= unit.factor;
     if (unit.symbol === symbol) {
       symbolMatchesKnownUnit = true;

@@ -38,14 +38,14 @@ function loadAllConfig() {
 
   config.analytique = { global: {}, origins: {} };
   loadConfig("analytique");
-  for (originFile of fs.readdirSync(`${configRoot}/analytique/origins/`)) {
+  for (const originFile of fs.readdirSync(`${configRoot}/analytique/origins/`)) {
     if (originFile.startsWith(".")) continue;
     const originID = originFile.slice(0, -5);
     loadConfig(`analytique/origins/${originID}`);
   }
 
   config.users = {};
-  for (userFile of fs.readdirSync(`${configRoot}/users/`)) {
+  for (const userFile of fs.readdirSync(`${configRoot}/users/`)) {
     if (userFile.startsWith(".")) continue;
     const userID = userFile.slice(0, -5);
     loadConfig(`users/${userID}`);

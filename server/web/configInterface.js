@@ -83,7 +83,7 @@ const templates = {
 };
 
 function validate(config, template) {
-  for (key of Object.keys(template)) {
+  for (const key of Object.keys(template)) {
     if (!config.hasOwnProperty(key)) return false;
     switch (typeof template[key]) {
       case "string":
