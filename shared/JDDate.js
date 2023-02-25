@@ -3,7 +3,7 @@
  * numbering (1 BC = 0, 2 BC = -1), months 1-12, (ISO) weeks 1-53, days 1-31,
  * and days of the week 0-6, where 0 is Monday.
  *
- * Version: 0.9.1
+ * Version: 0.9.2
  *
 */
 class _JDDate {
@@ -123,7 +123,7 @@ class _JDDate {
               week: "cette semaine",
               day: "aujourd’hui"
             },
-            intervalInfix: () => end.unit === "day" && !end.isNow ? "au" : "à"
+            intervalInfix: () => end.unit === "day" && !(options.useNowForms && end.isNow) ? "au" : "à"
           }
         };
         const dict = dictionary[options.language];
@@ -149,8 +149,8 @@ class _JDDate {
               formatted += dict.now.month;
             } else {
               formatted += dict.month(start.month);
-              if (!options.omitSameValues || end.isNow || !isInterval ||
-                  start.year !== end.year) {
+              if (!options.omitSameValues || options.useNowForms && end.isNow ||
+                  !isInterval || start.year !== end.year) {
                 formatted += " " + start.year;
               }
             }
@@ -168,8 +168,8 @@ class _JDDate {
               formatted += dict.now.week;
             } else {
               formatted += "S" + start.week;
-              if (!options.omitSameValues || end.isNow || !isInterval ||
-                  start.year !== end.year) {
+              if (!options.omitSameValues || options.useNowForms && end.isNow ||
+                  !isInterval || start.year !== end.year) {
                 formatted += " " + start.year;
               }
             }
@@ -192,12 +192,12 @@ class _JDDate {
               }
               formatted += start.day;
               formatted += dict.daySuffix(start.day);
-              if (!options.omitSameValues || end.isNow || !isInterval ||
-                  start.month !== end.month || start.year !== end.year) {
+              if (!options.omitSameValues || options.useNowForms && end.isNow ||
+                  !isInterval || start.month !== end.month || start.year !== end.year) {
                 formatted += " " + dict.month(start.month);
               }
-              if (!options.omitSameValues || end.isNow || !isInterval ||
-                  start.year !== end.year) {
+              if (!options.omitSameValues || options.useNowForms && end.isNow ||
+                  !isInterval || start.year !== end.year) {
                 formatted += " " + start.year;
               }
             }
