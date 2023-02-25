@@ -392,7 +392,7 @@ async function buildStats(origin, range, filter) {
       if (sessionStats.renderingEngine.hasOwnProperty("grp")) {
         stats.renderingEngine[sessionStats.renderingEngine.grp] ??= {};
         stats.renderingEngine[sessionStats.renderingEngine.grp].val ??= 0;
-        stats.browrenderingEngineser[sessionStats.renderingEngine.grp].val++;
+        stats.renderingEngine[sessionStats.renderingEngine.grp].val++;
         stats.renderingEngine[sessionStats.renderingEngine.grp][sessionStats.renderingEngine.val] ??= 0;
         stats.renderingEngine[sessionStats.renderingEngine.grp][sessionStats.renderingEngine.val]++;
       } else {
