@@ -22,6 +22,8 @@ function loadConfig(address) {
         try {
           config.analytique.origins[address[2]] = JSON.parse(fs.readFileSync(`${configRoot}/analytique/origins/${address[2]}.json`, "utf8"));
         } catch (e) {}
+      } else if (address[1] === "heuristics") {
+        config.analytique.heuristics = JSON.parse(fs.readFileSync(`${configRoot}/analytique/heuristics.json`));
       }
       break;
     case "users":
@@ -36,8 +38,9 @@ function loadAllConfig() {
   loadConfig("server");
   loadConfig("accounts");
 
-  config.analytique = { global: {}, origins: {} };
+  config.analytique = { global: {}, heuristics: {}, origins: {} };
   loadConfig("analytique");
+  loadConfig("analytique/heuristics");
   for (const originFile of fs.readdirSync(`${configRoot}/analytique/origins/`)) {
     if (originFile.startsWith(".")) continue;
     const originID = originFile.slice(0, -5);

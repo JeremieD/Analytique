@@ -28,22 +28,6 @@ String.prototype.includesAny = function(needles = [""], options = {}) {
 }
 
 
-// Two level pattern matching. Returns an object with a "val" property, and
-// optionally a "grp" group property. Returns false if no match is found.
-function categoryMatch(string, patterns) {
-  for (const a of Object.keys(patterns)) {
-    if (typeof patterns[a] === "string" || patterns[a] instanceof Array) {
-      if (string.includesAny(patterns[a])) return { val: a };
-    } else if (typeof patterns[a] === "object") {
-      for (const b of Object.keys(patterns[a])) {
-        if (string.includesAny(patterns[a][b])) return { grp: a, val: b };
-      }
-    }
-  }
-  return false;
-}
-
-
 /**
  * Removes duplicate elements from an array.
  * @returns {array} A new array with duplicate elements removed.
@@ -93,5 +77,4 @@ Object.prototype.sortedAssociativeArray = function(keyLabel = "key", valueLabel 
 
 try {
   global.hash = hash;
-  global.categoryMatch = categoryMatch;
 } catch (e) {}

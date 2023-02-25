@@ -263,7 +263,7 @@ async function buildStats(origin, range, filter) {
           if (sessionStats.entryPage === undefined) {
             sessionStats.entryPage = url;
             sessionStats.referralChannel = Heuristics.inferReferralChannel(event.pr);
-            sessionStats.referralOrigin = Heuristics.normalizeOriginURL(event.pr);
+            sessionStats.referralOrigin = Heuristics.groupReferrerURL(event.pr);
           }
           sessionStats.exitPage = url;
           if (event.pt.includesAny(config[origin].errorPagePatterns)) {
@@ -293,18 +293,22 @@ async function buildStats(origin, range, filter) {
             if (sessionStats[item.val] === !item.negated) score++;
             break;
           case "referralChannel":
-          case "referralOrigin":
           case "entryPage":
           case "exitPage":
           case "bilingualism":
           case "country":
           case "region":
           case "city":
-          case "os":
-          case "renderingEngine":
           case "screenBreakpoint":
           case "touchScreen":
             if ((sessionStats[item.key] === item.val) === !item.negated) score++;
+            break;
+          case "os":
+          case "browser":
+          case "renderingEngine":
+          case "referralOrigin":
+            if ((sessionStats[item.key].grp === item.val) === !item.negated ||
+                (sessionStats[item.key].val === item.val) === !item.negated) score++;
             break;
         }
       }
