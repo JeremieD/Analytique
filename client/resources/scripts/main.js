@@ -443,6 +443,7 @@ function update() {
 
   // Update HUD
   view.hud.range.innerHTML = state.range.formatted("long", { capitalize: true, outputSUPTag: true, useNowForms: true });
+  view.hud.range.title = state.range.formatted("long", { capitalize: true });
 
   state.availableRange?.then(bounds => {
     let isFirstRange = true;
