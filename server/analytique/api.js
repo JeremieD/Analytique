@@ -176,6 +176,7 @@ async function buildStats(origin, range, filter) {
     const stats = {
       sessionCountBeforeExlusion: sessions.length,
       bouncedSessionCount: 0,
+      bounceRate: 0,
       avgSessionLength: 0,
       avgSessionDuration: 0,
       sessionCount: 0,
@@ -414,6 +415,10 @@ async function buildStats(origin, range, filter) {
 
     if (stats.sessionCount > 0) {
       stats.avgSessionLength = stats.viewCount / stats.sessionCount;
+    }
+
+    if (stats.sessionCount > 0) {
+      stats.bounceRate = stats.bouncedSessionCount / stats.sessionCount;
     }
 
     const sessionCountExceptBounced = stats.sessionCount - stats.bouncedSessionCount;
