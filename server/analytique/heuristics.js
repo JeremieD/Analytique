@@ -108,7 +108,7 @@ function inferReferralChannel(url, originDomain) {
   if (url.includes(originDomain)) return "internal";
   const match = categorize(url, "referralChannel");
   if (!match) {
-    Logs.log("heuristics", `Could not infer referral channel from url: “${url}”`);
+    // Logs.log("heuristics", `Could not infer referral channel from url: “${url}”`);
     return "other";
   }
   return match;
