@@ -262,7 +262,7 @@ async function buildStats(origin, range, filter) {
           const url = (new URL(event.pu)).pathname;
           if (sessionStats.entryPage === undefined) {
             sessionStats.entryPage = url;
-            sessionStats.referralChannel = Heuristics.inferReferralChannel(event.pr);
+            sessionStats.referralChannel = Heuristics.inferReferralChannel(event.pr, config[origin].hostname);
             sessionStats.referralOrigin = Heuristics.groupReferrerURL(event.pr);
           }
           sessionStats.exitPage = url;
@@ -337,7 +337,7 @@ async function buildStats(origin, range, filter) {
 
       stats.referralChannel[sessionStats.referralChannel] ??= 0;
       stats.referralChannel[sessionStats.referralChannel]++;
-      if (sessionStats.referralOrigin.val !== "") {
+      if (sessionStats.referralChannel !== "direct" && sessionStats.referralChannel !== "internal") {
         if (sessionStats.referralOrigin.hasOwnProperty("grp")) {
           stats.referralOrigin[sessionStats.referralOrigin.grp] ??= {};
           stats.referralOrigin[sessionStats.referralOrigin.grp].val ??= 0;

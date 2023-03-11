@@ -100,10 +100,12 @@ function inferIfBot(userAgent) {
  *  - direct   User typed in the address manually, or the browser did not include a referrer.
  *  - social   User comes from a social media website.
  *  - organic  User comes from a search engine.
+ *  - internal User comes from inside the site, maybe because they left a page opened for a long time.
  *  - other    User comes from another website.
  */
-function inferReferralChannel(url) {
+function inferReferralChannel(url, originDomain) {
   if (url === "") return "direct";
+  if (url.includes(originDomain)) return "internal";
   const match = categorize(url, "referralChannel");
   if (!match) {
     Logs.log("heuristics", `Could not infer referral channel from url: “${url}”`);

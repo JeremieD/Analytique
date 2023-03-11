@@ -1,5 +1,6 @@
 const referralChannelsDict = {
   "direct": "Direct/inconnu",
+  "internal": "Interne",
   "organic": "Organique",
   "social": "Social",
   "other": "Autre référence"
