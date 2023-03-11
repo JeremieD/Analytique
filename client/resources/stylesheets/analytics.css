@@ -5,6 +5,7 @@
   --color-loading2: #D4D4D4;
   --color-accent-secondary: #D5BFF3;
   color-scheme: light dark;
+  scroll-padding-top: var(--height-header);
 }
 
 @media(prefers-color-scheme: dark) {
