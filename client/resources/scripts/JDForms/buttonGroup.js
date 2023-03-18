@@ -24,7 +24,7 @@ class JDButtonGroup extends HTMLElement {
 
       this.select(this.value);
 
-      // Handle keybpard events
+      // Handle keyboard events
       this.addEventListener("keydown", e => {
         // Selects next value.
         if (e.code === "ArrowRight") {

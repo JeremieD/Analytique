@@ -83,7 +83,7 @@ function niceBilingualismName(input) {
 
 
 /**
- * Converts a 2-letter region code to its local short-form.
+ * Converts a 2-letter region code to its localized short-form.
  * @param {string} input
  * @returns {string}
  */
@@ -93,7 +93,7 @@ function niceCountryName(input) {
 }
 
 /**
- * Converts a 2-letter language code to its local form.
+ * Converts a 2-letter language code to its localized form.
  * @param {string} input
  * @returns {string}
  */

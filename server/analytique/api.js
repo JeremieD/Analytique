@@ -173,6 +173,7 @@ async function buildStats(origin, range, filter) {
   return getSessions(origin, range).then(async sessions => {
     if (sessions.error !== undefined) return sessions;
 
+    // Stats object template.
     const stats = {
       sessionCountBeforeExlusion: sessions.length,
       bouncedSessionCount: 0,
@@ -213,18 +214,14 @@ async function buildStats(origin, range, filter) {
         stats.excludedTraffic.dev++;
         continue;
       }
-
       // Exclude bots
       if (Heuristics.inferIfBot(session.ua)) {
         stats.excludedTraffic.bots++;
         continue;
       }
-
-      // Fetch location.
+      // Exclude spam based on location
       const location = await Heuristics.inferLocation(session.ip);
       if (location.error) return { error: "ipGeoUnavailable" };
-
-      // Exclude spam
       if (config[origin].excludeIPsAsSpam.includes(session.ip) ||
           config[origin].excludeCountriesAsSpam.includes(location.country)) {
         stats.excludedTraffic.spam++;
@@ -356,7 +353,7 @@ async function buildStats(origin, range, filter) {
       stats.exitPage[sessionStats.exitPage] ??= 0;
       stats.exitPage[sessionStats.exitPage]++;
 
-      for (lang of sessionStats.languages) {
+      for (const lang of sessionStats.languages) {
         stats.languages[lang] ??= 0;
         stats.languages[lang]++;
       }
@@ -405,7 +402,7 @@ async function buildStats(origin, range, filter) {
 
       if (sessionStats.touchScreen) stats.touchScreen++;
       const preferences = [ "darkMode", "moreContrast", "lessMotion" ];
-      for (pref of preferences) {
+      for (const pref of preferences) {
         stats.preferences[pref] ??= 0;
         if (sessionStats[pref]) stats.preferences[pref]++;
       }
@@ -417,10 +414,12 @@ async function buildStats(origin, range, filter) {
       stats.avgSessionLength = stats.viewCount / stats.sessionCount;
     }
 
+    // Compute bounce rate
     if (stats.sessionCount > 0) {
       stats.bounceRate = stats.bouncedSessionCount / stats.sessionCount;
     }
 
+    // Compute average session duration (except bounced)
     const sessionCountExceptBounced = stats.sessionCount - stats.bouncedSessionCount;
     if (sessionCountExceptBounced > 0) {
       stats.avgSessionDuration /= sessionCountExceptBounced;
@@ -430,7 +429,7 @@ async function buildStats(origin, range, filter) {
     // The result is an array of objects, each containing the key and value
     // of what was previously a single object field.
     const associativeArrayFields = [ "pageViews", "errorViews", "referralChannel", "referralOrigin", "entryPage", "exitPage", "languages", "bilingualism", "country", "region", "city", "os", "browser", "renderingEngine", "screenBreakpoint", "preferences", "excludedTraffic" ];
-    for (field of associativeArrayFields) {
+    for (const field of associativeArrayFields) {
       stats[field] = stats[field].sortedAssociativeArray();
     }
 
@@ -450,13 +449,13 @@ async function buildStats(origin, range, filter) {
 
 async function getSessions(origin, range) {
   const promises = [];
-  for (date of range.each("day")) {
+  for (const date of range.each("day")) {
     const dayDir = `${sessionsRoot(origin)}${date.formatted("short", { unitSeparator:"/" })}/`;
     sessionFiles = [];
     try {
       sessionFiles = fs.readdirSync(dayDir);
     } catch (e) {}
-    for (file of sessionFiles) {
+    for (const file of sessionFiles) {
       if (file.startsWith(".")) continue;
       promises.push(fs.readFile(dayDir + file, "utf8").then(JSON.parse));
     }
@@ -465,7 +464,7 @@ async function getSessions(origin, range) {
     if (sessions.length === 0 ) return { error: "noData" };
     // return sessions.sort((a, b) => b.startT - a.startT);
     return sessions;
-  });
+  }).catch(console.error);
 }
 
 

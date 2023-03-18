@@ -6,8 +6,8 @@ const Logs = require("../util/log.js");
 const config = require("../util/config.js").analytique.heuristics;
 
 
-// Looks for match in the passed category definition. Returns the category name
-// if found, false otherwise.
+// Looks for match in the passed category definition.
+// Returns the category name if found, false otherwise.
 function categorize(str, definition) {
   if (config[definition] === undefined) throw new Error(`Unknown definition ${definition}`);
   if (config[definition].categories === undefined) throw new Error(`Unknown definition “${definition}”`);
@@ -96,6 +96,7 @@ function inferIfBot(userAgent) {
 /**
  * Infers the acquisition channel from a URL.
  * @param {string} url - Referrer URL.
+ * @param {string} originDomain - Domain of the current origin. Determines internal traffic.
  * @returns {string} One of the following:
  *  - direct   User typed in the address manually, or the browser did not include a referrer.
  *  - social   User comes from a social media website.
