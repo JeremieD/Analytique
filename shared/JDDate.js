@@ -3,7 +3,7 @@
  * numbering (1 BC = 0, 2 BC = -1), months 1-12, (ISO) weeks 1-53, days 1-31,
  * and days of the week 0-6, where 0 is Monday.
  *
- * Version: 0.9.2
+ * Version: 0.9.3
  *
 */
 class _JDDate {
@@ -11,18 +11,7 @@ class _JDDate {
     if (this.constructor == _JDDate) throw new Error();
   }
 
-  get isNow() {
-      switch (this.unit) {
-        case "year":
-          return this.equals(JDDate.thisYear());
-        case "month":
-          return this.equals(JDDate.thisMonth());
-        case "week":
-          return this.equals(JDDate.thisWeek());
-        case "day":
-          return this.equals(JDDate.today());
-      }
-    }
+  get isNow() { return this.equals(JDDate.now(this.unit)); }
 
   // Commutative
   equals(b) { return this.canonicalForm === b.canonicalForm; }
@@ -460,10 +449,8 @@ class JDDate extends _JDDate {
   }
 
   // Mutates the object.
-  plus(n) { return this.set(this.advancedBy(n)); }
-  minus(n) { return this.set(this.advancedBy(-n)); }
-  next(n = 1) { return this.plus(n); }
-  previous(n = 1) { return this.minus(n); }
+  next(n = 1) { return this.set(this.advancedBy(n)); }
+  previous(n = 1) { return this.set(this.advancedBy(-n)); }
 
   duration(unit = "day") {
     unit = JDDate._normalizeUnit(unit);
@@ -516,9 +503,10 @@ class JDDate extends _JDDate {
     if (unit === "millisecond") {
       const firstJDDay = this.first("d");
       const firstDay = new Date(0, 0, 1);
-      firstDay.setFullYear(firstJDDay.year);
-      firstDay.setMonth(firstJDDay.month - 1);
-      firstDay.setDate(firstJDDay.day);
+      firstDay.setUTCFullYear(firstJDDay.year);
+      firstDay.setUTCMonth(firstJDDay.month - 1);
+      firstDay.setUTCDate(firstJDDay.day);
+      firstDay.setUTCHours(0, 0, 0, 0);
       return firstDay.getTime();
     }
     return this.convertedTo(unit);
@@ -529,9 +517,10 @@ class JDDate extends _JDDate {
     if (unit === "millisecond") {
       const lastJDDay = this.last("d");
       const lastDay = new Date(0, 0, 1);
-      lastDay.setFullYear(lastJDDay.year);
-      lastDay.setMonth(lastJDDay.month - 1);
-      lastDay.setDate(lastJDDay.day);
+      lastDay.setUTCFullYear(lastJDDay.year);
+      lastDay.setUTCMonth(lastJDDay.month - 1);
+      lastDay.setUTCDate(lastJDDay.day);
+      lastDay.setUTCHours(0, 0, 0, 0);
       return lastDay.getTime() + 1000*60*60*24 - 1;
     }
     return this.convertedTo(unit, { preferEnd: true });
@@ -556,7 +545,7 @@ class JDDate extends _JDDate {
       case "year":
         // Week → Year
         if (this.unit === "week") {
-          const fourthOfTheWeek = newDate.convertedTo("d").plus(3);
+          const fourthOfTheWeek = newDate.convertedTo("d").next(3);
           return newDate.set(fourthOfTheWeek.convertTo("y"));
         }
 
@@ -566,7 +555,7 @@ class JDDate extends _JDDate {
       case "month":
         // Week → Month
         if (this.unit === "week") {
-          const fourthOfTheWeek = this.convertedTo("d").plus(3);
+          const fourthOfTheWeek = this.convertedTo("d").next(3);
           return newDate.set(fourthOfTheWeek.convertTo("m"));
         }
 
@@ -588,7 +577,7 @@ class JDDate extends _JDDate {
           const isoYear = nearestThu.year;
 
           const fourthOfYear = new JDDate(isoYear, 1, 4);
-          const nearestThuToFirstOfYear = fourthOfYear.plus(3 - fourthOfYear.dayOfWeek);
+          const nearestThuToFirstOfYear = fourthOfYear.next(3 - fourthOfYear.dayOfWeek);
           const nearestThuToFirstOfYearOrdinal = nearestThuToFirstOfYear.dayOfYear;
 
           const weekOfYear = Math.floor((nearestThuOrdinal - nearestThuToFirstOfYearOrdinal) / 7) + 1;
@@ -603,10 +592,10 @@ class JDDate extends _JDDate {
         // Week → Day
         if (this.unit === "week") {
           const fourthOfYear = new JDDate(this.year, 1, 4);
-          const nearestThuToFourthOfYear = fourthOfYear.plus(3 - fourthOfYear.dayOfWeek);
-          const firstMondayOfYear = nearestThuToFourthOfYear.minus(3);
+          const nearestThuToFourthOfYear = fourthOfYear.next(3 - fourthOfYear.dayOfWeek);
+          const firstMondayOfYear = nearestThuToFourthOfYear.previous(3);
           const preferEndOffset = options.preferEnd ? 6 : 0;
-          return newDate.set(firstMondayOfYear.plus(7 * (newDate.week - 1) + preferEndOffset));
+          return newDate.set(firstMondayOfYear.next(7 * (newDate.week - 1) + preferEndOffset));
         }
 
         // Month/Year → Day
