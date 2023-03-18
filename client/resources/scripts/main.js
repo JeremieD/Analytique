@@ -502,7 +502,7 @@ function refreshComplementaryModel() {
     case "year":
       // Load 10 previous years (?!) in year mode.
       for (let i = 0; i < 9; i++) {
-        ranges.push(pointer.canonicalForm);
+        ranges.push(pointer.previous().canonicalForm);
       }
       break;
 
