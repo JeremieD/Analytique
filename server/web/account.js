@@ -3,6 +3,7 @@ const subtle = require('crypto').webcrypto.subtle;
 const static = require("./static.js");
 const cookies = require("../util/cookies.js");
 require("../../shared/time.js");
+const Logs = require("../util/log.js");
 
 const accounts = require("../util/config.js").accounts;
 
@@ -52,6 +53,7 @@ function login(req, res) {
   req.on("end", () => {
     res.setHeader("Content-Type", "text/plain");
     res.writeHead(200);
+    const ip = req.headers["x-forwarded-for"] ?? req.connection.remoteAddress;
 
     let login;
     if (req.headers["content-type"] === "application/json") {
@@ -75,10 +77,12 @@ function login(req, res) {
 
         activeSessions[newID] = newSession;
 
+        Logs.log("accounts", `User ${login.u} logged in successfully from ${ip}.`);
         res.end(newID);
 
       } else {
         // Otherwise, return "authenticationFailed".
+        Logs.log("accounts", `User ${login.u} failed to login from ${ip}.`);
         res.end("authenticationFailed");
       }
     });
