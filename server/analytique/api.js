@@ -423,6 +423,7 @@ async function buildStats(origin, range, filter) {
     const sessionCountExceptBounced = stats.sessionCount - stats.bouncedSessionCount;
     if (sessionCountExceptBounced > 0) {
       stats.avgSessionDuration /= sessionCountExceptBounced;
+      stats.avgSessionDuration = Math.round(stats.avgSessionDuration);
     }
 
     // For sorting, convert "associative arrays" (objects) to flat arrays.
