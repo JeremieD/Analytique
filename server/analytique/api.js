@@ -458,7 +458,10 @@ async function getSessions(origin, range) {
     } catch (e) {}
     for (const file of sessionFiles) {
       if (file.startsWith(".")) continue;
-      promises.push(fs.readFile(dayDir + file, "utf8").then(JSON.parse));
+      promises.push(fs.readFile(dayDir + file, "utf8").then(JSON.parse)
+      .catch(e => { // In case the stored JSON is corrupt.
+        console.error("Corrupted JSON detected in session file: " + file);
+      }));
     }
   }
   return Promise.all(promises).then(sessions => {
